@@ -28,4 +28,4 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
-          echo "y" | vercel --token ${{ secrets.VERCEL_TOKEN }} --prod
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
