@@ -1,5 +1,5 @@
 {
-    "name": "my-react-app",
+    "name": "airline-system",
     "builds": [
       {
         "src": "dist/**",
