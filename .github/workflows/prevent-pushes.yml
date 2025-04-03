@@ -1,0 +1,15 @@
+name: Prevent Direct Pushes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  block-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block unauthorized pushes
+        run: |
+          echo "Direct push to protected branches is not allowed! More info: https://docs.google.com/document/d/1DrWTQPVd6nayBw4zKB6PF8QQbUj2kcj2RN_1Py7jScQ/"
+          exit 1
