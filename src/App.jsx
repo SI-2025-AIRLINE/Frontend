@@ -8,7 +8,7 @@ import New_button from './components/New_button/New_button';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import UpdateDetails from './pages/UpdateDetails/UpdateDetails';
 import DestinationManagement from './pages/DestinationManagement/DestinationManagement';
-
+import AircraftManagement from './pages/AircraftManagement/AircraftManagement';
 
 function App() {
   return (
@@ -31,6 +31,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/update-profile" element={<UpdateDetails />} />
           <Route path="/destination-management" element={<DestinationManagement />} />
+          <Route path="/aircraft-management" element={<AircraftManagement />} />
         </Routes>
       </div>
     </Router>
