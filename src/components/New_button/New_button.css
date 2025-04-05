@@ -1,0 +1,18 @@
+.new-button {
+    padding: 10px 24px;
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 10px;
+  }
+  
+  .new-button:hover,
+  .new-button.active {
+    background-color: white;
+    color: #555; /* siva boja teksta */
+  }
+  

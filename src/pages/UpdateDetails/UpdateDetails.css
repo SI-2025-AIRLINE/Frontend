@@ -1,0 +1,14 @@
+.update-details-container {
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding-top: 70px;
+  }
+  
+  .update-form-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }

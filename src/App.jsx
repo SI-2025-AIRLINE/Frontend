@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header/Header';
+import Register from './pages/Register/Register';
+import Login from './pages/Login/Login';
+import './App.css';
+import New_button from './components/New_button/New_button';
+import ResetPassword from './pages/ResetPassword/ResetPassword';
+import UpdateDetails from './pages/UpdateDetails/UpdateDetails';
+import DestinationManagement from './pages/DestinationManagement/DestinationManagement';
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="app-container">
+        <Header />
+        <Routes>
+          <Route path="/" element={
+            <div className="home-content">
+              <h1>Welcome to SI 2025 Airline </h1>
+              <h2>You can search, book, and manage flight tickets!</h2>
+              <div className="home-buttons">
+      <New_button label="Book flights" onClick={() => console.log('Book clicked')} />
+      <New_button label="Search flights" onClick={() => console.log('Search clicked')} />
+    </div>
+            </div>
+          } />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/update-profile" element={<UpdateDetails />} />
+          <Route path="/destination-management" element={<DestinationManagement />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
