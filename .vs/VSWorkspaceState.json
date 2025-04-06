@@ -2,11 +2,12 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\components",
+    "\\src\\components\\Header",
     "\\src\\pages",
-    "\\src\\pages\\DestinationManagement",
-    "\\src\\pages\\Login",
-    "\\src\\pages\\UserManagement"
+    "\\src\\pages\\AdminHomePage",
+    "\\src\\pages\\DestinationManagement"
   ],
-  "SelectedNode": "\\src\\pages\\UserManagement\\UserManagement.css",
+  "SelectedNode": "\\src\\pages\\DestinationManagement\\DestinationManagement.jsx",
   "PreviewInSolutionExplorer": false
 }

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - develop
 
 jobs:
   deploy:
@@ -26,10 +25,6 @@ jobs:
 
       - name: Build project
         run: npm run build
-
-      - name: Link project
-        run: |
-          vercel link --token ${{ secrets.VERCEL_TOKEN }} --project airline-system --yes
 
       - name: Deploy to Vercel
         run: |

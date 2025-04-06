@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header/Header';
+//import Header from './components/Header/Header';
 import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 import './App.css';
@@ -10,12 +10,15 @@ import UpdateDetails from './pages/UpdateDetails/UpdateDetails';
 import DestinationManagement from './pages/DestinationManagement/DestinationManagement';
 import AircraftManagement from './pages/AircraftManagement/AircraftManagement';
 import UserManagement from './pages/UserManagement/UserManagement';
+import HeaderWrapper from './components/Header/HeaderWrapper';
+import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
+
 
 function App() {
   return (
     <Router>
       <div className="app-container">
-        <Header />
+        <HeaderWrapper />
         <Routes>
           <Route path="/" element={
             <div className="home-content">
@@ -34,7 +37,10 @@ function App() {
           <Route path="/destination-management" element={<DestinationManagement />} />
           <Route path="/aircraft-management" element={<AircraftManagement />} />
           <Route path="/user-management" element={<UserManagement />} />
+              <Route path="/admin-homepage" element={<AdminHomePage />} />
+
       </Routes>
+
       </div>
     </Router>
   );
