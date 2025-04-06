@@ -97,9 +97,7 @@ const handleSubmit = async (e) => {
 };
 */
 
-  const handleGoogleLogin = () => {
-    window.location.href = 'https://your-api-url.com/api/auth/google';
-  };
+  
 
   return (
     <div className="login-container">
@@ -138,9 +136,7 @@ const handleSubmit = async (e) => {
           </button>
         </form>
 
-        <button onClick={handleGoogleLogin} className="google-login-button">
-          Sign in with Google
-        </button>
+       
 
         <Link to="/reset-password" className="forgot-password">
           Forgot your password?
