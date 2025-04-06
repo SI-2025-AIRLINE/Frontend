@@ -3,15 +3,15 @@ import './UserManagement.css';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
-    const [newUser, setNewUser] = useState({ name: '', surname: '', phone: '', birthDate: '', email: '', password: '', role: 'user' });
+    const [newUser, setNewUser] = useState({ firstName: '', lastName: '', username: '', email: '', password: '', role: 'user' });
     const [editUser, setEditUser] = useState(null);
     const [filter, setFilter] = useState('all');
     const [isAddUserVisible, setIsAddUserVisible] = useState(false);
 
     useEffect(() => {
         const fetchedUsers = [
-            { id: 1, name: 'John', surname: 'Doe', phone: '1234567890', birthDate: '1990-01-01', email: 'john.doe@example.com', password: 'password123', role: 'admin' },
-            { id: 2, name: 'Jane', surname: 'Smith', phone: '0987654321', birthDate: '1985-05-05', email: 'jane.smith@example.com', password: 'password456', role: 'user' },
+            { id: 1, firstName: 'John', lastName: 'Doe', username: 'johndoe', email: 'john.doe@example.com', role: 'admin' },
+            { id: 2, firstName: 'Jane', lastName: 'Smith', username: 'janesmith', email: 'jane.smith@example.com', role: 'user' },
         ];
         setUsers(fetchedUsers);
     }, []);
@@ -21,7 +21,7 @@ const UserManagement = () => {
     const handleAddUser = () => {
         const newId = users.length + 1;
         setUsers([...users, { ...newUser, id: newId }]);
-        setNewUser({ name: '', surname: '', phone: '', birthDate: '', email: '', password: '', role: 'user' });
+        setNewUser({ firstName: '', lastName: '', username: '', email: '', password: '', role: 'user' });
         setIsAddUserVisible(false);
     };
 
@@ -57,7 +57,10 @@ const UserManagement = () => {
                 <button onClick={() => setFilter('all')}>All</button>
             </div>
 
-            <button onClick={() => setIsAddUserVisible(!isAddUserVisible)} className="add-user-btn">
+            <button onClick={() => {
+                setIsAddUserVisible(!isAddUserVisible);
+                setEditUser(null);
+            }} className="add-user-btn">
                 {isAddUserVisible ? 'Cancel' : 'Add User'}
             </button>
 
@@ -67,31 +70,24 @@ const UserManagement = () => {
                         <h2>{editUser ? 'Edit User' : 'Add New User'}</h2>
                         <input
                             type="text"
-                            name="name"
-                            value={editUser ? editUser.name : newUser.name}
+                            name="firstName"
+                            value={editUser ? editUser.firstName : newUser.firstName}
                             onChange={handleInputChange}
-                            placeholder="Name"
+                            placeholder="First Name"
                         />
                         <input
                             type="text"
-                            name="surname"
-                            value={editUser ? editUser.surname : newUser.surname}
+                            name="lastName"
+                            value={editUser ? editUser.lastName : newUser.lastName}
                             onChange={handleInputChange}
-                            placeholder="Surname"
+                            placeholder="Last Name"
                         />
                         <input
                             type="text"
-                            name="phone"
-                            value={editUser ? editUser.phone : newUser.phone}
+                            name="username"
+                            value={editUser ? editUser.username : newUser.username}
                             onChange={handleInputChange}
-                            placeholder="Phone Number"
-                        />
-                        <input
-                            type="date"
-                            name="birthDate"
-                            value={editUser ? editUser.birthDate : newUser.birthDate}
-                            onChange={handleInputChange}
-                            placeholder="Birth Date"
+                            placeholder="Username"
                         />
                         <input
                             type="email"
@@ -100,13 +96,15 @@ const UserManagement = () => {
                             onChange={handleInputChange}
                             placeholder="Email"
                         />
-                        <input
-                            type="password"
-                            name="password"
-                            value={editUser ? editUser.password : newUser.password}
-                            onChange={handleInputChange}
-                            placeholder="Password"
-                        />
+                        {!editUser && (
+                            <input
+                                type="password"
+                                name="password"
+                                value={newUser.password}
+                                onChange={handleInputChange}
+                                placeholder="Password"
+                            />
+                        )}
                         <select
                             name="role"
                             value={editUser ? editUser.role : newUser.role}
@@ -127,10 +125,9 @@ const UserManagement = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Surname</th>
-                            <th>Phone</th>
-                            <th>Birth Date</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Username</th>
                             <th>Email</th>
                             <th>Role</th>
                             <th>Actions</th>
@@ -139,10 +136,9 @@ const UserManagement = () => {
                     <tbody>
                         {filteredUsers.map(user => (
                             <tr key={user.id}>
-                                <td>{user.name}</td>
-                                <td>{user.surname}</td>
-                                <td>{user.phone}</td>
-                                <td>{user.birthDate}</td>
+                                <td>{user.firstName}</td>
+                                <td>{user.lastName}</td>
+                                <td>{user.username}</td>
                                 <td>{user.email}</td>
                                 <td>{user.role}</td>
                                 <td>
