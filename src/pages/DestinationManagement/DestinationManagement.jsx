@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import './DestinationManagement.css';
 
-const apiURL = process.env.VITE_API_BASE_URL;
+const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 fetch(`${apiURL}/health`)
     .then(res => res.json())
