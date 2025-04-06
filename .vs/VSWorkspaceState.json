@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\components",
+    "\\src\\components\\Header",
+    "\\src\\pages",
+    "\\src\\pages\\AdminHomePage",
+    "\\src\\pages\\DestinationManagement"
+  ],
+  "SelectedNode": "\\src\\pages\\DestinationManagement\\DestinationManagement.jsx",
+  "PreviewInSolutionExplorer": false
+}

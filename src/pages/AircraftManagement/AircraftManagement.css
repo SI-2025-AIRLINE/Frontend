@@ -22,29 +22,15 @@
   
   .container {
     min-height: 100vh;
-    max-width: 80rem;
+    max-width: 100rem;
     margin: 0 auto;
     padding: 1.5rem;
   }
   
-  .header {
+  .btn_add {
+    margin-bottom: 1rem;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-  }
-  
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .header-title h1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--gray-900);
-    margin: 0;
+    justify-content: flex-end;
   }
   
   .btn {
