@@ -15,19 +15,15 @@ export default function DestinationManagement() {
             id: 1,
             name: 'JFK International Airport',
             city: 'New York',
-            country: 'USA',
             iata_code: 'JFK',
-            icao_code: 'KJFK',
             active: true,
         },
     ]);
 
     const [formData, setFormData] = useState({
         name: '',
-        city: '',
-        country: '',
-        iata_code: '',
-        icao_code: '',
+        city: '',       
+        iata_code: '',        
         active: true,
     });
 
@@ -36,7 +32,7 @@ export default function DestinationManagement() {
 
     function handleSubmit(e) {
         e.preventDefault();
-        if (!formData.name || !formData.city || !formData.country || !formData.iata_code || !formData.icao_code) {
+        if (!formData.name || !formData.city  || !formData.iata_code ) {
             alert("Please fill out all fields.");
             return;
         }
@@ -54,9 +50,9 @@ export default function DestinationManagement() {
             alert('Airport added successfully');
         }
 
-        setFormData({ name: '', city: '', country: '', iata_code: '', icao_code: '', active: true });
+        setFormData({ name: '', city: '', iata_code: '', active: true });
         setShowForm(false);
-        setEditingAirport(null); // Reset editing state
+        setEditingAirport(null); 
     }
 
     function handleDelete(id) {
@@ -73,18 +69,26 @@ export default function DestinationManagement() {
     }
 
     function handleEdit(airport) {
-        setEditingAirport(airport); // Set the airport being edited
-        setFormData({ ...airport }); // Populate the form with the airport's data
-        setShowForm(true); // Show the form to edit
+        setEditingAirport(airport); 
+        setFormData({ ...airport }); 
+        setShowForm(true); 
     }
-
+    
+    function handleCancel() {
+        
+        setFormData({ name: '', city: '', iata_code: '', active: true });
+        setShowForm(false);
+        setEditingAirport(null);
+      
+    }
     return (
         <div className="destination-management-container">
             <div className="add-button-container">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)} className="add-button">+ Add New Airport</button>
                 ) : (
-                    <button onClick={() => setShowForm(false)} className="cancel-button">Cancel</button>
+                        <button onClick={handleCancel} className="cancel-button">Cancel</button>
+
                 )}
             </div>
 
@@ -117,17 +121,7 @@ export default function DestinationManagement() {
                                         required
                                     />
                                 </div>
-                                <div className="form-field">
-                                    <label className="form-label">Country</label>
-                                    <input
-                                        type="text"
-                                        placeholder="USA"
-                                        value={formData.country}
-                                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                                        className="form-input"
-                                        required
-                                    />
-                                </div>
+                               
                                 <div className="form-field">
                                     <label className="form-label">IATA Code</label>
                                     <input
@@ -140,18 +134,7 @@ export default function DestinationManagement() {
                                         maxLength={3}
                                     />
                                 </div>
-                                <div className="form-field">
-                                    <label className="form-label">ICAO Code</label>
-                                    <input
-                                        type="text"
-                                        placeholder="KJFK"
-                                        value={formData.icao_code}
-                                        onChange={(e) => setFormData({ ...formData, icao_code: e.target.value.toUpperCase() })}
-                                        className="form-input"
-                                        required
-                                        maxLength={4}
-                                    />
-                                </div>
+                               
                             </div>
                             <button type="submit" className="submit-button">{editingAirport ? 'Update Airport' : 'Add Airport'}</button>
                         </form>
