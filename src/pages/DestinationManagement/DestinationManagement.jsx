@@ -3,6 +3,12 @@ import { useState } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import './DestinationManagement.css';
 
+const apiURL = import.meta.env.VITE_API_BASE_URL;
+
+fetch(`${apiURL}/health`)
+    .then(res => res.json())
+    .then(data => console.log('API is running:', data));
+    
 export default function DestinationManagement() {
     const [airports, setAirports] = useState([
         {
