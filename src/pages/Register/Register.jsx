@@ -8,10 +8,9 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
-    birthDate: '',
+    username: '',
     email: '',
-    password: '',
-    phone: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -40,7 +39,7 @@ const Register = () => {
     setSuccess('');
     setLoading(true);
 
-    if (!formData.name || !formData.surname || !formData.email || !formData.password || !formData.phone) {
+    if (!formData.name || !formData.surname || !formData.username || !formData.email || !formData.password) {
       setError('All fields are required.');
       setLoading(false);
       return;
@@ -69,9 +68,7 @@ const Register = () => {
     setLoading(false);
   };
 
-  const handleGoogleRegister = () => {
-    window.location.href = 'https://your-api-url.com/api/auth/google';
-  };
+ 
 
   return (
     <div className="register-container">
@@ -91,7 +88,7 @@ const Register = () => {
             <input type="text" name="surname" placeholder="Surname" value={formData.surname} onChange={handleChange} />
           </div>
           <div className="form-group">
-            <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} />
+            <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} />
           </div>
           <div className="form-group">
             <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
@@ -99,17 +96,12 @@ const Register = () => {
           <div className="form-group">
             <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} />
           </div>
-          <div className="form-group">
-            <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
-          </div>
           <button type="submit" className="submit-button" disabled={loading}>
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
 
-        <button onClick={handleGoogleRegister} className="google-login-button">
-          Sign up with Google
-        </button>
+       
       </div>
     </div>
   );
