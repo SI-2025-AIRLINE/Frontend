@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    height: 100vh;
+}
+
+.user-management {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    max-width: 900px;
+    margin: 20px auto;
+    height: 100%;
+    overflow-y: auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+    .filter-buttons button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .filter-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+.user-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+    .user-form input,
+    .user-form select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .user-form button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        transition: background-color 0.3s;
+    }
+
+        .user-form button:hover {
+            background-color: #0056b3;
+        }
+
+    .user-form h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .user-form input,
+    .user-form select {
+        margin-bottom: 10px;
+    }
+
+.add-user-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+    transition: background-color 0.3s;
+}
+
+    .add-user-btn:hover {
+        background-color: #0056b3;
+    }
+
+.user-list {
+    margin-top: 20px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+    .user-list table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .user-list th,
+    .user-list td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .user-list th {
+        background-color: #f1f1f1;
+    }
+
+    .user-list button {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-right: 10px;
+    }
+
+        .user-list button:hover {
+            background-color: darkred;
+        }
+
+.edit-btn {
+    background-color: #ff9800;
+}
+
+.delete-btn {
+    background-color: red;
+}
+
+.edit-btn:hover {
+    background-color: darkorange;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
+
+.filter-buttons {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.user-form-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
