@@ -12,7 +12,8 @@ function AircraftManagment() {
   const [aircraft, setAircraft] = useState([
     {
       id: '1',
-      type: '747',
+      model: 'Boeing 747',
+      description: 'Long-haul wide-body aircraft',
       registrationNumber: 'N123BA',
       seatConfiguration: {
         firstClass: { total: 10, seatsPerRow: 2 },
@@ -23,11 +24,12 @@ function AircraftManagment() {
   ]);
 
   const [isAddingNew, setIsAddingNew] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);  // Dodato stanje za editovanje
-  const [editAircraft, setEditAircraft] = useState(null); // Držanje podataka za editovanje
+  const [isEditing, setIsEditing] = useState(false);
+  const [editAircraft, setEditAircraft] = useState(null);
 
   const [newAircraft, setNewAircraft] = useState({
-    type: '',
+    model: '',
+    description: '',
     registrationNumber: '',
     seatConfiguration: {
       firstClass: { total: 0, seatsPerRow: 0 },
@@ -45,7 +47,8 @@ function AircraftManagment() {
     }]);
     setIsAddingNew(false);
     setNewAircraft({
-      type: '747',
+      model: '',
+      description: '',
       registrationNumber: '',
       seatConfiguration: {
         firstClass: { total: 0, seatsPerRow: 0 },
@@ -58,7 +61,7 @@ function AircraftManagment() {
   const handleEditAircraft = (id) => {
     const aircraftToEdit = aircraft.find((a) => a.id === id);
     setEditAircraft({ ...aircraftToEdit });
-    setIsEditing(true);  // Postavi isEditing na true
+    setIsEditing(true);
   };
 
   const handleSaveEdit = () => {
@@ -90,23 +93,39 @@ function AircraftManagment() {
             {isEditing ? 'Edit Aircraft' : 'Add New Aircraft'}
           </h2>
           <div className="form-grid">
-          <div className="form-group">
-              <label className="form-label">Aircraft Type</label>
+            <div className="form-group">
+              <label className="form-label">Model</label>
               <input
-                 type="text"
-                 className="form-input"
-                 value={isEditing ? editAircraft.type : newAircraft.type}
-                 onChange={(e) => isEditing ? setEditAircraft({ ...editAircraft, type: e.target.value }) : setNewAircraft({ ...newAircraft, type: e.target.value })}
-                placeholder="Enter Aircraft Type"
+                type="text"
+                className="form-input"
+                value={isEditing ? editAircraft.model : newAircraft.model}
+                onChange={(e) => isEditing
+                  ? setEditAircraft({ ...editAircraft, model: e.target.value })
+                  : setNewAircraft({ ...newAircraft, model: e.target.value })}
+                placeholder="Enter Aircraft Model"
               />
-          </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Description</label>
+              <input
+                type="text"
+                className="form-input"
+                value={isEditing ? editAircraft.description : newAircraft.description}
+                onChange={(e) => isEditing
+                  ? setEditAircraft({ ...editAircraft, description: e.target.value })
+                  : setNewAircraft({ ...newAircraft, description: e.target.value })}
+                placeholder="Enter Description"
+              />
+            </div>
             <div className="form-group">
               <label className="form-label">Registration Number</label>
               <input
                 type="text"
                 className="form-input"
                 value={isEditing ? editAircraft.registrationNumber : newAircraft.registrationNumber}
-                onChange={(e) => isEditing ? setEditAircraft({ ...editAircraft, registrationNumber: e.target.value }) : setNewAircraft({ ...newAircraft, registrationNumber: e.target.value })}
+                onChange={(e) => isEditing
+                  ? setEditAircraft({ ...editAircraft, registrationNumber: e.target.value })
+                  : setNewAircraft({ ...newAircraft, registrationNumber: e.target.value })}
               />
             </div>
           </div>
@@ -123,28 +142,32 @@ function AircraftManagment() {
                     type="number"
                     className="form-input"
                     value={isEditing ? editAircraft.seatConfiguration[classType].total : newAircraft.seatConfiguration[classType].total}
-                    onChange={(e) => isEditing
-                      ? setEditAircraft({
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      if (isEditing) {
+                        setEditAircraft({
                           ...editAircraft,
                           seatConfiguration: {
                             ...editAircraft.seatConfiguration,
                             [classType]: {
                               ...editAircraft.seatConfiguration[classType],
-                              total: parseInt(e.target.value)
+                              total: value
                             }
                           }
-                        })
-                      : setNewAircraft({
+                        });
+                      } else {
+                        setNewAircraft({
                           ...newAircraft,
                           seatConfiguration: {
                             ...newAircraft.seatConfiguration,
                             [classType]: {
                               ...newAircraft.seatConfiguration[classType],
-                              total: parseInt(e.target.value)
+                              total: value
                             }
                           }
-                        })
-                    }
+                        });
+                      }
+                    }}
                   />
                 </div>
                 <div className="form-group">
@@ -153,28 +176,32 @@ function AircraftManagment() {
                     type="number"
                     className="form-input"
                     value={isEditing ? editAircraft.seatConfiguration[classType].seatsPerRow : newAircraft.seatConfiguration[classType].seatsPerRow}
-                    onChange={(e) => isEditing
-                      ? setEditAircraft({
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      if (isEditing) {
+                        setEditAircraft({
                           ...editAircraft,
                           seatConfiguration: {
                             ...editAircraft.seatConfiguration,
                             [classType]: {
                               ...editAircraft.seatConfiguration[classType],
-                              seatsPerRow: parseInt(e.target.value)
+                              seatsPerRow: value
                             }
                           }
-                        })
-                      : setNewAircraft({
+                        });
+                      } else {
+                        setNewAircraft({
                           ...newAircraft,
                           seatConfiguration: {
                             ...newAircraft.seatConfiguration,
                             [classType]: {
                               ...newAircraft.seatConfiguration[classType],
-                              seatsPerRow: parseInt(e.target.value)
+                              seatsPerRow: value
                             }
                           }
-                        })
-                    }
+                        });
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -197,7 +224,8 @@ function AircraftManagment() {
         <table className="table">
           <thead>
             <tr>
-              <th>Type</th>
+              <th>Model</th>
+              <th>Description</th>
               <th>Registration</th>
               <th>First Class</th>
               <th>Business Class</th>
@@ -208,17 +236,12 @@ function AircraftManagment() {
           <tbody>
             {aircraft.map((plane) => (
               <tr key={plane.id}>
-                <td>{plane.type === '747' ? 'Boeing 747' : 'Airbus 320'}</td>
+                <td>{plane.model}</td>
+                <td>{plane.description}</td>
                 <td>{plane.registrationNumber}</td>
-                <td>
-                  {plane.seatConfiguration.firstClass.total} seats ({plane.seatConfiguration.firstClass.seatsPerRow}/row)
-                </td>
-                <td>
-                  {plane.seatConfiguration.businessClass.total} seats ({plane.seatConfiguration.businessClass.seatsPerRow}/row)
-                </td>
-                <td>
-                  {plane.seatConfiguration.economyClass.total} seats ({plane.seatConfiguration.economyClass.seatsPerRow}/row)
-                </td>
+                <td>{plane.seatConfiguration.firstClass.total} seats ({plane.seatConfiguration.firstClass.seatsPerRow}/row)</td>
+                <td>{plane.seatConfiguration.businessClass.total} seats ({plane.seatConfiguration.businessClass.seatsPerRow}/row)</td>
+                <td>{plane.seatConfiguration.economyClass.total} seats ({plane.seatConfiguration.economyClass.seatsPerRow}/row)</td>
                 <td style={{ textAlign: 'right' }}>
                   <button className="btn btn-warning" onClick={() => handleEditAircraft(plane.id)}>
                     <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
