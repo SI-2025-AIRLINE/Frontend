@@ -31,8 +31,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/update-profile" element={<UpdateDetails />} />
           <Route path="/destination-management" element={<DestinationManagement />} />
-                  <Route path="/user-management" element={<UserManagement />} />
-              </Routes>
+          <Route path="/user-management" element={<UserManagement />} />
+      </Routes>
       </div>
     </Router>
   );
