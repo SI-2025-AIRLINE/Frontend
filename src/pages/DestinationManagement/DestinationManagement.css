@@ -78,8 +78,10 @@
 }
 
 .add-form-container {
-    max-width: 400px;
-    margin: 80px auto;
+    
+    width: 90%; 
+    max-width: 800px;
+    / margin: 80px auto;
     padding: 30px;
     background-color: white;
     border-radius: 8px;
