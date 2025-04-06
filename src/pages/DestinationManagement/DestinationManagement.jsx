@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import './DestinationManagement.css';
 
-const apiURL = 'http://localhost:5165/api';
+const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function DestinationManagement() {
     const [airports, setAirports] = useState([]);
