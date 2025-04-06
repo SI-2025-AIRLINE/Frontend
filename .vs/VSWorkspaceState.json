@@ -4,8 +4,9 @@
     "\\src",
     "\\src\\pages",
     "\\src\\pages\\DestinationManagement",
-    "\\src\\pages\\Login"
+    "\\src\\pages\\Login",
+    "\\src\\pages\\UserManagement"
   ],
-  "SelectedNode": "\\src\\pages\\DestinationManagement\\DestinationManagement.jsx",
+  "SelectedNode": "\\src\\pages\\UserManagement\\UserManagement.css",
   "PreviewInSolutionExplorer": false
 }
