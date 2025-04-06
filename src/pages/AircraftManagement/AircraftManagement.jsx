@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import './AircraftManagement.css';
 
-// Importuj lokalne ikone iz foldera "icons"
-import PlaneIcon from '../../components/Icons/plane.svg';
+// Import lokalnih ikona iz foldera "icons"
 import PlusCircleIcon from '../../components/Icons/circle-plus.svg';
 import EditIcon from '../../components/Icons/pencil.svg';
 import Trash2Icon from '../../components/Icons/trash-2.svg';
@@ -76,11 +75,7 @@ function AircraftManagment() {
 
   return (
     <div className="container">
-      <div className="header">
-        <div className="header-title">
-          <img src={PlaneIcon} alt="Plane" className="icon" style={{ width: 32, height: 32, color: '#2563eb' }} />
-          <h1>Aircraft Fleet Management</h1>
-        </div>
+      <div className="btn_add">
         <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
           <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
           Add New Aircraft
@@ -126,6 +121,7 @@ function AircraftManagment() {
                 onChange={(e) => isEditing
                   ? setEditAircraft({ ...editAircraft, registrationNumber: e.target.value })
                   : setNewAircraft({ ...newAircraft, registrationNumber: e.target.value })}
+                  placeholder="Enter Registration Number"
               />
             </div>
           </div>
