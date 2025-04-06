@@ -1,24 +1,33 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import './DestinationManagement.css';
 
-const apiURL = import.meta.env.VITE_API_BASE_URL;
+const apiURL = 'http://localhost:5165/api';
 
+// Check if the API is running 
 fetch(`${apiURL}/health`)
     .then(res => res.json())
     .then(data => console.log('API is running:', data));
     
+
 export default function DestinationManagement() {
-    const [airports, setAirports] = useState([
-        {
-            id: 1,
-            name: 'JFK International Airport',
-            city: 'New York',
-            iata_code: 'JFK',
-            active: true,
-        },
-    ]);
+    const [airports, setAirports] = useState([]);
+
+    useEffect(() => {
+        async function fetchAirports() {
+            try {
+                const res = await fetch(`${apiURL}/Destination`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                setAirports(data);
+            } catch (error) {
+                console.error('Failed to fetch airports:', error);
+            }
+        }
+    
+        fetchAirports();
+    }, []);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -63,7 +72,7 @@ export default function DestinationManagement() {
 
     function handleToggleActive(id) {
         const updatedAirports = airports.map((airport) =>
-            airport.id === id ? { ...airport, active: !airport.active } : airport
+            airport.id === id ? { ...airport, status: !airport.status } : airport
         );
         setAirports(updatedAirports);
     }
@@ -149,18 +158,18 @@ export default function DestinationManagement() {
                         <div className="airport-info-left">
                             <div className="airport-details">
                                 <h3 className="airport-name">{airport.name}</h3>
-                                <p className="airport-location">{airport.city}, {airport.country}</p>
+                                <p className="airport-location">{airport.location}</p>
                             </div>
                             <div className={`airport-codes`}>
-                                <p className={`iata-info`}>IATA: {airport.iata_code}</p>
+                                <p className={`iata-info`}>IATA: {airport.airportCode}</p>
                                 <p className={`icao-info`}>ICAO: {airport.icao_code}</p>
                                 <p
                                     className={`status-info ${airport.active ? 'active' : 'inactive'}`}
                                     style={{
-                                        color: airport.active ? 'green' : 'red',
+                                        color: airport.status ? 'green' : 'red',
                                     }}
                                 >
-                                    {airport.active ? 'Active' : 'Inactive'}
+                                    {airport.status ? 'Active' : 'Inactive'}
                                 </p>
                             </div>
                         </div>

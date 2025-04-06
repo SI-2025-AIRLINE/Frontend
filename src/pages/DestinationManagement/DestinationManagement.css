@@ -1,6 +1,18 @@
 /* Basic styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow-y: auto;
+}
+
+#root {
+    height: 100%; /* Ensure root div takes the full height */
+    overflow-y: auto; /* Enable scrolling */
+}
+
 .destination-management-container {
     padding: 20px;
+    min-height: 100vh;
 }
 
 .add-button-container {
@@ -81,7 +93,7 @@
     
     width: 90%; 
     max-width: 800px;
-    / margin: 80px auto;
+    margin: 80px auto;
     padding: 30px;
     background-color: white;
     border-radius: 8px;
