@@ -1,0 +1,174 @@
+/* Basic styles */
+.destination-management-container {
+    padding: 20px;
+}
+
+.add-button-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-button, .cancel-button, .submit-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-button {
+    background-color: #f44336;
+}
+
+    .add-button:hover, .cancel-button:hover, .submit-button:hover {
+        background-color: #006bff;
+    }
+
+.form-container {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-left: 0;
+}
+
+.form-label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    text-align: left;
+    margin-left: 0;
+}
+
+.form-input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-button {
+    margin-top: 20px;
+    background-color: #007bff;
+    cursor: pointer;
+}
+
+
+.add-form-modal {
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-form-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.airports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.airport-codes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.iata-info {
+    font-size: 12px;
+    font-weight: bold;
+    margin: auto;
+    background-color: blueviolet;
+    padding: 5px 10px;
+    color: white;
+    border: 10px;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.icao-info {
+    font-size: 12px;
+    font-weight: bold;
+    margin: auto;
+    background-color: green;
+    padding: 5px 10px;
+    color: white;
+    border: 10px;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.airport-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.airport-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.action-icon {
+    cursor: pointer;
+    color: #007bff;
+    font-size: 20px;
+    margin: 10px 10px;
+}
+
+    .action-icon::after hover {
+        background-color: #006bff;
+    }
+
+.status-info {
+    font-weight: bold;
+    font-size: 14px;
+    margin: 10px 10px;
+}
+
+    .status-info.active {
+        color: green;
+    }
+
+    .status-info.inactive {
+        color: red;
+    }
+
+
+.toggle-status-button {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
