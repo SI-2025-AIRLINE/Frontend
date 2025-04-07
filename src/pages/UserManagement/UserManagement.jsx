@@ -22,7 +22,7 @@ const UserManagement = () => {
     const [error, setError] = useState(null);
     
     // Base URL for API calls
-    const API_BASE_URL = 'http://localhost:5165/api/User';
+    const API_BASE_URL = 'https://si-airline.azurewebsites.net/api/User';
 
     // Helper function to generate random tokens
     function generateRandomToken() {
