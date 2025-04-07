@@ -33,7 +33,7 @@ const UpdateDetails = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/Customer/profile', {
+      const response = await fetch('https://si-airline.azurewebsites.net/api/Customer/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
