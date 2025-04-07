@@ -1,14 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import HeaderWrapper from '../../components/Header/HeaderWrapper'; // Import the HeaderWrapper
 import './AdminHomePage.css';
 
 function AdminPage() {
     return (
         <div className="admin-page">
-            <header className="admin-header">
-                <h1>Welcome to the Admin Dashboard</h1>
-
-            </header>
+            <HeaderWrapper /> {/* Use HeaderWrapper component here */}
 
             <section className="admin-welcome">
                 <h2>Welcome, Admin!</h2>

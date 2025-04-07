@@ -10,7 +10,7 @@ import UpdateDetails from './pages/UpdateDetails/UpdateDetails';
 import DestinationManagement from './pages/DestinationManagement/DestinationManagement';
 import AircraftManagement from './pages/AircraftManagement/AircraftManagement';
 import UserManagement from './pages/UserManagement/UserManagement';
-import HeaderWrapper from './components/Header/HeaderWrapper';
+import Header from './components/Header/Header';
 import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 
 
@@ -18,7 +18,7 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        <HeaderWrapper />
+        <Header />
         <Routes>
           <Route path="/" element={
             <div className="home-content">
