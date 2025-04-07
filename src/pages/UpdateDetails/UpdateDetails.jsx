@@ -28,7 +28,8 @@ const UpdateDetails = () => {
     
     
     const payload = {
-      fullName: `${formData.name} ${formData.surname}`,
+      firstName: `${formData.name}`,
+      lastName: `${formData.surname}`,
       email: formData.email
     };
 
