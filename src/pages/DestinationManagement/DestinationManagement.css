@@ -108,6 +108,7 @@ html, body {
     max-height: 50vw;
     overflow-y: auto;
     padding-right: 10px;
+    padding-bottom: 35vw;
 }
 
 .airport-codes {
