@@ -37,7 +37,7 @@ function AircraftManagement() {
   const fetchAircraft = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/Aircraft?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+      const response = await fetch(`${API_BASE_URL}/Aircraft?pageNumber=${pageNumber}&pageSize=${pageSize}`);
       
       if (!response.ok) {
         throw new Error(`API error: ${response.statusText}`);
@@ -48,7 +48,7 @@ function AircraftManagement() {
       // For each aircraft, fetch its seating configurations
       const aircraftWithSeating = await Promise.all(
         data.map(async (a) => {
-          const seatingResponse = await fetch(`${API_BASE_URL}/api/Aircraft/${a.id}/seating`);
+          const seatingResponse = await fetch(`${API_BASE_URL}/Aircraft/${a.id}/seating`);
           
           if (!seatingResponse.ok) {
             console.error(`Failed to fetch seating for aircraft ${a.id}`);
@@ -148,7 +148,7 @@ function AircraftManagement() {
 
     try {
       // 1. Create the aircraft first
-      const aircraftResponse = await fetch(`${API_BASE_URL}/api/Aircraft`, {
+      const aircraftResponse = await fetch(`${API_BASE_URL}/Aircraft`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ function AircraftManagement() {
       );
       
       if (seatingConfigs.length > 0) {
-        const seatingResponse = await fetch(`${API_BASE_URL}/api/SeatingConfig/batch?aircraftId=${createdAircraft.id}`, {
+        const seatingResponse = await fetch(`${API_BASE_URL}/SeatingConfig/batch?aircraftId=${createdAircraft.id}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ function AircraftManagement() {
   const handleSaveEdit = async () => {
     try {
       // 1. Update the aircraft details
-      const aircraftResponse = await fetch(`${API_BASE_URL}/api/Aircraft/${editAircraft.id}`, {
+      const aircraftResponse = await fetch(`${API_BASE_URL}/Aircraft/${editAircraft.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ function AircraftManagement() {
       }
       
       // 2. Delete existing seating configs
-      const deleteSeatingResponse = await fetch(`${API_BASE_URL}/api/SeatingConfig/aircraft/${editAircraft.id}`, {
+      const deleteSeatingResponse = await fetch(`${API_BASE_URL}/SeatingConfig/aircraft/${editAircraft.id}`, {
         method: 'DELETE'
       });
 
@@ -261,7 +261,7 @@ function AircraftManagement() {
       );
       
       if (seatingConfigs.length > 0) {
-        const seatingResponse = await fetch(`${API_BASE_URL}/api/SeatingConfig/batch?aircraftId=${editAircraft.id}`, {
+        const seatingResponse = await fetch(`${API_BASE_URL}/SeatingConfig/batch?aircraftId=${editAircraft.id}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -290,7 +290,7 @@ function AircraftManagement() {
   const handleDeleteAircraft = async (id) => {
     if (window.confirm('Are you sure you want to delete this aircraft?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/Aircraft/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/Aircraft/${id}`, {
           method: 'DELETE'
         });
 
