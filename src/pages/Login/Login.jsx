@@ -48,7 +48,7 @@ const Login = () => {
     try {
       console.log('Requesting login with:', formData);
 
-      const response = await fetch(`${apiURL}/api/Auth/login`, {
+      const response = await fetch(`${apiURL}/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
