@@ -41,6 +41,19 @@ export default function DestinationManagement() {
     const [showForm, setShowForm] = useState(false);
     const [editingAirport, setEditingAirport] = useState(null); 
 
+
+
+    //Pages
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const airportsPerPage = 10;
+
+    const indexOfLastAirport = currentPage * airportsPerPage;
+    const indexOfFirstAirport = indexOfLastAirport - airportsPerPage;
+    const currentAirports = airports.slice(indexOfFirstAirport, indexOfLastAirport);
+    const totalPages = Math.ceil(airports.length / airportsPerPage);
+
+
     // Create new airport via API
     const createAirport = async (airportData) => {
         try {
@@ -193,6 +206,14 @@ export default function DestinationManagement() {
         setEditingAirport(null);
     }
 
+    const handlePageClick = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        const container = document.querySelector('.destination-management-container');
+        if (container) container.scrollTop = 0;
+    };
+
+
+
     return (
         <div className="destination-management-container">
             <div className="add-button-container">
@@ -259,7 +280,10 @@ export default function DestinationManagement() {
 
             {/* Airport List */}
             <div className="airports-list">
-                {airports.map((airport) => (
+                {/*
+{airports.map((airport) => (*/}
+
+                {currentAirports.map((airport) => (
                     <div key={airport.id} className="airport-card">
                         <div className="airport-info-left">
                             <div className="airport-details">
@@ -287,6 +311,19 @@ export default function DestinationManagement() {
                             </button>
                         </div>
                     </div>
+                ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="pagination-container">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                    <button
+                        key={pageNumber}
+                        onClick={() => handlePageClick(pageNumber)}
+                        className={`pagination-button ${pageNumber === currentPage ? 'active' : ''}`}
+                    >
+                        {pageNumber}
+                    </button>
                 ))}
             </div>
         </div>
