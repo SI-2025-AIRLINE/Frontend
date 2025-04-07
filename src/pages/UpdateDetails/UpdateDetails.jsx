@@ -6,10 +6,8 @@ const UpdateDetails = () => {
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
-    birthDate: '',
     email: '',
-    password: '',
-    phone: ''
+    password: ''
   });
 
   const [successMessage, setSuccessMessage] = useState('');
@@ -27,15 +25,21 @@ const UpdateDetails = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    
+    const payload = {
+      fullName: `${formData.name} ${formData.surname}`,
+      email: formData.email
+    };
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/update', {
+      const response = await fetch('http://localhost:5000/api/Customer/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -43,8 +47,8 @@ const UpdateDetails = () => {
         throw new Error(errorData.message || 'Something went wrong.');
       }
 
-      const result = await response.json();
-      setSuccessMessage('Profile updated successfully!');
+      const result = await response.text();
+      setSuccessMessage(result);
       setErrorMessage('');
       console.log('Server response:', result);
 
@@ -94,15 +98,6 @@ const UpdateDetails = () => {
             </div>
             <div className="form-group">
               <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
                 type="email"
                 name="email"
                 placeholder="Email"
@@ -118,16 +113,6 @@ const UpdateDetails = () => {
                 placeholder="New Password (leave empty to keep current)"
                 value={formData.password}
                 onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-                required
               />
             </div>
             <button type="submit" className="submit-button">Update Profile</button>
