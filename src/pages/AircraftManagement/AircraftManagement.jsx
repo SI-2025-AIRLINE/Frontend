@@ -7,8 +7,8 @@ import EditIcon from '../../components/Icons/pencil.svg';
 import Trash2Icon from '../../components/Icons/trash-2.svg';
 import SaveIcon from '../../components/Icons/save.svg';
 
-// API base URL - adjust this to your actual API URL
-const API_BASE_URL = 'http://localhost:5165'; // or whatever your API URL is
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function AircraftManagement() {
   const [aircraft, setAircraft] = useState([]);
