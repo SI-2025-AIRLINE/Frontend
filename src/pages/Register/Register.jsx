@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import './Register.css';
+const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
-    surname: '',
+    firstName: '',
+    lastName: '',
     username: '',
     email: '',
     password: ''
@@ -39,22 +40,39 @@ const Register = () => {
     setSuccess('');
     setLoading(true);
 
-    if (!formData.name || !formData.surname || !formData.username || !formData.email || !formData.password) {
+
+    if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password) {
       setError('All fields are required.');
       setLoading(false);
       return;
     }
 
+    const userData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      username: formData.username,
+      email: formData.email,
+      password: formData.password 
+    };
+
     try {
-      const response = await fetch('https://your-api-url.com/api/register', {
+      const response = await fetch(`${apiURL}/api/Auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(userData)
       });
 
-      const data = await response.json();
+      let data;
+try {
+  data = await response.json();
+// eslint-disable-next-line no-unused-vars
+} catch (error) {
+  const text = await response.text();
+  throw new Error(text);
+}
+
 
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
@@ -68,8 +86,6 @@ const Register = () => {
     setLoading(false);
   };
 
- 
-
   return (
     <div className="register-container">
       <Header />
@@ -82,26 +98,54 @@ const Register = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} />
+            <input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+            />
           </div>
           <div className="form-group">
-            <input type="text" name="surname" placeholder="Surname" value={formData.surname} onChange={handleChange} />
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+            />
           </div>
           <div className="form-group">
-            <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} />
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+            />
           </div>
           <div className="form-group">
-            <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+            />
           </div>
           <div className="form-group">
-            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+            />
           </div>
           <button type="submit" className="submit-button" disabled={loading}>
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-
-       
       </div>
     </div>
   );
