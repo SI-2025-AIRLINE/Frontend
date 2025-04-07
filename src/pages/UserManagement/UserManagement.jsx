@@ -220,6 +220,8 @@ const UserManagement = () => {
         try {
             // Prepare user with proper role format for API
             const userToUpdate = prepareUserForApi(editUser);
+            userToUpdate.ResetToken = editUser.resetToken || null; 
+            userToUpdate.VerificationToken = editUser.VerificationToken || null; 
             
             const response = await fetch(`${API_BASE_URL}/${editUser.id}`, {
                 method: 'PUT',
