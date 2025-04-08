@@ -8,8 +8,23 @@ export default function FlightSearch() {
      *     Search Bar Logic         *
      ********************************/
     const today = new Date();
+    let [originAirport, setOriginAirport] = useState("");
+    let [destinationAirport, setDestinationAirport] = useState("");
     const [departDate, setDepartDate] = useState(null);
     const [returnDate, setReturnDate] = useState(null);
+
+    const handleOriginChange = (e) => {
+        setOriginAirport(e.target.value);
+    }
+    const handleDestinationChange = (e) => {
+        setDestinationAirport(e.target.value);
+    }
+
+    const handleSwap = (e) => {
+        let x = originAirport;
+        setOriginAirport(destinationAirport);
+        setDestinationAirport(x);
+    }
 
     const handleDepartChange = (date) => {
         setDepartDate(date);
@@ -55,11 +70,11 @@ export default function FlightSearch() {
          *          Search Bar          *
          ********************************/}
         <div className="FlightSearchDiv">
-        <input type="text" placeholder="From where?" />
+        <input type="text" placeholder="From where?" onChange={handleOriginChange} value={originAirport}/>
 
-        <button className="Btn">Swap</button>
+        <button className="Btn" onClick={handleSwap}>Swap</button>
 
-        <input type="text" placeholder="To where?" />
+        <input type="text" placeholder="To where?" onChange={handleDestinationChange} value={destinationAirport}/>
 
         <DatePicker
                 selected={departDate}
