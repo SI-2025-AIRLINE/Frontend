@@ -22,7 +22,7 @@ const UserManagement = () => {
     const [error, setError] = useState(null);
     
     // Base URL for API calls
-    const API_BASE_URL = 'https://si-airline.azurewebsites.net/api/User';
+    const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/User`;
 
     // Helper function to generate random tokens
     function generateRandomToken() {
