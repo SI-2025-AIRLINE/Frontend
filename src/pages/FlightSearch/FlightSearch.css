@@ -1,0 +1,160 @@
+/* Container za search bar */
+.FlightSearchDiv {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin: 50px 200px 0;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+  }
+  
+  /* Input polja i datepicker wrapper */
+  .FlightSearchDiv input,
+  .FlightSearchDiv .react-datepicker-wrapper {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* Osnovni stil za tekst inpute */
+  .FlightSearchDiv input {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  /* Fokus na inputu */
+  .FlightSearchDiv input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    outline: none;
+  }
+  
+  /* Stil i ponasanje DatePicker inputa */
+  .FlightSearchDiv .react-datepicker-wrapper input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: none !important;    
+    outline: none !important;
+    caret-color: transparent;       
+    user-select: none;             
+    cursor: pointer;   
+  }
+  
+  /* Navodno onemogucava bilo kakav vizuelni “fokus” na DatePicker inputu */
+  .FlightSearchDiv .react-datepicker-wrapper input:focus {
+    border-color: #ccc !important;
+    box-shadow: none !important;
+    caret-color: transparent;
+  }
+
+  /*--------------------
+  Donji filter bar
+---------------------*/
+.FlightFiltersDiv {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin: 10px 200px 0;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+  }
+
+/* Time picker input kao ostali inputi */
+.FlightFiltersDiv .react-datepicker-wrapper input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: none !important;
+    outline: none !important;
+    caret-color: transparent;
+    user-select: none;
+    cursor: pointer;
+  }
+  
+  /* Ukloni border/highlight kad se klikne */
+  .FlightFiltersDiv .react-datepicker-wrapper input:focus {
+    border-color: #ccc !important;
+    box-shadow: none !important;
+    caret-color: transparent;
+  }
+
+
+.FlightFiltersDiv select,
+.FlightFiltersDiv .react-datepicker-wrapper input {
+  height: 40px;
+  padding: 0 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Fokus efekat kao na inputima */
+.FlightFiltersDiv select:focus,
+.FlightFiltersDiv .react-datepicker-wrapper input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Ukloni strelice na nekim browserima */
+.FlightFiltersDiv select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='12' viewBox='0 0 20 20' width='12' xmlns='http://www.w3.org/2000/svg'><path d='M7 7l3 3 3-3H7z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+/* Search dugme malo veće */
+.FlightSearchDiv .Btn:last-child {
+  padding: 0 18px;
+  font-weight: 500;
+}
+
+
+  /* Dugmad */
+  .Btn {
+    flex-shrink: 0;
+    height: 40px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .Btn:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Search dugme malo veće */
+.FlightSearchDiv .Btn:last-child {
+    width: 200px;
+    padding: 0 18px;
+    font-weight: 500;
+  }
