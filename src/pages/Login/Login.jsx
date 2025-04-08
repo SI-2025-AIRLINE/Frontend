@@ -38,16 +38,16 @@ const Login = () => {
     setError('');
     setSuccess('');
     setLoading(true);
-
+  
     if (!formData.username || !formData.password) {
       setError('Username and password are required.');
       setLoading(false);
       return;
     }
-
+  
     try {
       console.log('Requesting login with:', formData);
-
+  
       const response = await fetch(`${apiURL}/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,26 +56,39 @@ const Login = () => {
           password: formData.password,
         }),
       });
-
+  
       console.log('Response status:', response.status);
       const data = await response.json();
-
+  
       console.log('Response data:', data);
-
+  
       if (!response.ok) throw new Error(data.message || 'Login failed');
-
+  
+      
       localStorage.setItem('token', data.token);
-      localStorage.setItem('name', data.name);
-      localStorage.setItem('surname', data.surname);
-
-      setSuccess('Login successful! Redirecting...');
-      setTimeout(() => navigate('/'), 2000);
+      localStorage.setItem('name', data.firstName);
+      localStorage.setItem('surname', data.lastName); 
+      localStorage.setItem('userName', data.username); 
+      localStorage.setItem('role', data.role); 
+      
+       
+  
+       setSuccess('Login successful! Redirecting...');
+       setTimeout(() => {
+         if (data.role === 'Admin') {
+           navigate('/admin-homepage');  
+         } else {
+           navigate('/');  
+         } 
+        window.location.reload(); 
+      }, 1500);
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message);
     }
     setLoading(false);
   };
+  
 
   return (
     <div className="login-container">
