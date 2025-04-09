@@ -142,6 +142,8 @@ export default function DestinationManagement() {
             }
         } else {
             // Create new airport
+            delete formData.id; // Remove id from formData if it exists
+            formData.Status = Number(formData.Status); // Ensure Status is a number
             success = await createAirport(formData);
             if (success) {
                 alert('Airport added successfully');
