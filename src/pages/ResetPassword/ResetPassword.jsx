@@ -28,6 +28,7 @@ const ResetPassword = () => {
         } else {
           setErrorMessage('Email not registered!');
         }
+      // eslint-disable-next-line no-unused-vars
       } catch (error) {
         setErrorMessage('Server error. Please try again.');
       }
@@ -51,6 +52,7 @@ const ResetPassword = () => {
         } else {
           setErrorMessage(data.message || 'Password change failed.');
         }
+      // eslint-disable-next-line no-unused-vars
       } catch (error) {
         setErrorMessage('Server error while resetting password.');
       }
@@ -59,7 +61,7 @@ const ResetPassword = () => {
 
   return (
     <div className="reset-password-container">
-      <Header />
+    
       <div className="reset-password-form-container">
         <h2>Reset Password</h2>
         <p>Enter your email address to reset your password.</p>
