@@ -19,12 +19,12 @@ export default function FlightSearch() {
     const handleDestinationChange = (e) => {
         setDestinationAirport(e.target.value);
     }
-
-    const handleSwap = (e) => {
+    
+   /* const handleSwap = (e) => {
         let x = originAirport;
         setOriginAirport(destinationAirport);
         setDestinationAirport(x);
-    }
+    }*/
 
     const handleDepartChange = (date) => {
         setDepartDate(date);
@@ -72,7 +72,6 @@ export default function FlightSearch() {
         <div className="FlightSearchDiv">
         <input type="text" placeholder="From where?" onChange={handleOriginChange} value={originAirport}/>
 
-        <button className="Btn" onClick={handleSwap}>Swap</button>
 
         <input type="text" placeholder="To where?" onChange={handleDestinationChange} value={destinationAirport}/>
 
@@ -97,7 +96,7 @@ export default function FlightSearch() {
             wrapperClassName="fs-wrapper"
             onChangeRaw={e => e.preventDefault()} // blokira bilo kakav raw unos
         />
-        <button className="Btn" onClick={()=>{setShowFilters(true)}}>Search</button>
+        <button className="Btn" onClick={() => setShowFilters(true)} disabled={!originAirport || !destinationAirport}>Search</button>
         </div>
         {/********************************
           *          Filters Bar         *
@@ -113,7 +112,23 @@ export default function FlightSearch() {
                 dateFormat="HH:mm"
                 timeFormat="HH:mm"
                 placeholderText="Select takeoff time"
-            />
+                // Spriječi unos slova
+    onKeyDown={(e) => {
+        if (
+            !(
+                (e.key >= '0' && e.key <= '9') || // brojevi
+                e.key === 'Backspace' ||
+                e.key === 'Delete' ||
+                e.key === 'ArrowLeft' ||
+                e.key === 'ArrowRight' ||
+                e.key === 'Tab' ||
+                e.key ===':'
+            )
+        ) {
+            e.preventDefault();
+        }
+    }}        
+        	/>
 
             <DatePicker
                 selected={landingTime}
@@ -125,6 +140,22 @@ export default function FlightSearch() {
                 dateFormat="HH:mm"
                 timeFormat="HH:mm"
                 placeholderText="Select landing time"
+                  // Spriječi unos slova
+    onKeyDown={(e) => {
+        if (
+            !(
+                (e.key >= '0' && e.key <= '9') || // brojevi
+                e.key === 'Backspace' ||
+                e.key === 'Delete' ||
+                e.key === 'ArrowLeft' ||
+                e.key === 'ArrowRight' ||
+                e.key === 'Tab' ||
+                e.key ===':'
+            )
+        ) {
+            e.preventDefault();
+        }
+    }}        
             />
             <select id="FlightPriceDropdown"
                     value={priceOption}
