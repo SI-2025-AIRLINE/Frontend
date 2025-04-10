@@ -157,7 +157,7 @@ body {
         background-color: var(--gray-50);
         padding: 1rem 5rem;
         text-align: center;
-        font-size: 0.75rem;
+        font-size: 14pt;
         font-weight: 500;
         color: var(--gray-500);
         text-transform: uppercase;
@@ -166,7 +166,7 @@ body {
 
     .airports-list td {
         padding: 1rem 1.5rem;
-        font-size: 0.875rem;
+        font-size: 12pt;
         color: var(--gray-500);
         border-top: 1px solid var(--gray-200);
         text-align: center;
