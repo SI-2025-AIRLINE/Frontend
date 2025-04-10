@@ -12,6 +12,7 @@ import AircraftManagement from './pages/AircraftManagement/AircraftManagement';
 import UserManagement from './pages/UserManagement/UserManagement';
 import Header from './components/Header/Header';
 import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
+import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
 
 
 function App() {
@@ -37,8 +38,8 @@ function App() {
           <Route path="/destination-management" element={<DestinationManagement />} />
           <Route path="/aircraft-management" element={<AircraftManagement />} />
           <Route path="/user-management" element={<UserManagement />} />
-              <Route path="/admin-homepage" element={<AdminHomePage />} />
-
+          <Route path="/admin-homepage" element={<AdminHomePage />} />
+          <Route path="/flight-scheduling" element={<FlightScheduling />} />
       </Routes>
 
       </div>
