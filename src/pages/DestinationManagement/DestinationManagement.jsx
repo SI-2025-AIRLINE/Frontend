@@ -165,9 +165,10 @@ export default function DestinationManagement() {
         }
 
         const onlyLettersRegex = /^[A-Za-z]+$/;
+        const onlyLettersAndSpacesRegex = /^[A-Za-z\s]+$/;
 
         if (
-            !onlyLettersRegex.test(formData.name) ||
+            !onlyLettersAndSpacesRegex.test(formData.name) ||
             !onlyLettersRegex.test(formData.cityCode) ||
             !onlyLettersRegex.test(formData.airportCode)
         ) {
