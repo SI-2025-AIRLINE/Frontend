@@ -412,7 +412,13 @@ const UserManagement = () => {
                 }}
                 className="add-user-btn"
             >   
-                <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
+                {!isAddUserVisible && (
+                    <img 
+                        src={PlusCircleIcon} 
+                        alt="Add New" 
+                        style={{ width: 20, height: 20, marginRight: 8 }} 
+                    />
+                )}
                 {isAddUserVisible ? 'Cancel' : 'Add New User'}
             </button>
 
