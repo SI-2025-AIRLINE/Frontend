@@ -132,7 +132,7 @@ h1 {
     .user-list td {
         padding: 10px;
         border: 1px solid #ddd;
-        text-align: left;
+        text-align: center;
     }
 
     .user-list th {
@@ -145,7 +145,6 @@ h1 {
         font-size: 18px;
         cursor: pointer;
         transition: color 0.3s;
-        margin-right: 10px;
     }
 
         /* Hover efekat za sve dugmiće */

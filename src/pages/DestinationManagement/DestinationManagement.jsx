@@ -3,6 +3,7 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import './DestinationManagement.css';
 import EditIcon from '../../components/Icons/pencil.svg';
 import Trash2Icon from '../../components/Icons/trash-2.svg';
+import PlusCircleIcon from '../../components/Icons/circle-plus.svg';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -255,7 +256,10 @@ export default function DestinationManagement() {
 
          <div className="add-button-container">
                 {!showForm ? (
-                    <button onClick={() => setShowForm(true)} className="add-button">+ Add New Airport</button>
+                    <button onClick={() => setShowForm(true)} className="add-button" style={{ display: 'flex', alignItems: 'center' }}>
+                    <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
+                        Add New Airport
+                    </button>
                 ) : (
                     <button onClick={handleCancel} className="cancel-button">Cancel</button>
                 )}
@@ -381,7 +385,7 @@ export default function DestinationManagement() {
                         >
                             Previous
                         </button>
-                        <span>Page {pagination.pageNumber}</span>
+                        <span style={{ display: 'flex', alignItems: 'center' }}>Page {pagination.pageNumber}</span>
                         <button
                             onClick={() => handlePageChange(pagination.pageNumber + 1)}
                             disabled={pagination.pageNumber === pagination.totalPages}

@@ -1,5 +1,8 @@
 ﻿import React, { useState, useEffect } from 'react';
 import './UserManagement.css';
+import EditIcon from '../../components/Icons/pencil.svg';
+import Trash2Icon from '../../components/Icons/trash-2.svg';
+import PlusCircleIcon from '../../components/Icons/circle-plus.svg';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -397,6 +400,7 @@ const UserManagement = () => {
             </div>
 
             <button
+                style={{ display: 'flex', alignItems: 'center' }}
                 onClick={() => {
                     // Ako je forma vidljiva, sakrij je, inače je prikaži
                     setIsAddUserVisible(!isAddUserVisible);
@@ -407,8 +411,9 @@ const UserManagement = () => {
                     }
                 }}
                 className="add-user-btn"
-            >
-                {isAddUserVisible ? 'Cancel' : '+ Add New User'}
+            >   
+                <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
+                {isAddUserVisible ? 'Cancel' : 'Add New User'}
             </button>
 
             {isAddUserVisible && (
@@ -530,20 +535,19 @@ const UserManagement = () => {
                                         <td>{user.isVerified ? 'Yes' : 'No'}</td>
                                         <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
                                         <td>
-                                            <button 
-                                                onClick={() => handleEditUser(user)} 
-                                                className="edit-btn"
-                                                disabled={loading}
+                                            <button
+                                                className="btn btn-warning"
+                                                onClick={() => handleEditUser(user)}
                                             >
-                                                <i className="fas fa-edit"></i>
+                                                <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
                                             </button>
-                                            <button 
+                                            <button
+                                                className="btn btn-danger"
                                                 onClick={() => handleDeleteUser(user.id)} 
-                                                className="delete-btn"
-                                                disabled={loading}
                                             >
-                                                <i className="fas fa-trash-alt"></i>
+                                                <img src={Trash2Icon} alt="Delete" style={{ width: 20, height: 20 }} />
                                             </button>
+                                            
                                         </td>
                                     </tr>
                                 ))}
@@ -556,7 +560,7 @@ const UserManagement = () => {
                                 >
                                     Previous
                                 </button>
-                                <span>Page {pagination.pageNumber}</span>
+                                <span style={{ alignItems: 'center' }}>Page {pagination.pageNumber}</span>
                                 <button
                                     onClick={() => handlePageChange(pagination.pageNumber + 1)}
                                     disabled={filteredUsers.length < pagination.pageSize || loading}
