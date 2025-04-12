@@ -10,7 +10,7 @@ import UpdateDetails from './pages/UpdateDetails/UpdateDetails';
 import DestinationManagement from './pages/DestinationManagement/DestinationManagement';
 import AircraftManagement from './pages/AircraftManagement/AircraftManagement';
 import UserManagement from './pages/UserManagement/UserManagement';
-import Header from './components/Header/Header';
+import HeaderWrapper from './components/Header/HeaderWrapper';
 import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
 
@@ -19,7 +19,7 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        <Header />
+        <HeaderWrapper />
         <Routes>
           <Route path="/" element={
             <div className="home-content">

@@ -121,7 +121,7 @@
     background-color: var(--gray-50);
     padding: 0.75rem 1.5rem;
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 14pt;
     font-weight: 500;
     color: var(--gray-500);
     text-transform: uppercase;
@@ -130,7 +130,7 @@
   
   .table td {
     padding: 1rem 1.5rem;
-    font-size: 0.875rem;
+    font-size: 12pt;
     color: var(--gray-500);
     border-top: 1px solid var(--gray-200);
   }

@@ -33,20 +33,31 @@ const Register = () => {
       [e.target.name]: e.target.value
     });
   };
+  const isValidEmail = (email) => {
+    // Mora imati nešto prije @, nešto poslije @, tačku i barem 2 slova za domen
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
-
-
+  
     if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password) {
       setError('All fields are required.');
       setLoading(false);
       return;
     }
-
+  
+    if (!isValidEmail(formData.email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+  
     const userData = {
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -54,7 +65,7 @@ const Register = () => {
       email: formData.email,
       password: formData.password 
     };
-
+  
     try {
       const response = await fetch(`${apiURL}/Auth/register`, {
         method: 'POST',
@@ -63,32 +74,33 @@ const Register = () => {
         },
         body: JSON.stringify(userData)
       });
-
+  
       let data;
-try {
-  data = await response.json();
-// eslint-disable-next-line no-unused-vars
-} catch (error) {
-  const text = await response.text();
-  throw new Error(text);
-}
-
-
+      try {
+        data = await response.json();
+      // eslint-disable-next-line no-unused-vars
+      } catch (error) {
+        const text = await response.text();
+        throw new Error(text);
+      }
+  
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-
+  
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(err.message);
     }
+  
     setLoading(false);
   };
+  
 
   return (
     <div className="register-container">
-      <Header />
+     
       <div className="register-form-container">
         <h2>Register</h2>
         <div className="message-container">
