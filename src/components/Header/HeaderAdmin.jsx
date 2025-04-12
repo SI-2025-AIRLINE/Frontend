@@ -9,15 +9,15 @@ const HeaderAdmin = () => {
 
     return (
         <header className="header">
-                  <Link to="/admin-homepage" className="logo" style={{ textDecoration: 'none', color: 'white' }}>
+                  <Link to="/admin" className="logo" style={{ textDecoration: 'none', color: 'white' }}>
               Airline System
             </Link>
             <nav>
-                <Button text="Home" onClick={() => navigate('/admin-homepage')} />
-                <Button text="Users" onClick={() => navigate('/user-management')} />
-                <Button text="Aircrafts" onClick={() => navigate('/aircraft-management')} />
-                <Button text="Destinations" onClick={() => navigate('/destination-management')} />
-                <Button text="Flights" onClick={() => navigate('/flight-scheduling')} />
+                
+                <Button text="Users" onClick={() => navigate('/admin/userManagement')} />
+                <Button text="Aircrafts" onClick={() => navigate('/admin/aircraftManagement')} />
+                <Button text="Destinations" onClick={() => navigate('/admin/destinationManagement')} />
+                <Button text="Flights" onClick={() => navigate('/admin/flightScheduling')} />
 
 
             </nav>
