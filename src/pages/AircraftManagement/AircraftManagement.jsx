@@ -483,7 +483,7 @@ function AircraftManagement() {
                 <th>First Class</th>
                 <th>Business Class</th>
                 <th>Economy Class</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -516,7 +516,7 @@ function AircraftManagement() {
                           ? `${seatingConfig.economyClass.total} seats (${seatingConfig.economyClass.seatsPerRow}/row)` 
                           : 'None'}
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td>
                         <button className="btn btn-warning" onClick={() => handleEditAircraft(plane.id)}>
                           <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
                         </button>
@@ -540,7 +540,7 @@ function AircraftManagement() {
             >
               Previous
             </button>
-            <span>Page {pageNumber}</span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
             <button 
               className="btn"
               onClick={() => setPageNumber(prev => prev + 1)}

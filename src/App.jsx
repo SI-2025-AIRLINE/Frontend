@@ -12,6 +12,7 @@ import AircraftManagement from './pages/AircraftManagement/AircraftManagement';
 import UserManagement from './pages/UserManagement/UserManagement';
 import HeaderWrapper from './components/Header/HeaderWrapper';
 import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
+import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
 import {FlightSearch} from './pages'
 
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/aircraft-management" element={<AircraftManagement />} />
           <Route path="/user-management" element={<UserManagement />} />
           <Route path="/admin-homepage" element={<AdminHomePage />} />
+          <Route path="/flight-scheduling" element={<FlightScheduling />} />
       </Routes>
 
       </div>
