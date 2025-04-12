@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import './DestinationManagement.css';
+import EditIcon from '../../components/Icons/pencil.svg';
+import Trash2Icon from '../../components/Icons/trash-2.svg';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -8,27 +10,41 @@ export default function DestinationManagement() {
     const [airports, setAirports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
+
+
 
     // Fetch airports from API
     const fetchAirports = async () => {
+        setLoading(true);
+        setError(null);
+
         try {
-            setLoading(true);
-            const res = await fetch(`${apiURL}/Destination`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
+            const url = `${apiURL}/Destination?pageNumber=${pagination.pageNumber}&pageSize=${pagination.pageSize}`;
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
             setAirports(data);
-            setError(null);
-        } catch (error) {
-            console.error('Failed to fetch airports:', error);
-            setError('Failed to load airports. Please try again later.');
+            setPagination({ ...pagination, totalPages: data.totalPages });
+        } catch (err) {
+            setError(err.message);
+            console.error("Error fetching airports:", err);
         } finally {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchAirports();
-    }, []);
+    }, [pagination.pageNumber, pagination.pageSize]);
+
+
+    const handlePageChange = (newPage) => {
+        setPagination({ ...pagination, pageNumber: newPage });
+    };
 
     const [formData, setFormData] = useState({
         id: null,
@@ -122,6 +138,25 @@ export default function DestinationManagement() {
         }
     };
 
+
+
+    const checkIataCodeExists = async (iataCode) => {
+        try {
+            const response = await fetch(`${apiURL}/Destination/byAirport/${iataCode}`);
+            if (response.ok) {
+                const airport = await response.json();
+                return airport ? true : false;
+            } else {
+                throw new Error('Failed API call');
+            }
+        } catch (error) {
+            console.error('Error checking IATA code: ', error);
+            return false;
+        }
+    };
+
+
+
     async function handleSubmit(e) {
         e.preventDefault();
         if (!formData.name || !formData.cityCode || !formData.airportCode) {
@@ -129,32 +164,53 @@ export default function DestinationManagement() {
             return;
         }
 
+        const onlyLettersRegex = /^[A-Za-z]+$/;
+        const onlyLettersAndSpacesRegex = /^[A-Za-z\s]+$/;
+
+        if (
+            !onlyLettersAndSpacesRegex.test(formData.name) ||
+            !onlyLettersRegex.test(formData.cityCode) ||
+            !onlyLettersRegex.test(formData.airportCode)
+        ) {
+            setError("Fields 'Airport name', 'City' and 'IATA' must contain only letters.");
+            return;
+        }
+
+        const iataExists = await checkIataCodeExists(formData.airportCode);
+
+        if (iataExists) {
+            setError('An airport with this IATA code already exists!');
+            return;
+        } else {
+            setError('');
+        }
         let success = false;
 
         if (editingAirport) {
             // Update existing airport
             success = await updateAirport(editingAirport.id, formData);
             if (success) {
-                alert('Airport updated successfully');
+                setError('Airport updated successfully');
             } else {
-                alert('Failed to update airport');
+                setError('Failed to update airport');
                 return;
             }
         } else {
             // Create new airport
+            delete formData.id;
+
+            formData.Status = Number(formData.Status);
             success = await createAirport(formData);
             if (success) {
-                alert('Airport added successfully');
+                setError('Airport added successfully');
             } else {
-                alert('Failed to add airport');
+                setError('Failed to add airport');
                 return;
             }
         }
 
         // Reset form state
         setFormData({ name: '', cityCode: '', airportCode: '', Status: 1 });
-        setShowForm(false);
-        setEditingAirport(null);
     }
 
     async function handleDelete(id) {
@@ -194,19 +250,26 @@ export default function DestinationManagement() {
     }
 
     return (
-        <div className="destination-management-container">
-            <div className="add-button-container">
+
+        <div className="container">
+
+         <div className="add-button-container">
                 {!showForm ? (
                     <button onClick={() => setShowForm(true)} className="add-button">+ Add New Airport</button>
                 ) : (
                     <button onClick={handleCancel} className="cancel-button">Cancel</button>
                 )}
             </div>
+        <div className="destination-management-container">
+           
 
             {/* Add or Edit Airport Form (Modal) */}
             {showForm && (
-                <div className="add-form-modal">
-                    <div className="add-form-container">
+                    <div className="add-form-modal">
+
+                        {error && <p className="error-message">{error}</p>}
+
+                        <div className="add-form-container">
                         <h2 className="section-title">{editingAirport ? 'Edit Airport' : 'Add New Airport'}</h2>
                         <form onSubmit={handleSubmit} className="form">
                             <div className="form-grid">
@@ -247,7 +310,11 @@ export default function DestinationManagement() {
                                 </div>
                                
                             </div>
-                            <button type="submit" className="submit-button">{editingAirport ? 'Update Airport' : 'Add Airport'}</button>
+                                <div className="submit-button-container">
+                                    <button type="submit" className="submit-button">
+                                        {editingAirport ? 'Update Airport' : 'Add Airport'}
+                                    </button>
+                                </div>
                         </form>
                     </div>
                 </div>
@@ -255,39 +322,76 @@ export default function DestinationManagement() {
 
             {/* Loading and Error States */}
             {loading && <p className="loading-message">Loading airports...</p>}
-            {error && <p className="error-message">{error}</p>}
+            
 
             {/* Airport List */}
-            <div className="airports-list">
-                {airports.map((airport) => (
-                    <div key={airport.id} className="airport-card">
-                        <div className="airport-info-left">
-                            <div className="airport-details">
-                                <h3 className="airport-name">{airport.name}</h3>
-                                <p className="airport-location">{airport.cityCode}</p>
-                            </div>
-                            <div className="airport-codes">
-                                <p className="iata-info">IATA: {airport.airportCode}</p>
-                                {airport.icao_code && <p className="icao-info">ICAO: {airport.icao_code}</p>}
-                                <p
-                                    className={`status-info ${airport.Status ? 'active' : 'inactive'}`}
-                                    style={{
-                                        color: airport.status ? 'green' : 'red',
-                                    }}
-                                >
-                                    {airport.status ? 'Active' : 'Inactive'}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="airport-actions">
-                            <FaEdit className="action-icon" onClick={() => handleEdit(airport)} />
-                            <FaTrashAlt className="action-icon" onClick={() => handleDelete(airport.id)} />
-                            <button className="toggle-status-button" onClick={() => handleToggleActive(airport.id, airport.status)}>
-                                Toggle Active Status
-                            </button>
-                        </div>
+
+                <div className="airports-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>City</th>
+                                <th>IATA</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {airports.map((airport) => (
+                                <tr key={airport.id}>
+                                    <td>{airport.name}</td>
+                                    <td>{airport.cityCode}</td>
+                                    <td>{airport.airportCode}</td>
+                                    <td className={`status-info ${airport.status ? 'active' : 'inactive'}`}>
+                                        {airport.status ? 'Active' : 'Inactive'}
+                                    </td>
+
+                                    <td className="airport-actions" style={{ textAlign: 'right' }}>
+                                        <button
+                                            className="btn btn-warning"
+                                            onClick={() => handleEdit(airport)}
+                                        >
+                                            <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
+                                        </button>
+                                        <button
+                                            className="btn btn-danger"
+                                            onClick={() => handleDelete(airport.id)}
+                                        >
+                                            <img src={Trash2Icon} alt="Delete" style={{ width: 20, height: 20 }} />
+                                        </button>
+                                        <button
+                                            className="btn btn-info"
+                                            onClick={() => handleToggleActive(airport.id, airport.status)}
+                                        >
+                                            Status
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {/* Pagination */}
+                    <div className="pagination">
+                        <button
+                            onClick={() => handlePageChange(pagination.pageNumber - 1)}
+                            disabled={pagination.pageNumber === 1}
+                        >
+                            Previous
+                        </button>
+                        <span>Page {pagination.pageNumber}</span>
+                        <button
+                            onClick={() => handlePageChange(pagination.pageNumber + 1)}
+                            disabled={pagination.pageNumber === pagination.totalPages}
+                        >
+                            Next
+
+                        </button>
                     </div>
-                ))}
+
+                </div>
             </div>
         </div>
     );
