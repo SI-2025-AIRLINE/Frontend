@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import EditIcon from '../../components/Icons/pencil.svg';
 import './FlightScheduling.css';
 
 function FlightScheduling() {
@@ -300,7 +301,7 @@ function FlightScheduling() {
               <th>Times</th>
               <th>Aircraft</th>
               <th>Validity</th>
-              <th style={{ textAlign: 'right' }}>Actions</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -312,10 +313,10 @@ function FlightScheduling() {
                 <td>{flight.departureTime} - {flight.arrivalTime}</td>
                 <td>{flight.aircraftType === '747' ? 'Boeing 747' : 'Airbus 320'}</td>
                 <td>{new Date(flight.validFrom).toLocaleDateString()} - {new Date(flight.validTo).toLocaleDateString()}</td>
-                <td style={{ textAlign: 'right' }}>
+                <td>
                   <div className="button-group">
                     <button className="btn btn-icon" onClick={() => handleEditFlight(flight)}>
-                      <Edit style={{ width: 20, height: 20 }} />
+                      <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
                     </button>
                     <button className="btn btn-danger" onClick={() => handleDeleteFlight(flight.id)}>
                       <Trash2 style={{ width: 20, height: 20 }} />

@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import './UserManagement.css';
+import EditIcon from '../../components/Icons/pencil.svg';
+import Trash2Icon from '../../components/Icons/trash-2.svg';
+import PlusCircleIcon from '../../components/Icons/circle-plus.svg';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -9,20 +12,42 @@ const UserManagement = () => {
         username: '',
         email: '',
         password: '', // Will be converted to passwordHash on server
-        role: 'Customer',
+        role: '',
         isVerified: false,
         verificationToken: generateRandomToken(), // Generate default token
         resetToken: generateRandomToken(), // Generate default token
     });
     const [editUser, setEditUser] = useState(null);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState('Staff');
     const [isAddUserVisible, setIsAddUserVisible] = useState(false);
     const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    
+    const [originalUser, setOriginalUser] = useState({});
+    // Filtriranje korisnika prema filteru
+    const filteredUsers = users.filter(user => user.role === filter);
+
     // Base URL for API calls
-    const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/User`;
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    const isNameValid = (name) => /^[A-Za-zČčĆćŽžŠšĐđ]+$/.test(name);
+
+    const isEmailValid = (email) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    const isUsernameUnique = async (username, userType, currentUserId) => {
+        const response = await fetch(`${API_BASE_URL}/${userType === 'customers' ? 'Customer' : 'User'}`);
+        const users = await response.json();
+
+        return !users.some(user => user.username === username && user.id !== currentUserId);
+    };
+
+    const isEmailUnique = async (email, userType, currentUserId) => {
+        const response = await fetch(`${API_BASE_URL}/${userType === 'customers' ? 'Customer' : 'User'}`);
+        const users = await response.json();
+
+        return !users.some(user => user.email === email && user.id !== currentUserId);
+    };
 
     // Helper function to generate random tokens
     function generateRandomToken() {
@@ -33,46 +58,34 @@ const UserManagement = () => {
     // Prepare user object for API requests
     const prepareUserForApi = (user, isNew = false) => {
         const preparedUser = { ...user };
-        
-        // Convert role string to enum value (0: Admin, 1: Employee, 2: Customer)
+
+        // Convert role string to enum value (0: Admin, 1: Employee)
         if (typeof preparedUser.role === 'string') {
-            switch(preparedUser.role) {
-                case 'Admin': preparedUser.role = 0; break;
-                case 'Employee': preparedUser.role = 1; break;
-                case 'Customer': 
-                default: preparedUser.role = 2;
-            }
+            preparedUser.role = preparedUser.role === 'Admin' ? 0 : 1; // Only Admin and Employee
         }
-        
+
         // For new users, ensure required fields have values
         if (isNew) {
-            // Password will be hashed on the server
             preparedUser.passwordHash = preparedUser.password;
             delete preparedUser.password;
-            
-            // Set defaults for required fields if not present
+
             if (!preparedUser.isVerified) preparedUser.isVerified = false;
             if (!preparedUser.verificationToken) preparedUser.verificationToken = generateRandomToken();
             if (!preparedUser.resetToken) preparedUser.resetToken = generateRandomToken();
         }
-        
+
         return preparedUser;
     };
 
     // Convert API user object to format for UI
     const prepareUserForUI = (apiUser) => {
         const uiUser = { ...apiUser };
-        
+
         // Convert role enum to string for display
         if (typeof uiUser.role === 'number') {
-            switch(uiUser.role) {
-                case 0: uiUser.role = 'Admin'; break;
-                case 1: uiUser.role = 'Employee'; break;
-                case 2: uiUser.role = 'Customer'; break;
-                default: uiUser.role = 'Customer';
-            }
+            uiUser.role = uiUser.role === 0 ? 'Admin' : 'Employee';
         }
-        
+
         return uiUser;
     };
 
@@ -82,26 +95,40 @@ const UserManagement = () => {
         setError(null);
         try {
             let url = API_BASE_URL;
-            
-            // Use role-specific endpoints if filtering
-            if (filter === 'Admin') {
-                url = `${API_BASE_URL}/admins`;
+
+            if (filter === 'Staff') {
+                const [adminsResponse, employeesResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/User/admins`),
+                    fetch(`${API_BASE_URL}/User/employees`)
+                ]);
+
+                if (!adminsResponse.ok || !employeesResponse.ok) {
+                    throw new Error('Error fetching staff data');
+                }
+
+                const [admins, employees] = await Promise.all([
+                    adminsResponse.json(),
+                    employeesResponse.json()
+                ]);
+
+                setUsers([...admins, ...employees].map(user => prepareUserForUI(user)));
+                return;
             } else if (filter === 'Customer') {
-                url = `${API_BASE_URL}/customers`;
+                url = `${API_BASE_URL}/Customer`; // Ispravna ruta
             }
-            
+
+
             // Add pagination parameters
             url += `?pageNumber=${pagination.pageNumber}&pageSize=${pagination.pageSize}`;
-            
+
             const response = await fetch(url);
+
             if (!response.ok) {
                 throw new Error(`API error: ${response.statusText}`);
             }
-            
+
             const data = await response.json();
-            // Convert roles to strings for UI
-            const processedData = data.map(user => prepareUserForUI(user));
-            setUsers(processedData);
+            setUsers(data.map(user => prepareUserForUI(user)));
         } catch (err) {
             setError(err.message);
             console.error('Error fetching users:', err);
@@ -112,43 +139,89 @@ const UserManagement = () => {
 
     // Load users on component mount and when filter or pagination changes
     useEffect(() => {
+        setEditUser(null);
         fetchUsers();
     }, [filter, pagination.pageNumber, pagination.pageSize]);
 
     // Handle pagination changes
     const handlePageChange = (newPage) => {
-        setPagination({...pagination, pageNumber: newPage});
+        setPagination(prev => ({ ...prev, pageNumber: newPage }));
     };
 
     // Add a new user
     const handleAddUser = async () => {
         setLoading(true);
         setError(null);
+
+        const { firstName, lastName, username, email, password, role } = newUser;
+
+        const userType = role === 'Customer' ? 'customers' : 'users';
+
+        if (!isNameValid(firstName) || !isNameValid(lastName)) {
+            window.alert("First and last name can only contain letters.");
+            setLoading(false);
+            return;
+        }
+
+        if (!firstName || !lastName || !username || !email || !password || !role) {
+            window.alert("All fields must be filled.");
+            setLoading(false);
+            return;
+        }
+
+        if (!isEmailValid(email)) {
+            window.alert("Invalid email format.");
+            setLoading(false);
+            return;
+        }
+
+        const usernameUnique = await isUsernameUnique(username, userType);
+        const emailUnique = await isEmailUnique(email, userType);
+
+        if (!usernameUnique) {
+            window.alert("Username already exists.");
+            setLoading(false);
+            return;
+        }
+
+        if (!emailUnique) {
+            window.alert("Email already exists.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            // Prepare user object with all required fields
-            const userToAdd = prepareUserForApi(newUser, true);
-            
-            const response = await fetch(API_BASE_URL, {
+            const userType = newUser.role === 'Customer' ? 'customers' : 'users';
+
+            const apiEndpoint = userType === 'users' ? `${API_BASE_URL}/User` : `${API_BASE_URL}/Customer`;
+
+            const userToAdd = prepareUserForApi(newUser, true); // Drugi parametar 'true' znači da je novi korisnik
+
+            if (userType === 'customers') {
+                delete userToAdd.role; // No role for customer
+                userToAdd.password = userToAdd.passwordHash;
+                delete userToAdd.passwordHash;
+            }
+
+            const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userToAdd)
             });
-            
+
             if (!response.ok) {
                 throw new Error(`API error: ${response.statusText}`);
             }
-            
-            // Refresh the user list after adding
+
             fetchUsers();
-            
-            // Reset form and close it
+
             setNewUser({
                 firstName: '',
                 lastName: '',
                 username: '',
                 email: '',
                 password: '',
-                role: 'Customer',
+                role: '',
                 isVerified: false,
                 verificationToken: generateRandomToken(),
                 resetToken: generateRandomToken(),
@@ -167,18 +240,22 @@ const UserManagement = () => {
         if (!window.confirm('Are you sure you want to delete this user?')) {
             return;
         }
-        
+
         setLoading(true);
         setError(null);
+
+        // Determine the API route based on the type (User or Customer)
+        const apiUrl = filter === 'Customer' ? `/Customer/${id}` : `/User/${id}`;
+
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const response = await fetch(`${API_BASE_URL}${apiUrl}`, {
                 method: 'DELETE'
             });
-            
+
             if (!response.ok) {
                 throw new Error(`API error: ${response.statusText}`);
             }
-            
+
             // Refresh the user list after deletion
             fetchUsers();
         } catch (err) {
@@ -193,17 +270,22 @@ const UserManagement = () => {
     const handleEditUser = async (user) => {
         setLoading(true);
         setError(null);
+
+        const apiEndpoint = filter === 'Customer'
+            ? `${API_BASE_URL}/Customer/${user.id}`  
+            : `${API_BASE_URL}/User/${user.id}`;    
+
         try {
-            // Get the latest user data
-            const response = await fetch(`${API_BASE_URL}/${user.id}`);
-            
+            const response = await fetch(apiEndpoint);
+
             if (!response.ok) {
                 throw new Error(`API error: ${response.statusText}`);
             }
-            
+
             const userData = await response.json();
-            // Convert to UI format
+
             setEditUser(prepareUserForUI(userData));
+            setOriginalUser({ username: userData.username, email: userData.email }); 
             setIsAddUserVisible(true);
         } catch (err) {
             setError(err.message);
@@ -217,25 +299,72 @@ const UserManagement = () => {
     const handleSaveEdit = async () => {
         setLoading(true);
         setError(null);
+
+        const { firstName, lastName, username, email } = editUser;
+        const userType = filter === 'Customer' ? 'customers' : 'users';
+
+        if (!isNameValid(firstName) || !isNameValid(lastName)) {
+            window.alert("First and last name can only contain letters.");
+            setLoading(false);
+            return;
+        }
+
+        if (!isEmailValid(email)) {
+            window.alert("Invalid email format.");
+            setLoading(false);
+            return;
+        }
+
+        if (username !== originalUser.username) {
+            const usernameUnique = await isUsernameUnique(username, userType, editUser.id);
+            if (!usernameUnique) {
+                window.alert("Username already exists.");
+                setLoading(false);
+                return;
+            }
+        }
+
+        if (email !== originalUser.email) {
+            const emailUnique = await isEmailUnique(email, userType, editUser.id);
+            if (!emailUnique) {
+                window.alert("Email already exists.");
+                setLoading(false);
+                return;
+            }
+        }
+
+
         try {
-            // Prepare user with proper role format for API
+            // Prepare user/customer with proper role format for API
             const userToUpdate = prepareUserForApi(editUser);
-            userToUpdate.ResetToken = generateRandomToken(); 
-            userToUpdate.VerificationToken = generateRandomToken() || null; 
-            
-            const response = await fetch(`${API_BASE_URL}/${editUser.id}`, {
+            userToUpdate.ResetToken = generateRandomToken();
+            userToUpdate.VerificationToken = generateRandomToken() || null;
+
+            // Check if user is a customer or user (staff)
+            if (filter === 'Customer') {
+                // For Customer, send 'password' instead of 'passwordHash'
+                userToUpdate.password = userToUpdate.passwordHash;
+                delete userToUpdate.passwordHash;
+            }
+
+            // Determine the correct API endpoint based on the role
+            const endpoint = filter === 'Customer'
+                ? `${API_BASE_URL}/Customer/${editUser.id}` 
+                : `${API_BASE_URL}/User/${editUser.id}`;  
+
+            const response = await fetch(endpoint, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userToUpdate)
             });
-            
+
             if (!response.ok) {
-                throw new Error(`API error: ${response.statusText}`);
+                throw new Error(`Error updating user: ${response.statusText}`);
             }
-            
+
             // Refresh the user list
             fetchUsers();
-            
+
             // Close the form
             setEditUser(null);
             setIsAddUserVisible(false);
@@ -259,26 +388,36 @@ const UserManagement = () => {
 
     return (
         <div className="user-management">
-            <h1>User Management</h1>
-            
             {error && <div className="error-message">Error: {error}</div>}
 
             <div className="filter-buttons">
-                <button onClick={() => setFilter('Admin')} className={filter === 'Admin' ? 'active' : ''}>Admins</button>
-                <button onClick={() => setFilter('Employee')} className={filter === 'Employee' ? 'active' : ''}>Employees</button>
-                <button onClick={() => setFilter('Customer')} className={filter === 'Customer' ? 'active' : ''}>Customers</button>
-                <button onClick={() => setFilter('all')} className={filter === 'all' ? 'active' : ''}>All</button>
+                <button onClick={() => setFilter('Staff')} className={filter === 'Staff' ? 'active' : ''}>
+                    Staff
+                </button>
+                <button onClick={() => setFilter('Customer')} className={filter === 'Customer' ? 'active' : ''}>
+                    Customers
+                </button>
             </div>
 
-            <button onClick={() => {
-                setIsAddUserVisible(!isAddUserVisible);
-                setEditUser(null);
-            }} className="add-user-btn">
-                {isAddUserVisible ? 'Cancel' : 'Add User'}
+            <button
+                style={{ display: 'flex', alignItems: 'center' }}
+                onClick={() => {
+                    // Ako je forma vidljiva, sakrij je, inače je prikaži
+                    setIsAddUserVisible(!isAddUserVisible);
+
+                    // Ako se forma zatvara, resetuj podatke korisnika za uređivanje
+                    if (isAddUserVisible) {
+                        setEditUser(null);
+                    }
+                }}
+                className="add-user-btn"
+            >   
+                <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
+                {isAddUserVisible ? 'Cancel' : 'Add New User'}
             </button>
 
             {isAddUserVisible && (
-                <div className="user-form-container">
+                <div className="user-form-container" key={editUser ? editUser.id : newUser.id}>
                     <div className="user-form">
                         <h2>{editUser ? 'Edit User' : 'Add New User'}</h2>
                         <input
@@ -328,6 +467,7 @@ const UserManagement = () => {
                             value={editUser ? editUser.role : newUser.role}
                             onChange={handleInputChange}
                         >
+                            <option value="" disabled>Select Role</option>
                             <option value="Customer">Customer</option>
                             <option value="Employee">Employee</option>
                             <option value="Admin">Admin</option>
@@ -361,7 +501,7 @@ const UserManagement = () => {
             )}
 
             <div className="user-list">
-                <h2>Users List</h2>
+                <h2>{filter === 'Staff' ? 'Staff List' : filter === 'Customer' ? 'Customers List' : 'Staff List'}</h2>
                 
                 {loading && !isAddUserVisible && <div className="loading">Loading users...</div>}
                 
@@ -376,7 +516,8 @@ const UserManagement = () => {
                                     <th>Last Name</th>
                                     <th>Username</th>
                                     <th>Email</th>
-                                    <th>Role</th>
+                                    {/* Uklonite Role kolonu ako je filter 'Customer' */}
+                                    {filter !== 'Customer' && <th>Role</th>}
                                     <th>Verified</th>
                                     <th>Last Login</th>
                                     <th>Actions</th>
@@ -389,45 +530,44 @@ const UserManagement = () => {
                                         <td>{user.lastName}</td>
                                         <td>{user.username}</td>
                                         <td>{user.email}</td>
-                                        <td>{user.role}</td>
+                                        {/* Prikazivanje Role samo ako nije 'Customer' */}
+                                        {filter !== 'Customer' && <td>{user.role}</td>}
                                         <td>{user.isVerified ? 'Yes' : 'No'}</td>
                                         <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
                                         <td>
-                                            <button 
-                                                onClick={() => handleEditUser(user)} 
-                                                className="edit-btn"
-                                                disabled={loading}
+                                            <button
+                                                className="btn btn-warning"
+                                                onClick={() => handleEditUser(user)}
                                             >
-                                                Edit
+                                                <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
                                             </button>
-                                            <button 
+                                            <button
+                                                className="btn btn-danger"
                                                 onClick={() => handleDeleteUser(user.id)} 
-                                                className="delete-btn"
-                                                disabled={loading}
                                             >
-                                                Delete
+                                                <img src={Trash2Icon} alt="Delete" style={{ width: 20, height: 20 }} />
                                             </button>
+                                            
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        
-                        <div className="pagination">
-                            <button 
-                                onClick={() => handlePageChange(pagination.pageNumber - 1)}
-                                disabled={pagination.pageNumber === 1 || loading}
-                            >
-                                Previous
-                            </button>
-                            <span>Page {pagination.pageNumber}</span>
-                            <button 
-                                onClick={() => handlePageChange(pagination.pageNumber + 1)}
-                                disabled={users.length < pagination.pageSize || loading}
-                            >
-                                Next
-                            </button>
-                        </div>
+                            <div className="pagination">
+                                <button
+                                    onClick={() => handlePageChange(pagination.pageNumber - 1)}
+                                    disabled={pagination.pageNumber === 1 || loading}
+                                >
+                                    Previous
+                                </button>
+                                <span style={{ alignItems: 'center' }}>Page {pagination.pageNumber}</span>
+                                <button
+                                    onClick={() => handlePageChange(pagination.pageNumber + 1)}
+                                    disabled={filteredUsers.length < pagination.pageSize || loading}
+                                >
+                                    Next
+                                </button>
+                            </div>
                     </>
                 )}
             </div>
