@@ -43,7 +43,7 @@ nav {
   filter: brightness(1.2); /* Malo povećanje svetline na hover */
 }
 
-button {
+.header-button {
   width: 120px; /* Veličina dugmadi, možete je prilagoditi */
   height: 40px; /* Veličina dugmadi, treba da bude ista kao ikona */
   display: flex;
@@ -52,7 +52,7 @@ button {
   transition: background-color 0.3s ease, transform 0.3s ease; /* Dodavanje tranzicije */
 }
 
-button:hover {
+.header-button:hover {
   background-color: #f0f0f0; 
   transform: translateY(-2px); 
 }
