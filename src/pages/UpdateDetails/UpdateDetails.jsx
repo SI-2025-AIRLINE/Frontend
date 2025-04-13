@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header/Header';
 import './UpdateDetails.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -15,6 +17,8 @@ const UpdateDetails = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [token, setToken] = useState('');
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -43,7 +47,7 @@ const UpdateDetails = () => {
   
     try {
       const response = await fetch(`${apiURL}/Customer/profile`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -120,12 +124,13 @@ const UpdateDetails = () => {
               <input
                 type="password"
                 name="password"
-                placeholder="New Password (leave empty to keep current)"
+                placeholder="New Password"
                 value={formData.password}
                 onChange={handleChange}
               />
             </div>
-            <button type="submit" className="submit-button">Update Profile</button>
+            <button type="submit" className="update-button">Update Profile</button>
+            <button type="submit" className="update-button" onClick={() => navigate('/profile')}>Back to Profile</button>
             <p className="info-note">Leave fields empty if you don't want to change them.</p>
           </form>
         ) : (

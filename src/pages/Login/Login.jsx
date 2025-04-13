@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from '../../components/Header/Header';
+
 import './Login.css';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
@@ -69,14 +69,15 @@ const Login = () => {
       localStorage.setItem('name', data.firstName);
       localStorage.setItem('surname', data.lastName); 
       localStorage.setItem('userName', data.username); 
-      localStorage.setItem('role', data.role); 
+      localStorage.setItem('role', data.role);
+      localStorage.setItem('userId', data.id); 
       
-       
+      console.log('User ID saved in localStorage:', data.id);
   
        setSuccess('Login successful! Redirecting...');
        setTimeout(() => {
          if (data.role === 'Admin') {
-           navigate('/admin-homepage');  
+           navigate('/admin');  
          } else {
            navigate('/');  
          } 
@@ -122,7 +123,7 @@ const Login = () => {
               onChange={handleChange}
             />
           </div>
-          <button type="submit" className="submit-button" disabled={loading}>
+          <button type="submit" className="update-button" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
