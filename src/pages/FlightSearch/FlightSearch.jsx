@@ -204,7 +204,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Takeoff start (e.g. 00:00)"
+              placeholderText="Earliest departure time"
             />
             <DatePicker
               selected={takeoffEnd}
@@ -215,7 +215,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Takeoff end (e.g. 23:59)"
+              placeholderText="Latest departure time"
             />
             <DatePicker
               selected={landingBegin}
@@ -226,7 +226,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Landing start (e.g. 00:00)"
+              placeholderText="Earliest arrival time"
             />
             <DatePicker
               selected={landingEnd}
@@ -237,7 +237,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Landing end (e.g. 23:59)"
+              placeholderText="Latest arrival time"
             />
           </div>
 
