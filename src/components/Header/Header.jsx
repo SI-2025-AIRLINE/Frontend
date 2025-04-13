@@ -31,7 +31,7 @@ const Header = () => {
 </Link>
 
       <nav>
-        <Button text="Flights" onClick={() => navigate('/')} />
+        <Button text="Flights" onClick={() => navigate('/flight-search')} />
 
         {token && fullName ? (
           <div className="user-info">
