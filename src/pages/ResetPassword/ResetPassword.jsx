@@ -8,36 +8,35 @@ const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
-  const [isEmailValid, setIsEmailValid] = useState(false);
   const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isInitialized, setIsInitialized] = useState(false); 
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const [searchParams] = useSearchParams();
 
-  
   useEffect(() => {
     const tokenFromURL = searchParams.get('token');
     const emailFromURL = searchParams.get('email');
-
-    if (tokenFromURL) {
-      setToken(tokenFromURL);
-      setIsEmailValid(true);
-    }
 
     if (emailFromURL) {
       setEmail(emailFromURL);
     }
 
-    setIsInitialized(true); 
+    if (tokenFromURL) {
+      setToken(tokenFromURL);
+    }
+
+    setIsInitialized(true);
   }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isEmailValid) {
+    // Step 1: Request reset token
+    if (!token) {
       try {
         const response = await fetch(`${apiURL}/Customer/forgot-password`, {
           method: 'POST',
@@ -48,16 +47,17 @@ const ResetPassword = () => {
         const data = await response.json();
 
         if (data.exists !== false) {
-          setIsEmailValid(true);
+          setSuccessMessage('A reset link has been sent to your email address.');
           setErrorMessage('');
         } else {
-          setErrorMessage('Email not registered!');
+          setErrorMessage('Email is not registered.');
         }
       // eslint-disable-next-line no-unused-vars
       } catch (error) {
         setErrorMessage('Server error. Please try again.');
       }
     } else {
+      // Step 2: Reset password
       if (newPassword !== confirmPassword) {
         setErrorMessage("Passwords do not match.");
         return;
@@ -73,15 +73,15 @@ const ResetPassword = () => {
         const data = await response.json();
 
         if (data.success) {
-          alert('Password successfully changed!');
+          alert('Password changed successfully!');
           setEmail('');
           setToken('');
           setNewPassword('');
           setConfirmPassword('');
-          setIsEmailValid(false);
           setErrorMessage('');
+          setSuccessMessage('');
         } else {
-          setErrorMessage(data.message || 'Password change failed.');
+          setErrorMessage(data.message || 'Password reset failed.');
         }
       // eslint-disable-next-line no-unused-vars
       } catch (error) {
@@ -94,9 +94,16 @@ const ResetPassword = () => {
     <div className="reset-password-container">
       <div className="reset-password-form-container">
         <h2>Reset Password</h2>
-        <p>{!isEmailValid ? "Enter your email to receive a reset token." : "Enter your new password and token."}</p>
+        <p>
+          {!token
+            ? "Enter your email to receive a reset link."
+            : "Enter your new password."}
+        </p>
+
         {errorMessage && <p className="error-message">{errorMessage}</p>}
-        {isInitialized && (
+        {successMessage && <p className="success-message">{successMessage}</p>}
+
+        {isInitialized && !successMessage && (
           <form onSubmit={handleSubmit}>
             {!token && (
               <div className="form-group">
@@ -110,19 +117,8 @@ const ResetPassword = () => {
               </div>
             )}
 
-            {isEmailValid && (
+            {token && (
               <>
-                {!searchParams.get('token') && (
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      placeholder="Token"
-                      value={token}
-                      onChange={(e) => setToken(e.target.value)}
-                      required
-                    />
-                  </div>
-                )}
                 <div className="form-group">
                   <input
                     type="password"
@@ -145,7 +141,7 @@ const ResetPassword = () => {
             )}
 
             <button type="submit" className="update-button">
-              {isEmailValid ? 'Change Password' : 'Send Reset Token'}
+              {!token ? 'Send Reset Link' : 'Change Password'}
             </button>
           </form>
         )}
