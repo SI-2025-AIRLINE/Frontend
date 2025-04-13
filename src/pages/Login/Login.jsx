@@ -76,7 +76,7 @@ const Login = () => {
        setSuccess('Login successful! Redirecting...');
        setTimeout(() => {
          if (data.role === 'Admin') {
-           navigate('/admin-homepage');  
+           navigate('/admin');  
          } else {
            navigate('/');  
          } 
