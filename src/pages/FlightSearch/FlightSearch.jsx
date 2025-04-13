@@ -269,13 +269,13 @@ export default function FlightSearch() {
                 <div>
                   <p className="SmallLabel">Departure</p>
                   <p>
-                    {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12:false })}
                   </p>
                 </div>
                 <div>
                   <p className="SmallLabel">Arrival</p>
                   <p>
-                    {new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12:false })}
                   </p>
                 </div>
                 <div>
