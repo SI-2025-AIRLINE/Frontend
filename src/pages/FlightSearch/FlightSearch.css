@@ -272,6 +272,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 .BookBtn:hover {
   background-color: #13b866;
