@@ -1,0 +1,79 @@
+.profile-container {
+    background-image: url('../../assets/airplane.jpg'); /* Podesite putanju prema vašoj slici */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh; /* Osigurajte da pozadina pokrije celu visinu ekrana */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .profile-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 80vh; /* Ograničite visinu kartice na 80% visine ekrana */
+    overflow-y: auto; /* Omogućava vertikalno skrolovanje */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-card h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .profile-field {
+    margin-bottom: 20px;
+  }
+  
+  .profile-field label {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .field-value {
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #333;
+    font-size: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .update-button {
+    width: 100%;
+    padding: 14px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .update-button:hover {
+    background: #0056b3;
+  }
+  
+  @media (max-width: 600px) {
+    .profile-card {
+      padding: 20px;
+    }
+    
+    .field-value {
+      font-size: 14px;
+    }
+  }
+  

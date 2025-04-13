@@ -1,20 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../Button/Button';  
 import './Header.css';
-import { Link } from 'react-router-dom';
+import profileImage from '../../assets/profile.png'; 
 
 const Header = () => {
   const navigate = useNavigate();
 
-  
   const token = localStorage.getItem('token');
-  //const name = localStorage.getItem('name');
-  //const surname = localStorage.getItem('surname');
   const username = localStorage.getItem('userName'); 
-  
-  
-  const fullName =  username;
+  const fullName = username;
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -26,25 +21,36 @@ const Header = () => {
 
   return (
     <header className="header">
-      <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white' }}>
-  Airline System
-</Link>
+      <div className="header-left">
+        <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white' }}>
+          Airline System
+        </Link>
+      </div>
 
-      <nav>
-        <Button text="Flights" onClick={() => navigate('/')} />
+      {token && fullName && (
+        <div className="header-center">
+          <Button text="Flights" onClick={() => navigate('/flight-search')} />
+        </div>
+      )}
 
+      <div className="header-right">
         {token && fullName ? (
-          <div className="user-info">
-            <Button text={`Hello, ${fullName}`} onClick={() => navigate('/update-profile')} />
+          <>
+            <img
+              src={profileImage}  
+              alt="Profile"
+              className="profile-icon"
+              onClick={() => navigate('/profile')}
+            />
             <Button text="Logout" onClick={handleLogout} />
-          </div>
+          </>
         ) : (
           <>
             <Button text="Register" onClick={() => navigate('/register')} />
             <Button text="Login" onClick={() => navigate('/login')} />
           </>
         )}
-      </nav>
+      </div>
     </header>
   );
 };

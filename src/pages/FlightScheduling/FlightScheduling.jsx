@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import EditIcon from '../../components/Icons/pencil.svg';
 import './FlightScheduling.css';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
@@ -566,7 +567,7 @@ function FlightScheduling() {
                                 <td style={{ textAlign: 'right' }}>
                                     <div className="button-group">
                                         <button className="btn btn-icon" onClick={() => handleEditFlight(flight)}>
-                                            <Edit style={{ width: 20, height: 20 }} />
+                                            <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
                                         </button>
                                         <button className="btn btn-danger" onClick={() => handleDeleteFlight(flight.id)}>
                                             <Trash2 style={{ width: 20, height: 20 }} />
