@@ -181,7 +181,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Earliest departure time"
+              placeholderText="EDT"
             />
             <DatePicker
               selected={takeoffEnd}
@@ -192,7 +192,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Latest departure time"
+              placeholderText="LDT"
             />
             <DatePicker
               selected={landingBegin}
@@ -203,7 +203,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Earliest arrival time"
+              placeholderText="EAT"
             />
             <DatePicker
               selected={landingEnd}
@@ -214,7 +214,7 @@ export default function FlightSearch() {
               timeCaption="Time"
               dateFormat="HH:mm"
               timeFormat="HH:mm"
-              placeholderText="Latest arrival time"
+              placeholderText="LAT"
             />
           </div>
 
@@ -225,12 +225,12 @@ export default function FlightSearch() {
               onChange={handlePriceOptionChange}
             >
               <option value="" disabled hidden>Select Price Order</option>
-              <option value="Economy: Cheapest to Priciest">Economy: Cheapest to Priciest</option>
-              <option value="Economy: Priciest to Cheapest">Economy: Priciest to Cheapest</option>
-              <option value="Business: Cheapest to Priciest">Business: Cheapest to Priciest</option>
-              <option value="Business: Priciest to Cheapest">Business: Priciest to Cheapest</option>
-              <option value="First class: Cheapest to Priciest">First class: Cheapest to Priciest</option>
-              <option value="First class: Priciest to Cheapest">First class: Priciest to Cheapest</option>
+              <option value="Economy: Cheapest to Priciest">E: Cheapest to Priciest</option>
+              <option value="Economy: Priciest to Cheapest">E: Priciest to Cheapest</option>
+              <option value="Business: Cheapest to Priciest">B: Cheapest to Priciest</option>
+              <option value="Business: Priciest to Cheapest">B: Priciest to Cheapest</option>
+              <option value="First class: Cheapest to Priciest">F: Cheapest to Priciest</option>
+              <option value="First class: Priciest to Cheapest">F: Priciest to Cheapest</option>
             </select>
 
             <select
@@ -238,15 +238,16 @@ export default function FlightSearch() {
               value={durationOption}
               onChange={handleDurationOptionChange}
             >
-              <option value="" disabled hidden>Select Flight Duration Order</option>
+              <option value="" disabled hidden>Flight Duration Order</option>
               <option value="Shortest to Longest">Shortest to Longest</option>
               <option value="Longest to Shortest">Longest to Shortest</option>
             </select>
+
+            <button className="ResetBtn" onClick={resetFilters}>
+            Reset Filters
+            </button>
           </div>
 
-          <button className="ResetBtn" onClick={resetFilters}>
-            Reset Filters
-          </button>
         </div>
       }
 
