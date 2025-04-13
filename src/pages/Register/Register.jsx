@@ -67,7 +67,7 @@ const Register = () => {
     };
   
     try {
-      const response = await fetch(`${apiURL}/Auth/register`, {
+      const response = await fetch(`${apiURL}/Customer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -154,7 +154,7 @@ const Register = () => {
               onChange={handleChange}
             />
           </div>
-          <button type="submit" className="submit-button" disabled={loading}>
+          <button type="submit" className="update-button" disabled={loading}>
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>

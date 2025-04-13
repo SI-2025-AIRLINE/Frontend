@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import Header from '../../components/Header/Header';
 import './ResetPassword.css';
 
+const apiURL = import.meta.env.VITE_API_BASE_URL;
+
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(false);
-  const [oldPassword, setOldPassword] = useState('');
+  const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
@@ -14,7 +17,7 @@ const ResetPassword = () => {
 
     if (!isEmailValid) {
       try {
-        const response = await fetch('http://localhost:5000/api/check-email', {
+        const response = await fetch(`${apiURL}/Customer/forgot-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
@@ -22,7 +25,7 @@ const ResetPassword = () => {
 
         const data = await response.json();
 
-        if (data.exists) {
+        if (data.exists !== false) {
           setIsEmailValid(true);
           setErrorMessage('');
         } else {
@@ -33,11 +36,16 @@ const ResetPassword = () => {
         setErrorMessage('Server error. Please try again.');
       }
     } else {
+      if (newPassword !== confirmPassword) {
+        setErrorMessage("Passwords do not match.");
+        return;
+      }
+
       try {
-        const response = await fetch('http://localhost:5000/api/reset-password', {
+        const response = await fetch(`${apiURL}/Customer/reset-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, oldPassword, newPassword }),
+          body: JSON.stringify({ token, newPassword, confirmPassword }),
         });
 
         const data = await response.json();
@@ -45,8 +53,9 @@ const ResetPassword = () => {
         if (data.success) {
           alert('Password successfully changed!');
           setEmail('');
-          setOldPassword('');
+          setToken('');
           setNewPassword('');
+          setConfirmPassword('');
           setIsEmailValid(false);
           setErrorMessage('');
         } else {
@@ -61,10 +70,9 @@ const ResetPassword = () => {
 
   return (
     <div className="reset-password-container">
-    
       <div className="reset-password-form-container">
         <h2>Reset Password</h2>
-        <p>Enter your email address to reset your password.</p>
+        <p>Enter your email address to receive a reset token.</p>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -81,10 +89,10 @@ const ResetPassword = () => {
             <>
               <div className="form-group">
                 <input
-                  type="password"
-                  placeholder="Old Password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
+                  type="text"
+                  placeholder="Token"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
                   required
                 />
               </div>
@@ -97,11 +105,20 @@ const ResetPassword = () => {
                   required
                 />
               </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </>
           )}
 
-          <button type="submit" className="submit-button">
-            {isEmailValid ? 'Change Password' : 'Verify Email'}
+          <button type="submit" className="update-button">
+            {isEmailValid ? 'Change Password' : 'Send Reset Token'}
           </button>
         </form>
       </div>
