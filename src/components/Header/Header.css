@@ -57,7 +57,7 @@ nav {
   color: var(--gray-500);
   background-color: #f0f0f0;
   border: 0px solid transparent;
-  transform: translateY(-3px); 
+  transform: translateY(-2px); 
 }
 
 .nav-container {
