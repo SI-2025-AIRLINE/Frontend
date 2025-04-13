@@ -13,7 +13,6 @@ export default function FlightSearch() {
   const [originAirport, setOriginAirport] = useState("");
   const [destinationAirport, setDestinationAirport] = useState("");
   const [departDate, setDepartDate] = useState(null);
-  const [returnDate, setReturnDate] = useState(null);
 
   const handleOriginChange = (e) => {
     setOriginAirport(e.target.value);
@@ -21,26 +20,25 @@ export default function FlightSearch() {
   const handleDestinationChange = (e) => {
     setDestinationAirport(e.target.value);
   };
-
   const handleDepartChange = (date) => {
     const formattedDate = date.toISOString().split('T')[0];
     setDepartDate(formattedDate);
-    if (returnDate && (date > returnDate)) setReturnDate(date);
   };
 
   /********************************
    *     Filter Bars Logic        *
    ********************************/
-  const [data, setData] = useState([]);  // Držimo filtrirane letove
-  const [flights, setFlights] = useState([]); // Držimo sve letove (nefiltrirane)
+  const [data, setData] = useState([]);
+  const [flights, setFlights] = useState([]);
+
   const [takeoffBegin, setTakeoffBegin] = useState(null);
   const [takeoffEnd, setTakeoffEnd] = useState(null);
   const [landingBegin, setLandingBegin] = useState(null);
   const [landingEnd, setLandingEnd] = useState(null);
+
   const [priceOption, setPriceOption] = useState("");
   const [durationOption, setDurationOption] = useState("");
 
-  // FILTER BY PRICE
   const priceFilterMap = {
     'Economy: Cheapest to Priciest': (a, b) => a.economyPrice - b.economyPrice,
     'Economy: Priciest to Cheapest': (a, b) => b.economyPrice - a.economyPrice,
@@ -50,17 +48,6 @@ export default function FlightSearch() {
     'First class: Priciest to Cheapest': (a, b) => b.firstClassPrice - a.firstClassPrice,
   };
 
-  const handlePriceOptionChange = (e) => {
-    const selectedOption = e.target.value;
-    setPriceOption(selectedOption);
-
-    if (selectedOption) {
-      const sortedFlights = [...data].sort(priceFilterMap[selectedOption]);
-      setData(sortedFlights);
-    }
-  };
-
-  // FILTER BY DURATION
   const durationFilterMap = {
     'Shortest to Longest': (a, b) => {
       const durationA = (new Date(a.arrivalTime) - new Date(a.departureTime)) / 60000;
@@ -74,89 +61,66 @@ export default function FlightSearch() {
     },
   };
 
+  // Funkcija koja kombinuje sve filtere i sortiranje
+  const applyFilters = () => {
+    let filtered = [...flights];
+
+    // Takeoff filter
+    if (takeoffBegin || takeoffEnd) {
+      filtered = filtered.filter(flight => {
+        const takeoffTime = new Date(flight.departureTime);
+        const flightMinutes = takeoffTime.getHours() * 60 + takeoffTime.getMinutes();
+        const beginMinutes = takeoffBegin ? takeoffBegin.getHours() * 60 + takeoffBegin.getMinutes() : 0;
+        const endMinutes = takeoffEnd ? takeoffEnd.getHours() * 60 + takeoffEnd.getMinutes() : 1440;
+        return flightMinutes >= beginMinutes && flightMinutes <= endMinutes;
+      });
+    }
+
+    // Landing filter
+    if (landingBegin || landingEnd) {
+      filtered = filtered.filter(flight => {
+        const landingTime = new Date(flight.arrivalTime);
+        const flightMinutes = landingTime.getHours() * 60 + landingTime.getMinutes();
+        const beginMinutes = landingBegin ? landingBegin.getHours() * 60 + landingBegin.getMinutes() : 0;
+        const endMinutes = landingEnd ? landingEnd.getHours() * 60 + landingEnd.getMinutes() : 1440;
+        return flightMinutes >= beginMinutes && flightMinutes <= endMinutes;
+      });
+    }
+
+    // Price filter
+    if (priceOption) {
+      filtered.sort(priceFilterMap[priceOption]);
+    }
+
+    // Duration filter
+    if (durationOption) {
+      filtered.sort(durationFilterMap[durationOption]);
+    }
+
+    setData(filtered);
+  };
+
+  // Filters reset button
+  const resetFilters = () => {
+    setTakeoffBegin(null);
+    setTakeoffEnd(null);
+    setLandingBegin(null);
+    setLandingEnd(null);
+    setPriceOption("");
+    setDurationOption("");
+    setData(flights);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [takeoffBegin, takeoffEnd, landingBegin, landingEnd, priceOption, durationOption, flights]);
+
+  const handlePriceOptionChange = (e) => {
+    setPriceOption(e.target.value);
+  };
   const handleDurationOptionChange = (e) => {
-    const selectedOption = e.target.value;
-    setDurationOption(selectedOption);
-
-    if (selectedOption) {
-      const sortedFlights = [...data].sort(durationFilterMap[selectedOption]);
-      setData(sortedFlights);
-    }
+    setDurationOption(e.target.value);
   };
-
-// FILTER WITH TAKEOFF INTERVAL - NOT WORKING RN
-const handleTakeoffIntervalChange = () => {
-    let filteredFlights = [...flights];
-  
-    if (takeoffBegin && takeoffEnd) {
-      filteredFlights = filteredFlights.filter(flight => {
-        const takeoffTime = new Date(flight.departureTime);
-        return takeoffTime >= new Date(takeoffBegin) && takeoffTime <= new Date(takeoffEnd); 
-      });
-    } else if (takeoffBegin) {    
-      filteredFlights = filteredFlights.filter(flight => {
-        const takeoffTime = new Date(flight.departureTime);
-        return takeoffTime >= new Date(takeoffBegin);
-      });
-    } else if (takeoffEnd) {
-      filteredFlights = filteredFlights.filter(flight => {
-        const takeoffTime = new Date(flight.departureTime);
-        return takeoffTime <= new Date(takeoffEnd);
-      });
-    }
-  
-    setData(filteredFlights);
-  };
-  
-// FILTER WITH LANDING INTERVAL - NOT WORKING RN
-const handleLandingIntervalChange = () => {
-    let filteredFlights = [...flights];
-  
-    if (landingBegin && landingEnd) {
-      filteredFlights = filteredFlights.filter(flight => {
-        const landingTime = new Date(flight.arrivalTime);
-        return landingTime >= new Date(landingBegin) && landingTime <= new Date(landingEnd);
-      });
-    } else if (landingBegin) {
-      filteredFlights = filteredFlights.filter(flight => {
-        const landingTime = new Date(flight.arrivalTime);
-        return landingTime >= new Date(landingBegin);
-      });
-    } else if (landingEnd) {
-      filteredFlights = filteredFlights.filter(flight => {
-        const landingTime = new Date(flight.arrivalTime);
-        return landingTime <= new Date(landingEnd);
-      });
-    }
-  
-    setData(filteredFlights);
-  };
-
-  //LISTENER ZA RESET LETOVA (samo me on slusa rn)
-
-  useEffect(() => { 
-    if (takeoffEnd) {
-      let filteredFlights = [...flights]; 
-  
-      if (takeoffBegin && takeoffEnd) {
-        filteredFlights = filteredFlights.filter(flight => {
-          const takeoffTime = new Date(flight.departureTime);
-          return takeoffTime >= new Date(takeoffBegin) && takeoffTime <= new Date(takeoffEnd);
-        });
-      } else if (takeoffBegin) {
-        filteredFlights = filteredFlights.filter(flight => {
-          const takeoffTime = new Date(flight.departureTime);
-          return takeoffTime >= new Date(takeoffBegin);
-        });
-      } else if (takeoffEnd) {
-        filteredFlights = filteredFlights.filter(flight => {
-          const takeoffTime = new Date(flight.departureTime);
-          return takeoffTime <= new Date(takeoffEnd);
-        });
-      }
-      setData(filteredFlights);
-    }
-  }, [takeoffBegin, takeoffEnd, landingEnd, landingBegin, flights]);
 
   /*********************************
    *     Fetch Flights logic       *
@@ -175,15 +139,9 @@ const handleLandingIntervalChange = () => {
         return res.json();
       })
       .then(json => {
-        //Reset them filtHers!
-        setPriceOption("");
-        setDurationOption("");
-        setTakeoffBegin(null);
-        setTakeoffEnd(null);
-        setLandingBegin(null);
-        setLandingEnd(null);
-        setData(json);
+        resetFilters();
         setFlights(json);
+        setData(json);
         setShowFlights(true);
       })
       .catch(error => {
@@ -191,10 +149,9 @@ const handleLandingIntervalChange = () => {
       });
   };
 
-    /********************************
-    *          THE PAGE            *
-    ********************************/
-
+  /********************************
+   *          THE PAGE            *
+   ********************************/
   return (
     <>
       {/********************************
@@ -225,7 +182,7 @@ const handleLandingIntervalChange = () => {
         />
         <button
           className="Btn"
-          onClick={() => { getFlights(); }}
+          onClick={getFlights}
           disabled={!originAirport || !destinationAirport}
         >
           Search
@@ -237,75 +194,82 @@ const handleLandingIntervalChange = () => {
        ********************************/}
       {showFlights && flights.length > 0 &&
         <div className="FlightFiltersDiv">
-          <DatePicker
-            selected={takeoffBegin}
-            onChange={(date) => {setTakeoffBegin(date), handleTakeoffIntervalChange()}}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={10}
-            timeCaption="Time"
-            dateFormat="HH:mm"
-            timeFormat="HH:mm"
-            placeholderText="Pocetak - ne radi"
-          />
-          <DatePicker
-            selected={takeoffEnd}
-            onChange={(date) => {setTakeoffEnd(date), handleTakeoffIntervalChange()}}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={10}
-            timeCaption="Time"
-            dateFormat="HH:mm"
-            timeFormat="HH:mm"
-            placeholderText="Kraj - ne radi"
-          />
-          <DatePicker
-            selected={landingBegin}
-            onChange={(date) => {setLandingBegin(date), handleLandingIntervalChange()}}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={10}
-            timeCaption="Time"
-            dateFormat="HH:mm"
-            timeFormat="HH:mm"
-            placeholderText="Pocetak - ne radi"
-          />
-          <DatePicker
-            selected={landingEnd}
-            onChange={(date) => {setLandingEnd(date), handleLandingIntervalChange()}}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={10}
-            timeCaption="Time"
-            dateFormat="HH:mm"
-            timeFormat="HH:mm"
-            placeholderText="Kraj - ne radi"
-          />
+          <div className="TimeFilters">
+            <DatePicker
+              selected={takeoffBegin}
+              onChange={(date) => setTakeoffBegin(date)}
+              showTimeSelect
+              showTimeSelectOnly
+              timeIntervals={10}
+              timeCaption="Time"
+              dateFormat="HH:mm"
+              timeFormat="HH:mm"
+              placeholderText="Takeoff start (e.g. 00:00)"
+            />
+            <DatePicker
+              selected={takeoffEnd}
+              onChange={(date) => setTakeoffEnd(date)}
+              showTimeSelect
+              showTimeSelectOnly
+              timeIntervals={10}
+              timeCaption="Time"
+              dateFormat="HH:mm"
+              timeFormat="HH:mm"
+              placeholderText="Takeoff end (e.g. 23:59)"
+            />
+            <DatePicker
+              selected={landingBegin}
+              onChange={(date) => setLandingBegin(date)}
+              showTimeSelect
+              showTimeSelectOnly
+              timeIntervals={10}
+              timeCaption="Time"
+              dateFormat="HH:mm"
+              timeFormat="HH:mm"
+              placeholderText="Landing start (e.g. 00:00)"
+            />
+            <DatePicker
+              selected={landingEnd}
+              onChange={(date) => setLandingEnd(date)}
+              showTimeSelect
+              showTimeSelectOnly
+              timeIntervals={10}
+              timeCaption="Time"
+              dateFormat="HH:mm"
+              timeFormat="HH:mm"
+              placeholderText="Landing end (e.g. 23:59)"
+            />
+          </div>
 
-          <select
-            id="FlightPriceDropdown"
-            value={priceOption}
-            onChange={handlePriceOptionChange}
-            placeholder="Filter by price:"
-          >
-            <option value="" disabled hidden>Select Price Order</option>
-            <option value="Economy: Cheapest to Priciest">Economy: Cheapest to Priciest</option>
-            <option value="Economy: Priciest to Cheapest">Economy: Priciest to Cheapest</option>
-            <option value="Business: Cheapest to Priciest">Business: Cheapest to Priciest</option>
-            <option value="Business: Priciest to Cheapest">Business: Priciest to Cheapest</option>
-            <option value="First class: Cheapest to Priciest">First class: Cheapest to Priciest</option>
-            <option value="First class: Priciest to Cheapest">First class: Priciest to Cheapest</option>
-          </select>
+          <div className="SortFilters">
+            <select
+              id="FlightPriceDropdown"
+              value={priceOption}
+              onChange={handlePriceOptionChange}
+            >
+              <option value="" disabled hidden>Select Price Order</option>
+              <option value="Economy: Cheapest to Priciest">Economy: Cheapest to Priciest</option>
+              <option value="Economy: Priciest to Cheapest">Economy: Priciest to Cheapest</option>
+              <option value="Business: Cheapest to Priciest">Business: Cheapest to Priciest</option>
+              <option value="Business: Priciest to Cheapest">Business: Priciest to Cheapest</option>
+              <option value="First class: Cheapest to Priciest">First class: Cheapest to Priciest</option>
+              <option value="First class: Priciest to Cheapest">First class: Priciest to Cheapest</option>
+            </select>
 
-          <select
-            id="FlightDurationDropdown"
-            value={durationOption}
-            onChange={handleDurationOptionChange}
-          >
-            <option value="" disabled hidden>Select Flight Duration Order</option>
-            <option value="Shortest to Longest">Shortest to Longest</option>
-            <option value="Longest to Shortest">Longest to Shortest</option>
-          </select>
+            <select
+              id="FlightDurationDropdown"
+              value={durationOption}
+              onChange={handleDurationOptionChange}
+            >
+              <option value="" disabled hidden>Select Flight Duration Order</option>
+              <option value="Shortest to Longest">Shortest to Longest</option>
+              <option value="Longest to Shortest">Longest to Shortest</option>
+            </select>
+          </div>
+
+          <button className="ResetBtn" onClick={resetFilters}>
+            Reset Filters
+          </button>
         </div>
       }
 
@@ -314,47 +278,51 @@ const handleLandingIntervalChange = () => {
        ********************************/}
       <div className="FlightTicketsDiv">
         {showFlights && flights.length > 0 ? (
-          data.map((flight, index) => {
-            return (
-              <div className="FlightCard" key={index}>
-                <div className="FlightRoute">
-                  <span className="Code">{flight.departureDestination.cityCode}</span>
-                  <span className="Arrow">→</span>
-                  <span className="Code">{flight.arrivalDestination.cityCode}</span>
-                </div>
+          data.map((flight, index) => (
+            <div className="FlightCard" key={index}>
+              <div className="FlightRoute">
+                <span className="Code">{flight.departureDestination.cityCode}</span>
+                <span className="Arrow">→</span>
+                <span className="Code">{flight.arrivalDestination.cityCode}</span>
+              </div>
 
-                <div className="FlightInfo">
-                  <div>
-                    <p className="SmallLabel">Flight</p>
-                    <p>{flight.flightNumber}</p>
-                  </div>
-                  <div>
-                    <p className="SmallLabel">Departure</p>
-                    <p>
-                      {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="SmallLabel">Arrival</p>
-                    <p>
-                      {new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="SmallLabel">Seats</p>
-                    <p>{flight.availableSeats} left</p>
-                  </div>
+              <div className="FlightInfo">
+                <div>
+                  <p className="SmallLabel">Flight</p>
+                  <p>{flight.flightNumber}</p>
                 </div>
-
-                <div className="FlightPrices">
-                  <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>Economy: €{flight.economyPrice}</p>
-                  <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}> Business: €{flight.businessPrice}</p>
-                  <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>First Class: €{flight.firstClassPrice}</p>
-                  <button className="BookBtn">Book Now</button>
+                <div>
+                  <p className="SmallLabel">Departure</p>
+                  <p>
+                    {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <div>
+                  <p className="SmallLabel">Arrival</p>
+                  <p>
+                    {new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <div>
+                  <p className="SmallLabel">Seats</p>
+                  <p>{flight.availableSeats} left</p>
                 </div>
               </div>
-            );
-          })
+
+              <div className="FlightPrices">
+                <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
+                  Economy: €{flight.economyPrice}
+                </p>
+                <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
+                  Business: €{flight.businessPrice}
+                </p>
+                <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
+                  First Class: €{flight.firstClassPrice}
+                </p>
+                <button className="BookBtn">Book Now</button>
+              </div>
+            </div>
+          ))
         ) : (
           showFlights && <p>No flights found.</p>
         )}
