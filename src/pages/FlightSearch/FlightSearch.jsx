@@ -6,9 +6,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function FlightSearch() {
-  /********************************
-   *     Search Bar Logic         *
-   ********************************/
   const today = new Date();
   const [originAirport, setOriginAirport] = useState("");
   const [destinationAirport, setDestinationAirport] = useState("");
@@ -21,13 +18,9 @@ export default function FlightSearch() {
     setDestinationAirport(e.target.value);
   };
   const handleDepartChange = (date) => {
-    const formattedDate = date.toISOString().split('T')[0];
-    setDepartDate(formattedDate);
+    setDepartDate(date);
   };
 
-  /********************************
-   *     Filter Bars Logic        *
-   ********************************/
   const [data, setData] = useState([]);
   const [flights, setFlights] = useState([]);
 
@@ -61,11 +54,9 @@ export default function FlightSearch() {
     },
   };
 
-  // Funkcija koja kombinuje sve filtere i sortiranje
   const applyFilters = () => {
     let filtered = [...flights];
 
-    // Takeoff filter
     if (takeoffBegin || takeoffEnd) {
       filtered = filtered.filter(flight => {
         const takeoffTime = new Date(flight.departureTime);
@@ -76,7 +67,6 @@ export default function FlightSearch() {
       });
     }
 
-    // Landing filter
     if (landingBegin || landingEnd) {
       filtered = filtered.filter(flight => {
         const landingTime = new Date(flight.arrivalTime);
@@ -87,12 +77,10 @@ export default function FlightSearch() {
       });
     }
 
-    // Price filter
     if (priceOption) {
       filtered.sort(priceFilterMap[priceOption]);
     }
 
-    // Duration filter
     if (durationOption) {
       filtered.sort(durationFilterMap[durationOption]);
     }
@@ -100,7 +88,6 @@ export default function FlightSearch() {
     setData(filtered);
   };
 
-  // Filters reset button
   const resetFilters = () => {
     setTakeoffBegin(null);
     setTakeoffEnd(null);
@@ -122,13 +109,12 @@ export default function FlightSearch() {
     setDurationOption(e.target.value);
   };
 
-  /*********************************
-   *     Fetch Flights logic       *
-   *********************************/
   const [showFlights, setShowFlights] = useState(false);
 
   const getFlights = () => {
-    fetch(`${apiURL}/FlightSearch/search?from=${originAirport}&to=${destinationAirport}&date=${departDate}`, {
+    const formattedDate = departDate?.toLocaleDateString('en-CA'); // yyyy-mm-dd
+
+    fetch(`${apiURL}/FlightSearch/search?from=${originAirport}&to=${destinationAirport}&date=${formattedDate}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -149,14 +135,8 @@ export default function FlightSearch() {
       });
   };
 
-  /********************************
-   *          THE PAGE            *
-   ********************************/
   return (
     <>
-      {/********************************
-       *          Search Bar          *
-       ********************************/}
       <div className="FlightSearchDiv">
         <input
           type="text"
@@ -171,7 +151,7 @@ export default function FlightSearch() {
           value={destinationAirport}
         />
         <DatePicker
-          selected={departDate ? new Date(departDate) : null}
+          selected={departDate}
           onChange={handleDepartChange}
           dateFormat="dd/MM/yyyy"
           placeholderText="Select departure date"
@@ -183,15 +163,12 @@ export default function FlightSearch() {
         <button
           className="Btn"
           onClick={getFlights}
-          disabled={!originAirport || !destinationAirport}
+          disabled={!originAirport || !destinationAirport || !departDate}
         >
           Search
         </button>
       </div>
 
-      {/********************************
-       *          Filters Bar         *
-       ********************************/}
       {showFlights && flights.length > 0 &&
         <div className="FlightFiltersDiv">
           <div className="TimeFilters">
@@ -273,9 +250,6 @@ export default function FlightSearch() {
         </div>
       }
 
-      {/********************************
-       *          Flights Bar         *
-       ********************************/}
       <div className="FlightTicketsDiv">
         {showFlights && flights.length > 0 ? (
           data.map((flight, index) => (
