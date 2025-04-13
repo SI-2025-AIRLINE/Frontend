@@ -35,11 +35,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/update-profile" element={<UpdateDetails />} />
-          <Route path="/destination-management" element={<DestinationManagement />} />
-          <Route path="/aircraft-management" element={<AircraftManagement />} />
-          <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/admin-homepage" element={<AdminHomePage />} />
-          <Route path="/flight-scheduling" element={<FlightScheduling />} />
+          <Route path="/admin/destinationManagement" element={<DestinationManagement />} />
+          <Route path="/admin/aircraftManagement" element={<AircraftManagement />} />
+          <Route path="/admin/userManagement" element={<UserManagement />} />
+          <Route path="/admin" element={<AdminHomePage />} />
+          <Route path="/admin/flightScheduling" element={<FlightScheduling />} />
       </Routes>
 
       </div>
