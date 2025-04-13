@@ -281,11 +281,12 @@ function FlightScheduling() {
 
 
     const getAircraftIdByModel = async (model) => {
-        const response = await fetch(`${apiURL}/Aircraft`);
+        const response = await fetch(`${apiURL}/Aircraft/byModel/${model}`);
         console.log("model: ", model);
 
         if (response.ok) {
             const aircrafts = await response.json();
+            console.log("aircrafts: ", aircrafts);
 
             const aircraft = aircrafts.find(aircraft => String(aircraft.model) === String(model));
 
