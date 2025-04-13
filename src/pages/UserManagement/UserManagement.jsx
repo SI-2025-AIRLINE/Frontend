@@ -20,7 +20,10 @@ const UserManagement = () => {
     const [editUser, setEditUser] = useState(null);
     const [filter, setFilter] = useState('Staff');
     const [isAddUserVisible, setIsAddUserVisible] = useState(false);
-    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
+    //const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
+    // For pagination
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [originalUser, setOriginalUser] = useState({});
@@ -54,6 +57,12 @@ const UserManagement = () => {
         return Math.random().toString(36).substring(2, 15) + 
                Math.random().toString(36).substring(2, 15);
     }
+
+    // Load users on component mount and when filter or pagination changes
+    useEffect(() => {
+        setEditUser(null);
+        fetchUsers();
+    }, [filter, pageNumber, pageSize]);
 
     // Prepare user object for API requests
     const prepareUserForApi = (user, isNew = false) => {
@@ -98,8 +107,8 @@ const UserManagement = () => {
 
             if (filter === 'Staff') {
                 const [adminsResponse, employeesResponse] = await Promise.all([
-                    fetch(`${API_BASE_URL}/User/admins`),
-                    fetch(`${API_BASE_URL}/User/employees`)
+                    fetch(`${API_BASE_URL}/User/admins?pageNumber=${pageNumber}&pageSize=${pageSize}`),
+                    fetch(`${API_BASE_URL}/User/employees?pageNumber=${pageNumber}&pageSize=${pageSize}`)
                 ]);
 
                 if (!adminsResponse.ok || !employeesResponse.ok) {
@@ -114,15 +123,15 @@ const UserManagement = () => {
                 setUsers([...admins, ...employees].map(user => prepareUserForUI(user)));
                 return;
             } else if (filter === 'Customer') {
-                url = `${API_BASE_URL}/Customer`; // Ispravna ruta
+                url = `${API_BASE_URL}/Customer?pageNumber=${pageNumber}&pageSize=${pageSize}`; // Ispravna ruta
             }
 
 
-            // Add pagination parameters
+            /*Add pagination parameters
             url += `?pageNumber=${pagination.pageNumber}&pageSize=${pagination.pageSize}`;
-
+            */
             const response = await fetch(url);
-
+            
             if (!response.ok) {
                 throw new Error(`API error: ${response.statusText}`);
             }
@@ -137,16 +146,10 @@ const UserManagement = () => {
         }
     };
 
-    // Load users on component mount and when filter or pagination changes
-    useEffect(() => {
-        setEditUser(null);
-        fetchUsers();
-    }, [filter, pagination.pageNumber, pagination.pageSize]);
-
-    // Handle pagination changes
+    /* Handle pagination changes
     const handlePageChange = (newPage) => {
         setPagination(prev => ({ ...prev, pageNumber: newPage }));
-    };
+    };*/
 
     // Add a new user
     const handleAddUser = async () => {
@@ -332,7 +335,6 @@ const UserManagement = () => {
                 return;
             }
         }
-
 
         try {
             // Prepare user/customer with proper role format for API
@@ -561,15 +563,17 @@ const UserManagement = () => {
                         </table>
                             <div className="pagination">
                                 <button
-                                    onClick={() => handlePageChange(pagination.pageNumber - 1)}
-                                    disabled={pagination.pageNumber === 1 || loading}
+                                    className="btn"
+                                    disabled={pageNumber <= 1}
+                                    onClick={() => setPageNumber(prev => Math.max(1, prev - 1))}
                                 >
                                     Previous
                                 </button>
-                                <span style={{ alignItems: 'center' }}>Page {pagination.pageNumber}</span>
+                                <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
                                 <button
-                                    onClick={() => handlePageChange(pagination.pageNumber + 1)}
-                                    disabled={filteredUsers.length < pagination.pageSize || loading}
+                                    className="btn"
+                                    onClick={() => setPageNumber(prev => prev + 1)}
+                                    disabled={filteredUsers.length < pageSize}
                                 >
                                     Next
                                 </button>
