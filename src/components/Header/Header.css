@@ -49,12 +49,15 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Dodavanje tranzicije */
+  transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Dodavanje tranzicije */
+  
 }
 
 .header-center button:hover, .header-right button:hover {
-  background-color: #f0f0f0; 
-  transform: translateY(-2px); 
+  color: var(--gray-500);
+  background-color: #f0f0f0;
+  border: 0px solid transparent;
+  transform: translateY(-3px); 
 }
 
 .nav-container {
