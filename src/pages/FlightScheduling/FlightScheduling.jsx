@@ -562,7 +562,7 @@ function FlightScheduling() {
                                 <td>{flight.aircraft?.model}</td>
 
                                 <td>
-                                    {new Date(flight.departureTime).toLocaleDateString('en-GB')}
+                                    {flight.departureTime ? new Date(flight.departureTime).toLocaleDateString('en-GB') : ''                                    }
                                 </td>
 
                                 <td style={{ textAlign: 'right' }}>
