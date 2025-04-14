@@ -80,12 +80,14 @@ function FlightScheduling() {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Greška prilikom kreiranja leta:", errorText);
+            console.log("Error while creating a flight:", errorText);
+            window.alert("An error ocurred while creating a flight!");
             return null;
         }
 
         const createdFlight = await response.json();
-        console.log("Uspešno kreiran let:", createdFlight);
+        console.log("Flight is created:", createdFlight);
+        window.alert("Flight is added successfully!");
         return createdFlight;
     }
 
@@ -199,12 +201,13 @@ function FlightScheduling() {
     const updateFlight = async (flightData) => {
         // If newFlight is undefined or lacks essential information, exit early
         if (!newFlight || !newFlight.flightNumber || !newFlight.origin || !newFlight.destination) {
-            console.error("Missing flight data");
+            window.alert("Missing flight data");
             return false;
         }
         console.log("Editing data: ", editingFlight);
         console.log("FlightData: ", flightData);
         console.log("New flight: ", newFlight);
+
         try {
             // Fetch IDs for the aircraft, departure, and arrival destinations
             const aircraftId = await getAircraftIdByModel(newFlight.aircraftType);
@@ -251,9 +254,11 @@ function FlightScheduling() {
             // Refresh flight list after update
             await fetchFlights();  // Re-fetch updated list of flights
             closeEditForm();
+            window.alert("Flight is successfully updated!");
             return true;  // Return true to indicate success
         } catch (error) {
-            console.error('Failed to update flight:', error);
+            console.log('Failed to update flight:', error);
+            window.alert('Failed to update flight.');
             return false;  
         }
     };
@@ -265,10 +270,10 @@ function FlightScheduling() {
             if (destinations.length > 0) {
                 return destinations[0].id;
             } else {
-                throw new Error("Destinacija nije pronađena.");
+                throw new Error("Destination can't be found.");
             }
         } else {
-            throw new Error("Greška pri pronalaženju destinacije.");
+            throw new Error("Error finding a destination.");
         }
     };
 
@@ -285,16 +290,17 @@ function FlightScheduling() {
             if (aircraft) {
                 return aircraft.id; 
             } else {
-                throw new Error("Avion sa tim modelom nije pronađen.");
+                throw new Error("Plane with that model can't be found.");
             }
         } else {
-            throw new Error("Greška pri pronalaženju aviona.");
+            throw new Error("Error finding an plane.");
         }
     };
 
     // Funkcija za dodavanje novog leta  
     const handleAddFlight = async () => {
         if (!newFlight.flightNumber || !newFlight.origin || !newFlight.destination) {
+            window.alert("Missing information!");
             return;
         }
         console.log(newFlight.origin);
@@ -326,17 +332,31 @@ function FlightScheduling() {
             };
 
             const createdFlight = await createFlight(flightPayload);
-            console.log("Flight added succesfully", createdFlight);
+
+            if (createdFlight) {
+                window.alert("Flight was successfully added.");
+                console.log("Flight added successfully", createdFlight);
+            } else {
+                window.alert("Failed to add flight.");
+                console.error("Flight creation failed", createdFlight);
+            }
+
             setIsAddingNew(false);
             resetForm();
             await fetchFlights();
         } catch (error) {
-            console.error("Greška pri kreiranju leta:", error.message);
+            console.error("Flight creation failed:", error.message);
         }
     };
 
     //DELETE: /api/Flight/id
     const handleDeleteFlight = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this flight?");
+
+        if (!confirmDelete) {
+            return; 
+        }
+
         try {
            
             const response = await fetch(`${apiURL}/Flight/${id}`, {
@@ -349,9 +369,12 @@ function FlightScheduling() {
             }
 
             setFlights(flights.filter(f => f.id !== id));
+            window.alert("Flight deleted successfully.");
+
+            fetchFlights(); 
         } catch (error) {
-            console.error('Došlo je do greške:', error);
-            
+            console.error('An error occured:', error);
+            window.alert("Failed to delete flight.");
         }
     };
 
