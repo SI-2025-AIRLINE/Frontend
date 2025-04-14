@@ -135,7 +135,7 @@ export default function DestinationManagement() {
         }
     };
 
-    const checkIataCodeExists = async (iataCode) => {
+   /* const checkIataCodeExists = async (iataCode) => {
         try {
             const response = await fetch(`${apiURL}/Destination/byAirport/${iataCode}`);
             if (response.ok) {
@@ -148,7 +148,7 @@ export default function DestinationManagement() {
             console.error('Error checking IATA code: ', error);
             return false;
         }
-    };
+    };*/
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -165,27 +165,19 @@ export default function DestinationManagement() {
             !onlyLettersRegex.test(formData.cityCode) ||
             !onlyLettersRegex.test(formData.airportCode)
         ) {
-            setError("Fields 'Airport name', 'City' and 'IATA' must contain only letters.");
+            alert("Fields 'Airport name', 'City' and 'IATA' must contain only letters.");
             return;
         }
 
-        const iataExists = await checkIataCodeExists(formData.airportCode);
 
-        if (iataExists) {
-            setError('An airport with this IATA code already exists!');
-            return;
-        } else {
-            setError('');
-        }
-        let success = false;
-
+         let success;
         if (editingAirport) {
             // Update existing airport
             success = await updateAirport(editingAirport.id, formData);
             if (success) {
-                setError('Airport updated successfully');
+                alert('Airport updated successfully');
             } else {
-                setError('Failed to update airport');
+                alert('Failed to update airport, check IATA code.');
                 return;
             }
         } else {
@@ -195,15 +187,17 @@ export default function DestinationManagement() {
             formData.Status = Number(formData.Status);
             success = await createAirport(formData);
             if (success) {
-                setError('Airport added successfully');
+                alert('Airport added successfully');
             } else {
-                setError('Failed to add airport');
+                alert('Failed to add airport');
                 return;
             }
         }
 
         // Reset form state
         setFormData({ name: '', cityCode: '', airportCode: '', Status: 1 });
+        setEditingAirport(null);
+        setShowForm(false); 
     }
 
     async function handleDelete(id) {
@@ -234,11 +228,13 @@ export default function DestinationManagement() {
             Status: airport.status
         }); 
         setShowForm(true); 
+        setError(null);
     }
     function handleCancel() {
         setFormData({ id: null, name: '', cityCode: '', airportCode: '', Status: true });
         setShowForm(false);
         setEditingAirport(null);
+        setError(null);
     }
 
     return (
