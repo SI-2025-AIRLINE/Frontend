@@ -168,7 +168,8 @@ function FlightScheduling() {
 
     const closeEditForm = () => {
         setIsAddingNew(false); 
-        setEditingFlight(null); 
+        setEditingFlight(null);
+        resetForm(); 
     };
 
     const handleEditFlight = (flight) => {
