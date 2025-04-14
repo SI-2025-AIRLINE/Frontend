@@ -542,9 +542,9 @@ function FlightScheduling() {
                             <th>Flight</th>
                             <th>Schedule</th>
                             <th>Route</th>
-                            <th>Times</th>
+                            <th>D/A Times</th>
                             <th>Aircraft</th>
-                            <th>Validity</th>
+                            <th>Departure Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -562,7 +562,7 @@ function FlightScheduling() {
                                 <td>{flight.aircraft?.model}</td>
 
                                 <td>
-                                    {new Date(flight.validFrom).toLocaleDateString('en-GB')} - {new Date(flight.validTo).toLocaleDateString('en-GB')}
+                                    {new Date(flight.departureTime).toLocaleDateString('en-GB')}
                                 </td>
 
                                 <td style={{ textAlign: 'right' }}>
