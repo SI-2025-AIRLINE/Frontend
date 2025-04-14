@@ -43,11 +43,11 @@ h1 {
     }
 
         .filter-buttons button:hover {
-            background-color: #e0e0e0;
+            background-color: #0056b3;
         }
 
     .filter-buttons .active {
-        background-color: #007bff;
+        background-color: #007fff;
         color: white;
         font-weight: bold;
         border-color: #007bff;

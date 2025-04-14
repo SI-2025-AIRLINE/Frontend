@@ -55,6 +55,7 @@ body {
     cursor: pointer;
     border: 1px solid transparent;
     color: white;
+    transition: background-color 0.2s ease;
 }
 
 .cancel-button {
@@ -71,7 +72,7 @@ body {
 }
 
     .add-button:hover, .cancel-button:hover {
-        opacity: 0.85;
+        background-color: var(--primary-hover);
     }
 
 /* Form */

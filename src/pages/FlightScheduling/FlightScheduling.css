@@ -21,7 +21,7 @@
   }
   
   .container {
-    min-height: 100vh;
+    min-height: auto;
     max-width: 100rem;
     margin: 0 auto;
     padding: 1.5rem;
@@ -235,3 +235,9 @@
     gap: 1rem;
     margin-top: 1.5rem;
   }
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px; /* po �elji */
+}

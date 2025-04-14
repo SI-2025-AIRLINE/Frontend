@@ -43,17 +43,20 @@ nav {
   filter: brightness(1.2); /* Malo povećanje svetline na hover */
 }
 
-.header-button {
+.header-center button, .header-right button {
   width: 120px; /* Veličina dugmadi, možete je prilagoditi */
   height: 40px; /* Veličina dugmadi, treba da bude ista kao ikona */
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Dodavanje tranzicije */
+  transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Dodavanje tranzicije */
+  
 }
 
-.header-button:hover {
-  background-color: #f0f0f0; 
+.header-center button:hover, .header-right button:hover {
+  color: var(--gray-500);
+  background-color: #f0f0f0;
+  border: 0px solid transparent;
   transform: translateY(-2px); 
 }
 

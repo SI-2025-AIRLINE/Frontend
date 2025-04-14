@@ -11,9 +11,13 @@ export default function DestinationManagement() {
     const [airports, setAirports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
+    // For pagination
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
-
+    useEffect(() => {
+        fetchAirports();
+    }, [pageNumber, pageSize]);
 
     // Fetch airports from API
     const fetchAirports = async () => {
@@ -21,7 +25,7 @@ export default function DestinationManagement() {
         setError(null);
 
         try {
-            const url = `${apiURL}/Destination?pageNumber=${pagination.pageNumber}&pageSize=${pagination.pageSize}`;
+            const url = `${apiURL}/Destination?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
             const response = await fetch(url);
             if (!response.ok) {
@@ -30,21 +34,13 @@ export default function DestinationManagement() {
 
             const data = await response.json();
             setAirports(data);
-            setPagination({ ...pagination, totalPages: data.totalPages });
+            
         } catch (err) {
             setError(err.message);
             console.error("Error fetching airports:", err);
         } finally {
             setLoading(false);
         }
-    };
-    useEffect(() => {
-        fetchAirports();
-    }, [pagination.pageNumber, pagination.pageSize]);
-
-
-    const handlePageChange = (newPage) => {
-        setPagination({ ...pagination, pageNumber: newPage });
     };
 
     const [formData, setFormData] = useState({
@@ -139,8 +135,6 @@ export default function DestinationManagement() {
         }
     };
 
-
-
     const checkIataCodeExists = async (iataCode) => {
         try {
             const response = await fetch(`${apiURL}/Destination/byAirport/${iataCode}`);
@@ -155,8 +149,6 @@ export default function DestinationManagement() {
             return false;
         }
     };
-
-
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -243,7 +235,6 @@ export default function DestinationManagement() {
         }); 
         setShowForm(true); 
     }
-    
     function handleCancel() {
         setFormData({ id: null, name: '', cityCode: '', airportCode: '', Status: true });
         setShowForm(false);
@@ -251,7 +242,6 @@ export default function DestinationManagement() {
     }
 
     return (
-
         <div className="container">
 
          <div className="add-button-container">
@@ -380,18 +370,19 @@ export default function DestinationManagement() {
                     {/* Pagination */}
                     <div className="pagination">
                         <button
-                            onClick={() => handlePageChange(pagination.pageNumber - 1)}
-                            disabled={pagination.pageNumber === 1}
+                            className="btn"
+                            disabled={pageNumber <= 1}
+                            onClick={() => setPageNumber(prev => Math.max(1, prev - 1))}
                         >
                             Previous
                         </button>
-                        <span style={{ display: 'flex', alignItems: 'center' }}>Page {pagination.pageNumber}</span>
+                        <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
                         <button
-                            onClick={() => handlePageChange(pagination.pageNumber + 1)}
-                            disabled={pagination.pageNumber === pagination.totalPages}
+                            className="btn"
+                            onClick={() => setPageNumber(prev => prev + 1)}
+                            disabled={airports.length < pageSize}
                         >
                             Next
-
                         </button>
                     </div>
 
