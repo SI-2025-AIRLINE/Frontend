@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import SuggestionsInput from '../../components/SuggestionsInput/SuggestionsInput';
 import EditIcon from '../../components/Icons/pencil.svg';
 import './FlightScheduling.css';
 
@@ -29,6 +30,7 @@ function FlightScheduling() {
     const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
     const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
     const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(-1);
+    const suggestionRefs = useRef([]);
 
 
 
@@ -39,6 +41,16 @@ function FlightScheduling() {
     useEffect(() => {
         setFocusedSuggestionIndex(-1);
     }, [originSuggestions, destinationSuggestions]);
+
+    useEffect(() => {
+        if (focusedSuggestionIndex >= 0 && suggestionRefs.current[focusedSuggestionIndex]) {
+            // Scroll the focused suggestion into view
+            suggestionRefs.current[focusedSuggestionIndex].scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+            });
+        }
+    }, [focusedSuggestionIndex]);
 
     const handleKeyDown = (e, suggestions, setShowSuggestions, selectAirport) => {
         // If suggestions aren't showing, don't handle arrow keys
@@ -96,30 +108,10 @@ function FlightScheduling() {
     };
 
     // Airport search functionality
-    const fetchAirportSuggestions = (query, setSuggestions, setShowSuggestions) => {
-        if (query.length < 1) {
-            setShowSuggestions(false);
-            return;
-        }
-
-        fetch(`${apiURL}/Destination/search?term=${query}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error('HTTP error: ' + res.status);
-                return res.json();
-            })
-            .then(data => {
-                setSuggestions(data);
-                setShowSuggestions(true);
-            })
-            .catch(error => {
-                console.error('Error fetching airport suggestions:', error);
-                setShowSuggestions(false);
-            });
+    const fetchAirportSuggestions = async (query) => {
+        const response = await fetch(`${apiURL}/Destination/search?term=${query}`);
+        if (!response.ok) throw new Error('Failed to fetch suggestions');
+        return await response.json();
     };
 
     const selectOriginAirport = (airport) => {
@@ -132,16 +124,12 @@ function FlightScheduling() {
         setShowDestinationSuggestions(false);
     };
 
-    const handleOriginChange = (e) => {
-        const value = e.target.value;
+    const handleOriginChange = (value) => {
         setNewFlight({ ...newFlight, origin: value });
-        fetchAirportSuggestions(value, setOriginSuggestions, setShowOriginSuggestions);
     };
 
-    const handleDestinationChange = (e) => {
-        const value = e.target.value;
+    const handleDestinationChange = (value) => {
         setNewFlight({ ...newFlight, destination: value });
-        fetchAirportSuggestions(value, setDestinationSuggestions, setShowDestinationSuggestions);
     };
 
     // Click outside to close suggestions
@@ -575,84 +563,25 @@ function FlightScheduling() {
                     </div>
 
                     <div className="form-grid">
-                        {/* Origin with autocomplete */}
                         <div className="form-group airport-input-container">
-                            <label className="time-label">Origin</label>
-                            <input
-                                type="text"
-                                className="form-input"
+                            <SuggestionsInput
+                                label="Origin"
                                 value={newFlight.origin}
-                                placeholder="AAP"
-                                onChange={handleOriginChange}
-                                onKeyDown={(e) => handleKeyDown(
-                                    e,
-                                    originSuggestions,
-                                    setShowOriginSuggestions,
-                                    selectOriginAirport
-                                )}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (newFlight.origin.length >= 1) {
-                                        setShowOriginSuggestions(true);
-                                    }
-                                }}
+                                placeholder="Enter origin airport"
+                                fetchSuggestions={fetchAirportSuggestions}
+                                onSelect={handleOriginChange}
                             />
-                            {showOriginSuggestions && originSuggestions.length > 0 && (
-                                <div className="suggestions-dropdown">
-                                    {originSuggestions.map((airport, index) => (
-                                        <div
-                                            key={index}
-                                            className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                selectOriginAirport(airport);
-                                            }}
-                                        >
-                                            {airport.name} ({airport.cityCode}) - {airport.airportCode}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
 
-                        {/* Destination with autocomplete */}
+                        </div>
                         <div className="form-group airport-input-container">
-                            <label className="time-label">Destination</label>
-                            <input
-                                type="text"
-                                className="form-input"
+
+                            <SuggestionsInput
+                                label="Destination"
                                 value={newFlight.destination}
-                                placeholder="ABJ"
-                                onChange={handleDestinationChange}
-                                onKeyDown={(e) => handleKeyDown(
-                                    e,
-                                    destinationSuggestions,
-                                    setShowDestinationSuggestions,
-                                    selectDestinationAirport
-                                )}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (newFlight.destination.length >= 1) {
-                                        setDestinationSuggestions(true);
-                                    }
-                                }}
+                                placeholder="Enter destination airport"
+                                fetchSuggestions={fetchAirportSuggestions}
+                                onSelect={handleDestinationChange}
                             />
-                            {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                                <div className="suggestions-dropdown">
-                                    {destinationSuggestions.map((airport, index) => (
-                                        <div
-                                            key={index}
-                                            className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                selectDestinationAirport(airport);
-                                            }}
-                                        >
-                                            {airport.name} ({airport.cityCode}) - {airport.airportCode}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     </div>
 
