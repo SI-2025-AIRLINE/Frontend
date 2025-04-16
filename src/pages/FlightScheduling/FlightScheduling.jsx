@@ -23,9 +23,59 @@ function FlightScheduling() {
         }
     ]);
 
+    // New state for airport suggestions
+    const [originSuggestions, setOriginSuggestions] = useState([]);
+    const [destinationSuggestions, setDestinationSuggestions] = useState([]);
+    const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
+    const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
+    const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(-1);
+
+
+
     useEffect(() => {
         fetchFlights();
     }, [pageNumber, pageSize]);
+
+    useEffect(() => {
+        setFocusedSuggestionIndex(-1);
+    }, [originSuggestions, destinationSuggestions]);
+
+    const handleKeyDown = (e, suggestions, setShowSuggestions, selectAirport) => {
+        // If suggestions aren't showing, don't handle arrow keys
+        if (!suggestions.length) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault(); // Prevent cursor movement
+                setFocusedSuggestionIndex(prev =>
+                    prev < suggestions.length - 1 ? prev + 1 : prev
+                );
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault(); // Prevent cursor movement
+                setFocusedSuggestionIndex(prev =>
+                    prev > 0 ? prev - 1 : 0
+                );
+                break;
+
+            case 'Enter':
+                e.preventDefault();
+                if (focusedSuggestionIndex >= 0) {
+                    selectAirport(suggestions[focusedSuggestionIndex]);
+                    setFocusedSuggestionIndex(-1);
+                }
+                break;
+
+            case 'Escape':
+                setShowSuggestions(false);
+                setFocusedSuggestionIndex(-1);
+                break;
+
+            default:
+                break;
+        }
+    };
 
     // GET: api/Flight-ispravna
     const fetchFlights = async () => {
@@ -44,6 +94,68 @@ function FlightScheduling() {
             console.error('Failed to fetch flights:', error);
         }
     };
+
+    // Airport search functionality
+    const fetchAirportSuggestions = (query, setSuggestions, setShowSuggestions) => {
+        if (query.length < 1) {
+            setShowSuggestions(false);
+            return;
+        }
+
+        fetch(`${apiURL}/Destination/search?term=${query}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP error: ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                setSuggestions(data);
+                setShowSuggestions(true);
+            })
+            .catch(error => {
+                console.error('Error fetching airport suggestions:', error);
+                setShowSuggestions(false);
+            });
+    };
+
+    const selectOriginAirport = (airport) => {
+        setNewFlight({ ...newFlight, origin: airport.airportCode });
+        setShowOriginSuggestions(false);
+    };
+
+    const selectDestinationAirport = (airport) => {
+        setNewFlight({ ...newFlight, destination: airport.airportCode });
+        setShowDestinationSuggestions(false);
+    };
+
+    const handleOriginChange = (e) => {
+        const value = e.target.value;
+        setNewFlight({ ...newFlight, origin: value });
+        fetchAirportSuggestions(value, setOriginSuggestions, setShowOriginSuggestions);
+    };
+
+    const handleDestinationChange = (e) => {
+        const value = e.target.value;
+        setNewFlight({ ...newFlight, destination: value });
+        fetchAirportSuggestions(value, setDestinationSuggestions, setShowDestinationSuggestions);
+    };
+
+    // Click outside to close suggestions
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setShowOriginSuggestions(false);
+            setShowDestinationSuggestions(false);
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
 
     const resetForm = () => {
         setNewFlight({
@@ -165,13 +277,13 @@ function FlightScheduling() {
     const formatDateForInput = (dateString) => {
         console.log(dateString);
         const [month, day, year] = dateString.split('-');
-        return `${month}-${day}-${year}`; 
+        return `${month}-${day}-${year}`;
     };
 
     const closeEditForm = () => {
-        setIsAddingNew(false); 
+        setIsAddingNew(false);
         setEditingFlight(null);
-        resetForm(); 
+        resetForm();
     };
 
     const handleEditFlight = (flight) => {
@@ -179,11 +291,11 @@ function FlightScheduling() {
         const flightSchedule = initializeDaysFromSchedule(flight.schedule);
         console.log("schedule:", flightSchedule);
 
-        const selected = convertScheduleStringToSelectedDays(flight.schedule); 
-        setSelectedDays(selected); 
+        const selected = convertScheduleStringToSelectedDays(flight.schedule);
+        setSelectedDays(selected);
 
-        setIsAddingNew(true); 
-        setEditingFlight(flight); 
+        setIsAddingNew(true);
+        setEditingFlight(flight);
         setNewFlight({
             flightNumber: flight.flightNumber,
             schedule: flightSchedule,
@@ -259,7 +371,7 @@ function FlightScheduling() {
         } catch (error) {
             console.log('Failed to update flight:', error);
             window.alert('Failed to update flight.');
-            return false;  
+            return false;
         }
     };
 
@@ -288,7 +400,7 @@ function FlightScheduling() {
             const aircraft = aircrafts.find(aircraft => String(aircraft.model) === String(model));
 
             if (aircraft) {
-                return aircraft.id; 
+                return aircraft.id;
             } else {
                 throw new Error("Plane with that model can't be found.");
             }
@@ -354,24 +466,24 @@ function FlightScheduling() {
         const confirmDelete = window.confirm("Are you sure you want to delete this flight?");
 
         if (!confirmDelete) {
-            return; 
+            return;
         }
 
         try {
-           
+
             const response = await fetch(`${apiURL}/Flight/${id}`, {
                 method: 'DELETE',
             });
 
             if (!response.ok) {
-                
+
                 throw new Error('Greška pri brisanju leta');
             }
 
             setFlights(flights.filter(f => f.id !== id));
             window.alert("Flight deleted successfully.");
 
-            fetchFlights(); 
+            fetchFlights();
         } catch (error) {
             console.error('An error occured:', error);
             window.alert("Failed to delete flight.");
@@ -463,25 +575,84 @@ function FlightScheduling() {
                     </div>
 
                     <div className="form-grid">
-                        <div className="form-group">
+                        {/* Origin with autocomplete */}
+                        <div className="form-group airport-input-container">
                             <label className="time-label">Origin</label>
                             <input
                                 type="text"
                                 className="form-input"
                                 value={newFlight.origin}
                                 placeholder="AAP"
-                                onChange={(e) => setNewFlight({ ...newFlight, origin: e.target.value.toUpperCase() })}
+                                onChange={handleOriginChange}
+                                onKeyDown={(e) => handleKeyDown(
+                                    e,
+                                    originSuggestions,
+                                    setShowOriginSuggestions,
+                                    selectOriginAirport
+                                )}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (newFlight.origin.length >= 1) {
+                                        setShowOriginSuggestions(true);
+                                    }
+                                }}
                             />
+                            {showOriginSuggestions && originSuggestions.length > 0 && (
+                                <div className="suggestions-dropdown">
+                                    {originSuggestions.map((airport, index) => (
+                                        <div
+                                            key={index}
+                                            className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                selectOriginAirport(airport);
+                                            }}
+                                        >
+                                            {airport.name} ({airport.cityCode}) - {airport.airportCode}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        <div className="form-group">
+
+                        {/* Destination with autocomplete */}
+                        <div className="form-group airport-input-container">
                             <label className="time-label">Destination</label>
                             <input
                                 type="text"
                                 className="form-input"
                                 value={newFlight.destination}
                                 placeholder="ABJ"
-                                onChange={(e) => setNewFlight({ ...newFlight, destination: e.target.value.toUpperCase() })}
+                                onChange={handleDestinationChange}
+                                onKeyDown={(e) => handleKeyDown(
+                                    e,
+                                    destinationSuggestions,
+                                    setShowDestinationSuggestions,
+                                    selectDestinationAirport
+                                )}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (newFlight.destination.length >= 1) {
+                                        setDestinationSuggestions(true);
+                                    }
+                                }}
                             />
+                            {showDestinationSuggestions && destinationSuggestions.length > 0 && (
+                                <div className="suggestions-dropdown">
+                                    {destinationSuggestions.map((airport, index) => (
+                                        <div
+                                            key={index}
+                                            className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                selectDestinationAirport(airport);
+                                            }}
+                                        >
+                                            {airport.name} ({airport.cityCode}) - {airport.airportCode}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -585,7 +756,7 @@ function FlightScheduling() {
                                 <td>{flight.aircraft?.model}</td>
 
                                 <td>
-                                    {flight.departureTime ? new Date(flight.departureTime).toLocaleDateString('en-GB') : ''                                    }
+                                    {flight.departureTime ? new Date(flight.departureTime).toLocaleDateString('en-GB') : ''}
                                 </td>
 
                                 <td style={{ textAlign: 'right' }}>
