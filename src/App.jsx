@@ -14,6 +14,7 @@ import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import Profile from './pages/Profile/Profile';
 import FlightSearch from './pages/FlightSearch/FlightSearch';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
+import { VisualSeatSelection } from './pages';
 
 function App() {
   return (
