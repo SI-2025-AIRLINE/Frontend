@@ -69,6 +69,8 @@ function AirlineTable() {
     };
 
     return (
+        <div className="airline-page">
+
         <div className="container">
             <div className="add-button-container">
                     <button onClick={() => setIsFormOpen(true)} className="add-button" style={{ display: 'flex', alignItems: 'center' }}>
@@ -194,7 +196,7 @@ function AirlineTable() {
                 </div>
             </div>
         </div>
-
+        </div>
     );
 }
 

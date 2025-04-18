@@ -16,7 +16,7 @@ body {
     background-color: #f9fafb;
 }
 
-.container {
+.airline-page .container {
     max-height: 80vw;
     max-width: 100rem;
     margin: 0 auto;
@@ -32,18 +32,18 @@ body {
     padding: 1.5rem;
 }
 
-.section-title {
+.airline-page .section-title {
     font-size: 1.5rem;
     margin-bottom: 1rem;
 }
 
-.add-button-container {
+.airline-page .add-button-container {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 1rem;
 }
 
-.add-button {
+.airline-page .add-button {
     background-color: var(--primary-color);
     display: inline-flex;
     align-items: center;
@@ -57,7 +57,7 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.cancel-button {
+.airline-page .cancel-button {
     background-color: var(--secondary-color);
     display: inline-flex;
     align-items: center;
@@ -70,12 +70,12 @@ body {
     color: #111827;
 }
 
-    .add-button:hover, .cancel-button:hover {
+    .airline-page .add-button:hover, .airline-page .cancel-button:hover {
         background-color: var(--primary-hover);
     }
 
 /* Form */
-.add-form-modal {
+.airline-page .add-form-modal {
     margin-bottom: 2rem;
     padding: 1rem;
     border: 1px solid var(--border-color);
@@ -83,36 +83,36 @@ body {
     background-color: var(--secondary-color);
 }
 
-.form-grid {
+.airline-page .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
 }
 
-.form-field {
+.airline-page .form-field {
     display: flex;
     flex-direction: column;
 }
 
-.form-label {
+.airline-page .form-label {
     font-weight: bold;
     margin-bottom: 0.3rem;
 }
 
-.form-input {
+.airline-page .form-input {
     padding: 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
-.submit-button-container {
+.airline-page .submit-button-container {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 1.5rem;
 }
 
-.btn {
+.airline-page .btn {
     margin-top: 1rem;
     padding: 0.4rem 1rem; /* malo manji padding */
     border: none;
@@ -124,8 +124,7 @@ body {
     max-height: 2.5rem; /* ni�a visina */
 }
 
-
-.submit-button {
+.airline-page .submit-button {
     margin-top: 1rem;
     background-color: var(--primary-color);
     color: white;
@@ -139,12 +138,12 @@ body {
     max-height: 3rem;
 }
 
-    .submit-button:hover {
+    .airline-page .submit-button:hover {
         opacity: 0.9;
     }
 
 /* Loading & Error */
-.loading-message, .error-message {
+.airline-page .loading-message, .airline-page .error-message {
     margin: 1rem 0;
     font-style: italic;
     color: var(--danger-color);
@@ -193,14 +192,14 @@ body {
     margin-bottom: 1.1rem;
 }
 
-.pagination {
+.airline-page .pagination {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
 }
 
-    .pagination button {
+    .airline-page .pagination button {
         padding: 10px 15px;
         font-size: 16px;
         cursor: pointer;
@@ -210,22 +209,22 @@ body {
         color: white;
     }
 
-        .pagination button:hover {
+        .airline-page .pagination button:hover {
             background-color: #005f87;
         }
 
-        .pagination button.disabled {
+        .airline-page .pagination button.disabled {
             background-color: #ddd;
             cursor: not-allowed;
         }
 
-    .pagination .page-number {
+    .airline-page .pagination .page-number {
         font-size: 16px;
         font-weight: bold;
         padding: 10px;
     }
 
-.error-message, .loading-message {
+.airline-page .error-message, .airline-page .loading-message {
     background-color: #edecec;
     color: #111827;
     font-size: 14px;
