@@ -1,0 +1,233 @@
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #f8f9fa;
+    --success-color: #28a745;
+    --text-color: #6b7280;
+    --background-color: #f9fafb;
+    --border-color: #dee2e6;
+    --danger-color: #dc2626;
+}
+
+body {
+    margin-top: 5px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f9fafb;
+}
+
+.airline-page .container {
+    max-height: 80vw;
+    max-width: 100rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.airline-management-container {
+    max-width: 55rem;
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-height: 80vw;
+    margin: 50px auto;
+    padding: 1.5rem;
+}
+
+.airline-page .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.airline-page .add-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.airline-page .add-button {
+    background-color: var(--primary-color);
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+.airline-page .cancel-button {
+    background-color: var(--secondary-color);
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: #111827;
+}
+
+    .airline-page .add-button:hover, .airline-page .cancel-button:hover {
+        background-color: var(--primary-hover);
+    }
+
+/* Form */
+.airline-page .add-form-modal {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--secondary-color);
+}
+
+.airline-page .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.airline-page .form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.airline-page .form-label {
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.airline-page .form-input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.airline-page .submit-button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.airline-page .btn {
+    margin-top: 1rem;
+    padding: 0.4rem 1rem; /* malo manji padding */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.875rem;
+    max-width: 10rem;
+    max-height: 2.5rem; /* ni�a visina */
+}
+
+.airline-page .submit-button {
+    margin-top: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.875rem;
+    max-width: 10rem;
+    max-height: 3rem;
+}
+
+    .airline-page .submit-button:hover {
+        opacity: 0.9;
+    }
+
+/* Loading & Error */
+.airline-page .loading-message, .airline-page .error-message {
+    margin: 1rem 0;
+    font-style: italic;
+    color: var(--danger-color);
+}
+
+/* Table-style list */
+.airlines-list {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-height: 100vw;
+    overflow-y: auto;
+}
+
+    .airlines-list table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: auto;
+    }
+
+    .airlines-list th {
+        background-color: var(--gray-50);
+        padding: 1rem 5rem;
+        text-align: center;
+        font-size: 12pt;
+        font-weight: 500;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .airlines-list td {
+        padding: 1rem 1.5rem;
+        font-size: 12pt;
+        color: var(--gray-500);
+        border-top: 1px solid var(--gray-200);
+        text-align: center;
+    }
+
+.airline-actions {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 1.1rem;
+}
+
+.airline-page .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+    .airline-page .pagination button {
+        padding: 10px 15px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bb5;
+        color: white;
+    }
+
+        .airline-page .pagination button:hover {
+            background-color: #005f87;
+        }
+
+        .airline-page .pagination button.disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+
+    .airline-page .pagination .page-number {
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+.airline-page .error-message, .airline-page .loading-message {
+    background-color: #edecec;
+    color: #111827;
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 0.5rem;
+}

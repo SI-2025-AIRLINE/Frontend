@@ -326,7 +326,7 @@ function AircraftManagement() {
       )}
       
       <div className="btn_add">
-        <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
+        <button className="add-button" onClick={() => setIsAddingNew(true)}>
           <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
           Add New Aircraft
         </button>
