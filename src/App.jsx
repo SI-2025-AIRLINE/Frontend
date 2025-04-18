@@ -14,6 +14,7 @@ import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import Profile from './pages/Profile/Profile';
 import FlightSearch from './pages/FlightSearch/FlightSearch';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
+import BookFlight from './pages/BookFlight/BookFlight';
 import { VisualSeatSelection } from './pages';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/admin" element={<AdminHomePage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/flight-search" element={<FlightSearch />} />
+          <Route path="/bookflight" element={<BookFlight />} />
       </Routes>
 
       </div>

@@ -2,6 +2,7 @@ import './FlightSearch.css';
 import { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -10,7 +11,7 @@ export default function FlightSearch() {
   const [originAirport, setOriginAirport] = useState("");
   const [destinationAirport, setDestinationAirport] = useState("");
   const [departDate, setDepartDate] = useState(null);
-
+  const navigate = useNavigate();
   const handleOriginChange = (e) => {
     setOriginAirport(e.target.value);
   };
@@ -294,7 +295,7 @@ export default function FlightSearch() {
                 <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
                   First Class: €{flight.firstClassPrice}
                 </p>
-                <button className="BookBtn">Book Now</button>
+                <button className="BookBtn" onClick={() => navigate('/bookflight')}>Book Now</button>
               </div>
             </div>
           ))
