@@ -40,8 +40,8 @@ function App() {
           <Route path="/admin/flightScheduling" element={<FlightScheduling />} />
           <Route path="/admin" element={<AdminHomePage />} />
           <Route path="/profile" element={<Profile />} />
-                  <Route path="/flight-search" element={<FlightSearch />} />
-                  <Route path="/admin/airline" element={<Airline />} />
+          <Route path="/flight-search" element={<FlightSearch />} />
+          <Route path="/admin/airline" element={<Airline />} />
       </Routes>
 
       </div>
