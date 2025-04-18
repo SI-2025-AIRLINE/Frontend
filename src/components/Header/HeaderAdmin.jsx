@@ -31,7 +31,7 @@ const HeaderAdmin = () => {
                     <Button text="Aircrafts" onClick={() => navigate('/admin/aircraftManagement')} />
                     <Button text="Destinations" onClick={() => navigate('/admin/destinationManagement')} />
                     <Button text="Flights" onClick={() => navigate('/admin/flightScheduling')} />
-                    <Button text="Airlines" onClick={() => navigate('/admin/Airline')} />
+                    <Button text="Airlines" onClick={() => navigate('/admin/airlineManagement')} />
 
                 </nav>
 

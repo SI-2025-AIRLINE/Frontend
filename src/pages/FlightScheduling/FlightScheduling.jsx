@@ -403,7 +403,7 @@ function FlightScheduling() {
     return (
         <div className="container">
             <div className="button-container">
-                <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
+                <button className="add-button" onClick={() => setIsAddingNew(true)}>
                     <PlusCircle style={{ width: 20, height: 20, marginRight: 8 }} />
                     Add New Flight
                 </button>

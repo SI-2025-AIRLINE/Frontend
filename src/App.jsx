@@ -14,7 +14,7 @@ import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import Profile from './pages/Profile/Profile';
 import FlightSearch from './pages/FlightSearch/FlightSearch';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
-import Airline from './pages/Airline/Airline'
+import AirlineManagement from './pages/AirlineManagement/AirlineManagement'
 
 function App() {
   return (
@@ -41,7 +41,7 @@ function App() {
           <Route path="/admin" element={<AdminHomePage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/flight-search" element={<FlightSearch />} />
-          <Route path="/admin/airline" element={<Airline />} />
+          <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
       </Routes>
 
       </div>

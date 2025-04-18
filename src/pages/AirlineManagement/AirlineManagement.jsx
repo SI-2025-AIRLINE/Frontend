@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import './Airline.css';
+import './AirlineManagement.css';
 import EditIcon from '../../components/Icons/pencil.svg';
 import Trash2Icon from '../../components/Icons/trash-2.svg';
 import PlusCircleIcon from '../../components/Icons/circle-plus.svg';

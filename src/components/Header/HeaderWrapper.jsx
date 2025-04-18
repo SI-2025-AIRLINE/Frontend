@@ -9,7 +9,7 @@ const HeaderWrapper = () => {
 	// Rute na kojima se prikazuje admin header
 	const adminPaths = [
 		"/admin", 
-		"/admin/airline",
+		"/admin/airlineManagement",
 		"/admin/destinationManagement", 
 		"/admin/userManagement", 
 		"/admin/aircraftManagement", 
