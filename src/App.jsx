@@ -43,6 +43,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/flight-search" element={<FlightSearch />} />
           <Route path="/bookflight" element={<BookFlight />} />
+          <Route path="/seat-selection" element={<VisualSeatSelection />} />
       </Routes>
 
       </div>

@@ -47,7 +47,7 @@ function BookFlight() {
   };
 
   const handleSeatSelection = () => {
-    navigate('/seats');
+    navigate('/seat-selection');
   };
 
   const BoardingPass = ({ passenger }) => (
