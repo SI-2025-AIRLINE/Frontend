@@ -11,6 +11,15 @@ export default function DestinationManagement() {
     const [airports, setAirports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showError, setShowError] = useState(false);
+
+    const [message, setMessage] = useState(null);
+    const [showMessage, setShowMessage] = useState(false);
+
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+
+
     // For pagination
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -34,7 +43,7 @@ export default function DestinationManagement() {
 
             const data = await response.json();
             setAirports(data);
-            
+
         } catch (err) {
             setError(err.message);
             console.error("Error fetching airports:", err);
@@ -46,13 +55,13 @@ export default function DestinationManagement() {
     const [formData, setFormData] = useState({
         id: null,
         name: '',
-        cityCode: '',       
-        airportCode: '',        
+        cityCode: '',
+        airportCode: '',
         Status: 1,
     });
 
     const [showForm, setShowForm] = useState(false);
-    const [editingAirport, setEditingAirport] = useState(null); 
+    const [editingAirport, setEditingAirport] = useState(null);
 
     // Create new airport via API
     const createAirport = async (airportData) => {
@@ -64,9 +73,9 @@ export default function DestinationManagement() {
                 },
                 body: JSON.stringify(airportData),
             });
-            
+
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            
+
             await fetchAirports(); // Refresh the airport list
             return true;
         } catch (error) {
@@ -86,9 +95,9 @@ export default function DestinationManagement() {
                 },
                 body: JSON.stringify(airportData, id),
             });
-            
+
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            
+
             await fetchAirports(); // Refresh the airport list
             return true;
         } catch (error) {
@@ -103,9 +112,9 @@ export default function DestinationManagement() {
             const res = await fetch(`${apiURL}/Destination/${id}`, {
                 method: 'DELETE',
             });
-            
+
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            
+
             await fetchAirports(); // Refresh the airport list
             return true;
         } catch (error) {
@@ -124,9 +133,9 @@ export default function DestinationManagement() {
                 },
                 body: JSON.stringify({ Status: Number(!currentStatus) }),
             });
-            
+
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            
+
             await fetchAirports(); // Refresh the airport list
             return true;
         } catch (error) {
@@ -135,25 +144,26 @@ export default function DestinationManagement() {
         }
     };
 
-   /* const checkIataCodeExists = async (iataCode) => {
-        try {
-            const response = await fetch(`${apiURL}/Destination/byAirport/${iataCode}`);
-            if (response.ok) {
-                const airport = await response.json();
-                return airport ? true : false;
-            } else {
-                throw new Error('Failed API call');
-            }
-        } catch (error) {
-            console.error('Error checking IATA code: ', error);
-            return false;
-        }
-    };*/
+    /* const checkIataCodeExists = async (iataCode) => {
+         try {
+             const response = await fetch(`${apiURL}/Destination/byAirport/${iataCode}`);
+             if (response.ok) {
+                 const airport = await response.json();
+                 return airport ? true : false;
+             } else {
+                 throw new Error('Failed API call');
+             }
+         } catch (error) {
+             console.error('Error checking IATA code: ', error);
+             return false;
+         }
+     };*/
 
     async function handleSubmit(e) {
         e.preventDefault();
         if (!formData.name || !formData.cityCode || !formData.airportCode) {
-            alert("Please fill out all required fields.");
+            setError("Please fill out all required fields.");
+            setShowError(true);
             return;
         }
 
@@ -165,19 +175,22 @@ export default function DestinationManagement() {
             !onlyLettersRegex.test(formData.cityCode) ||
             !onlyLettersRegex.test(formData.airportCode)
         ) {
-            alert("Fields 'Airport name', 'City' and 'IATA' must contain only letters.");
+            setError("Fields 'Airport name', 'City' and 'IATA' must contain only letters.");
+            setShowError(true);
             return;
         }
 
 
-         let success;
+        let success;
         if (editingAirport) {
             // Update existing airport
             success = await updateAirport(editingAirport.id, formData);
             if (success) {
-                alert('Airport updated successfully');
+                setMessage('Airport updated successfully');
+                setShowMessage(true);
             } else {
-                alert('Failed to update airport, check IATA code.');
+                setError('Failed to update airport, check IATA code.');
+                setShowError(true);
                 return;
             }
         } else {
@@ -187,9 +200,11 @@ export default function DestinationManagement() {
             formData.Status = Number(formData.Status);
             success = await createAirport(formData);
             if (success) {
-                alert('Airport added successfully');
+                setMessage('Airport added successfully');
+                setShowMessage(true);
             } else {
-                alert('Failed to add airport');
+                setError('Failed to add airport');
+                setShowError(true);
                 return;
             }
         }
@@ -197,38 +212,63 @@ export default function DestinationManagement() {
         // Reset form state
         setFormData({ name: '', cityCode: '', airportCode: '', Status: 1 });
         setEditingAirport(null);
-        setShowForm(false); 
+        setShowForm(false);
+
+
     }
 
-    async function handleDelete(id) {
-        if (window.confirm('Are you sure you want to delete this airport?')) {
+
+
+    function confirmModal(actionToRun) {
+        setConfirmAction(() => actionToRun);
+        setShowConfirm(true);
+    }
+    function handleDelete(id) {
+        confirmModal(async () => {
             const success = await deleteAirport(id);
             if (success) {
-                alert('Airport deleted successfully');
+                setMessage('Airport deleted successfully');
+                setShowMessage(true);
             } else {
-                alert('Failed to delete airport');
+                setError('Failed to delete airport');
+                setShowError(true);
             }
-        }
+        });
     }
+
+    /*
+        async function handleDelete(id) {
+            if (window.confirm('Are you sure you want to delete this airport?')) {
+                const success = await deleteAirport(id);
+                if (success) {
+                    setMessage('Airport deleted successfully');
+                    setShowMessage(true);
+                } else {
+                    setError('Failed to delete airport');
+                    setShowError(true);
+                }
+            }
+        }*/
 
     async function handleToggleActive(id, currentStatus) {
         const success = await toggleAirportStatus(id, currentStatus);
         if (!success) {
-            alert('Failed to toggle airport status');
+            setError('Failed to toggle airport status');
         }
     }
 
     function handleEdit(airport) {
-        setEditingAirport(airport); 
+        setEditingAirport(airport);
         setFormData({
-            id: airport.id, 
+            id: airport.id,
             name: airport.name,
             cityCode: airport.cityCode,
             airportCode: airport.airportCode,
             Status: airport.status
-        }); 
-        setShowForm(true); 
+        });
+        setShowForm(true);
         setError(null);
+        setShowError(true);
     }
     function handleCancel() {
         setFormData({ id: null, name: '', cityCode: '', airportCode: '', Status: true });
@@ -240,81 +280,132 @@ export default function DestinationManagement() {
     return (
         <div className="container">
 
-         <div className="add-button-container">
-                {!showForm ? (
-                    <button onClick={() => setShowForm(true)} className="add-button" style={{ display: 'flex', alignItems: 'center' }}>
-                    <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
-                        Add New Airport
-                    </button>
-                ) : (
-                    <button onClick={handleCancel} className="cancel-button">Cancel</button>
-                )}
-            </div>
-        <div className="destination-management-container">
-           
+            <div className="add-button-container">
 
-            {/* Add or Edit Airport Form (Modal) */}
-            {showForm && (
+                <button onClick={() => setShowForm(true)} className="add-button" style={{ display: 'flex', alignItems: 'center' }}>
+                    <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
+                    Add New Airport
+                </button>
+
+            </div>
+            <div className="destination-management-container">
+
+
+                {/* Add or Edit Airport Form (Modal) */}
+                {showForm && (
                     <div className="add-form-modal">
 
-                        {error && <p className="error-message">{error}</p>}
+
 
                         <div className="add-form-container">
-                        <h2 className="section-title">{editingAirport ? 'Edit Airport' : 'Add New Airport'}</h2>
-                        <form onSubmit={handleSubmit} className="form">
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label className="form-label">Airport Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="JFK International Airport"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="form-input"
-                                        required
-                                    />
+                            <h2 className="section-title">{editingAirport ? 'Edit Airport' : 'Add New Airport'}</h2>
+                            <form onSubmit={handleSubmit} className="form">
+                                <div className="form-grid">
+                                    <div className="form-field">
+                                        <label className="form-label">Airport Name</label>
+                                        <input
+                                            type="text"
+                                            placeholder="JFK International Airport"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-field">
+                                        <label className="form-label">City</label>
+                                        <input
+                                            type="text"
+                                            placeholder="New York"
+                                            value={formData.cityCode}
+                                            onChange={(e) => setFormData({ ...formData, cityCode: e.target.value.toUpperCase() })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="form-field">
+                                        <label className="form-label">IATA Code</label>
+                                        <input
+                                            type="text"
+                                            placeholder="JFK"
+                                            value={formData.airportCode}
+                                            onChange={(e) => setFormData({ ...formData, airportCode: e.target.value.toUpperCase() })}
+                                            className="form-input"
+                                            required
+                                            maxLength={3}
+                                        />
+                                    </div>
+
                                 </div>
-                                <div className="form-field">
-                                    <label className="form-label">City</label>
-                                    <input
-                                        type="text"
-                                        placeholder="New York"
-                                        value={formData.cityCode}
-                                        onChange={(e) => setFormData({ ...formData, cityCode: e.target.value.toUpperCase() })}
-                                        className="form-input"
-                                        required
-                                    />
-                                </div>
-                               
-                                <div className="form-field">
-                                    <label className="form-label">IATA Code</label>
-                                    <input
-                                        type="text"
-                                        placeholder="JFK"
-                                        value={formData.airportCode}
-                                        onChange={(e) => setFormData({ ...formData, airportCode: e.target.value.toUpperCase() })}
-                                        className="form-input"
-                                        required
-                                        maxLength={3}
-                                    />
-                                </div>
-                               
-                            </div>
                                 <div className="submit-button-container">
+                                    <button className="cancel-button" onClick={() => {
+                                        handleCancel()
+                                    }}>
+                                        Cancel
+                                    </button>
+
                                     <button type="submit" className="submit-button">
                                         {editingAirport ? 'Update Airport' : 'Add Airport'}
                                     </button>
                                 </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Loading and Error States */}
-            {loading && <p className="loading-message">Loading airports...</p>}
-            
+                {/* Loading and Error States */}
+                {loading && <p className="loading-message">Loading airports...</p>}
+                {error && showError && (
+                    <div className="modal-overlay">
+                        <div className="error-modal">
+                            <p>{error}</p>
+                            <button onClick={() => setShowError(false)} className="modal-close-btn">
+                                OK!
+                            </button>
+                        </div>
+                    </div>
+                )}
 
-            {/* Airport List */}
+                {message && showMessage && (
+                    <div className="modal-overlay">
+                        <div className="message-modal">
+                            <p>{message}</p>
+                            <button onClick={() => setShowMessage(false)} className="modal-close-btn">
+                                OK!
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {showConfirm && (
+                    <div className="modal-overlay">
+                        <div className="confirm-modal">
+                            <p>Are you sure you want to delete this airport?</p>
+                            <div className="modal-buttons">
+                                <button
+                                    className="modal-close-btn"
+                                    onClick={() => {
+                                        confirmAction(); // Poziva funkciju ako user potvrdi
+                                        setShowConfirm(false);
+                                    }}
+                                >
+                                    Yes
+                                </button>
+                                <button
+                                    className="modal-close-btn"
+                                    onClick={() => setShowConfirm(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+
+                {/* Airport List */}
 
                 <div className="airports-list">
                     <table>
@@ -329,7 +420,10 @@ export default function DestinationManagement() {
                         </thead>
                         <tbody>
                             {airports.map((airport) => (
-                                <tr key={airport.id}>
+                                <tr
+                                    key={airport.id}
+                                    className={airport.status === 0 ? 'inactive-row' : ''}
+                                >
                                     <td>{airport.name}</td>
                                     <td>{airport.cityCode}</td>
                                     <td>{airport.airportCode}</td>
@@ -340,18 +434,27 @@ export default function DestinationManagement() {
                                     <td className="airport-actions" style={{ textAlign: 'right' }}>
                                         <button
                                             className="btn btn-warning"
+                                            style={{
+                                                backgroundColor: airport.status === 0 ? '#f1f1f1' : 'white'
+                                            }}
                                             onClick={() => handleEdit(airport)}
                                         >
                                             <img src={EditIcon} alt="Edit" style={{ width: 20, height: 20 }} />
                                         </button>
                                         <button
                                             className="btn btn-danger"
+                                            style={{
+                                                backgroundColor: airport.status === 0 ? '#f1f1f1' : 'white'
+                                            }}
                                             onClick={() => handleDelete(airport.id)}
                                         >
                                             <img src={Trash2Icon} alt="Delete" style={{ width: 20, height: 20 }} />
                                         </button>
                                         <button
                                             className="btn btn-info"
+                                            style={{
+                                                backgroundColor: airport.status === 0 ? '#f1f1f1' : 'white'
+                                            }}
                                             onClick={() => handleToggleActive(airport.id, airport.status)}
                                         >
                                             Status
