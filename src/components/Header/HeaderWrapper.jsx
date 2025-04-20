@@ -7,7 +7,13 @@ const HeaderWrapper = () => {
 	const location = useLocation();
 
 	// Rute na kojima se prikazuje admin header
-	const adminPaths = ["/admin/destinationManagement", "/admin/userManagement", "/admin/aircraftManagement", "/admin", "/admin/flightScheduling"];
+	const adminPaths = [
+		"/admin", 
+		"/admin/airlineManagement",
+		"/admin/destinationManagement", 
+		"/admin/userManagement", 
+		"/admin/aircraftManagement", 
+		"/admin/flightScheduling"];
 
 	const isAdminPage = adminPaths.includes(location.pathname);
 

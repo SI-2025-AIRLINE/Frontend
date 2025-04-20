@@ -58,10 +58,11 @@
     color: var(--gray-700);
     transition: all 0.2s;
   }
+
+    .btn:hover {
+        background-color: #f1f1f1;
+    }
   
-  .btn:hover {
-    background-color: var(--gray-50);
-  }
   
   .btn-primary {
     background-color: var(--primary-color);
@@ -241,3 +242,105 @@
     justify-content: flex-end;
     margin-bottom: 16px; /* po �elji */
 }
+
+
+.inactive-row {
+    background-color: #f1f1f1;
+    color: #888;
+}
+
+
+/*messages*/
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Tamna pozadina */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.error-modal {
+    background-color: #fff;
+    padding: 25px 35px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+    .error-modal p {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+.message-modal {
+    background-color: #fff;
+    padding: 25px 35px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+    .message-modal p {
+        color: green;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+.modal-close-btn {
+    background-color: #cecece;
+    color: black;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+    .modal-close-btn:hover {
+        background-color: #a1a1a1;
+    }
+
+
+
+
+.status-info.status-0 {
+    color: #007bff; /*plava*/
+}
+
+.status-info.status-1 {
+    color: #0056b3; /*tamno plava*/
+}
+
+.status-info.status-2 {
+    color: #17a2b8; /*tirkizna*/
+}
+
+.status-info.status-3 {
+    color: #28a745; /*zelena*/
+}
+
+.status-info.status-4 {
+    color: #fd7e14; /*narandzasta*/
+}
+
+.status-info.status-5 {
+    color: #dc3545; /*crvena*/
+}
+
+.status-info.status-6 {
+    color: #6f42c1; /*ljubicasta*/
+}
+

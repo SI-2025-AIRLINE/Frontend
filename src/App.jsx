@@ -14,7 +14,8 @@ import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import Profile from './pages/Profile/Profile';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
 import BookFlight from './pages/BookFlight/BookFlight';
-import { FlightSearch, VisualSeatSelection } from './pages';
+import AirlineManagement from './pages/AirlineManagement/AirlineManagement'
+import { FlightSearch } from './pages';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/flight-search" element={<FlightSearch />} />
           <Route path="/bookflight" element={<BookFlight />} />
+          <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
       </Routes>
 
       </div>

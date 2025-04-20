@@ -14,9 +14,17 @@ function AircraftManagement() {
   const [aircraft, setAircraft] = useState([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editAircraft, setEditAircraft] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [editAircraft, setEditAircraft] = useState(null);
+
+    //messages 
+ /////////////////NAPOMENAA: nisu svi messages i errors obradjeni to je potrebno!!!!!//////////////////////
+    const [loading, setLoading] = useState(true);
+    
+    const [error, setError] = useState(null);
+    const [showError, setShowError] = useState(false);
+
+    const [message, setMessage] = useState(null);
+    const [showMessage, setShowMessage] = useState(false);
   
   // For pagination
   const [pageNumber, setPageNumber] = useState(1);
@@ -51,7 +59,9 @@ function AircraftManagement() {
           const seatingResponse = await fetch(`${API_BASE_URL}/Aircraft/${a.id}/seating`);
           
           if (!seatingResponse.ok) {
-            console.error(`Failed to fetch seating for aircraft ${a.id}`);
+              console.error(`Failed to fetch seating for aircraft ${a.id}`);
+              setError("Failed to fetch seating for aircraft");
+              setShowError(true);
             return { ...a, seatingConfigs: [] };
           }
           
@@ -182,7 +192,9 @@ function AircraftManagement() {
         });
 
         if (!seatingResponse.ok) {
-          console.error(`Warning: Failed to create seating configurations: ${seatingResponse.statusText}`);
+            console.error(`Warning: Failed to create seating configurations: ${seatingResponse.statusText}`);
+            setError("Warning: Failed to create seating configurations");
+            setShowError(true);
         }
       }
       
@@ -251,7 +263,9 @@ function AircraftManagement() {
       });
 
       if (!deleteSeatingResponse.ok) {
-        console.error(`Warning: Failed to delete existing seating configurations: ${deleteSeatingResponse.statusText}`);
+          console.error(`Warning: Failed to delete existing seating configurations: ${deleteSeatingResponse.statusText}`);
+          setError("Warning: Failed to delete existing seating configurations");
+          setShowError(true);
       }
       
       // 3. Create new seating configs
@@ -270,7 +284,10 @@ function AircraftManagement() {
         });
 
         if (!seatingResponse.ok) {
-          console.error(`Warning: Failed to create seating configurations: ${seatingResponse.statusText}`);
+            console.error(`Warning: Failed to create seating configurations: ${seatingResponse.statusText}`);
+            setError("Warning: Failed to delete existing seating configurations");
+            setShowError(true);
+
         }
       }
       
@@ -326,7 +343,7 @@ function AircraftManagement() {
       )}
       
       <div className="btn_add">
-        <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
+        <button className="add-button" onClick={() => setIsAddingNew(true)}>
           <img src={PlusCircleIcon} alt="Add New" style={{ width: 20, height: 20, marginRight: 8 }} />
           Add New Aircraft
         </button>
@@ -468,11 +485,35 @@ function AircraftManagement() {
             </button>
           </div>
         </div>
-      )}
+          )}
 
-      {loading ? (
-        <div className="loading">Loading aircraft data...</div>
-      ) : (
+
+          {/* Error States */}
+
+          {error && showError && (
+              <div className="modal-overlay">
+                  <div className="error-modal">
+                      <p>{error}</p>
+                      <button onClick={() => setShowError(false)} className="modal-close-btn">
+                          OK!
+                      </button>
+                  </div>
+              </div>
+          )}
+
+          {message && showMessage && (
+              <div className="modal-overlay">
+                  <div className="message-modal">
+                      <p>{message}</p>
+                      <button onClick={() => setShowMessage(false)} className="modal-close-btn">
+                          OK!
+                      </button>
+                  </div>
+              </div>
+
+          )}
+
+    
         <div className="table-container">
           <table className="table">
             <thead>
@@ -550,7 +591,7 @@ function AircraftManagement() {
             </button>
           </div>
         </div>
-      )}
+      
     </div>
   );
 }
