@@ -14,7 +14,7 @@ import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import Profile from './pages/Profile/Profile';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
 import BookFlight from './pages/BookFlight/BookFlight';
-import { FlightSearch, VisualSeatSelection} from './pages';
+import { FlightSearch, VisualSeatSelection } from './pages';
 
 function App() {
   return (
@@ -42,9 +42,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/flight-search" element={<FlightSearch />} />
           <Route path="/bookflight" element={<BookFlight />} />
-          <Route path="/seat-selection" element={<VisualSeatSelection />} />
-          {/*Ove dvije rute izbrisati*/}
-          <Route path="/visual-seat-selection" element={<VisualSeatSelection />} />
       </Routes>
 
       </div>

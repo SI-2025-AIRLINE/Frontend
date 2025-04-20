@@ -175,7 +175,6 @@ export default function FlightSearch() {
         seatsPerRow: config.seatsPerRow
       }));
       sessionStorage.setItem('seats', JSON.stringify(cfgData));
-      sessionStorage.setItem('class', JSON.stringify('Business'));
     })
     .catch(error => {
       console.log(error);
@@ -185,7 +184,16 @@ export default function FlightSearch() {
   /********************************
    *          THE PAGE            *
    ********************************/
-
+  if (sessionStorage.getItem("flight")) {
+    sessionStorage.removeItem("flight");
+  }
+  if (sessionStorage.getItem("class")){
+    sessionStorage.removeItem("class");
+  }
+  if(sessionStorage.getItem("seats")){
+    sessionStorage.removeItem("seats");
+  }
+  
   return (
     <>
       {/********************************
@@ -358,6 +366,7 @@ export default function FlightSearch() {
                 </p>
                 <button className="BookBtn" onClick={
                   () => {
+                    sessionStorage.setItem('flight', JSON.stringify(flight));
                     getSeatData(flight.aircraftId);
                     navigate('/bookflight');}
                 }>Book Now</button>
