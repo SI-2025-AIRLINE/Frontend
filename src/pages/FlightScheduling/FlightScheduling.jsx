@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import AsyncSelect from 'react-select/async';
 //import EditIcon from '../../components/Icons/pencil.svg';
 import './FlightScheduling.css';
 
@@ -620,6 +621,16 @@ function FlightScheduling() {
         6: 'Diverted'
     };
 
+    const loadDestinationOptions = async (inputValue) => {
+        if (!inputValue || inputValue.length < 1) return [];
+        const res = await fetch(`${apiURL}/Destination/search?term=${encodeURIComponent(inputValue)}`);
+        const data = await res.json();
+        return data.map(dest => ({
+            label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
+            value: dest.cityCode // or use dest.id if that’s what you store
+        }));
+    };
+
 
     return (
         <div className="container">
@@ -688,22 +699,38 @@ function FlightScheduling() {
                     <div className="form-grid">
                         <div className="form-group">
                             <label className="time-label">Origin</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={newFlight.origin}
-                                placeholder="AAP"
-                                onChange={(e) => setNewFlight({ ...newFlight, origin: e.target.value.toUpperCase() })}
+                            <AsyncSelect
+                                cacheOptions
+                                loadOptions={loadDestinationOptions}
+                                defaultOptions
+                                onChange={(selectedOption) =>
+                                    setNewFlight({ ...newFlight, origin: selectedOption.value })
+                                }
+                                placeholder="Search origin..."
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minHeight: '38px'
+                                    })
+                                }}
                             />
                         </div>
                         <div className="form-group">
                             <label className="time-label">Destination</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={newFlight.destination}
-                                placeholder="ABJ"
-                                onChange={(e) => setNewFlight({ ...newFlight, destination: e.target.value.toUpperCase() })}
+                            <AsyncSelect
+                                cacheOptions
+                                loadOptions={loadDestinationOptions}
+                                defaultOptions
+                                onChange={(selectedOption) =>
+                                    setNewFlight({ ...newFlight, destination: selectedOption.value })
+                                }
+                                placeholder="Search destination..."
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minHeight: '38px'
+                                    })
+                                }}
                             />
                         </div>
                     </div>
