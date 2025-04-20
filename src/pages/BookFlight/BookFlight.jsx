@@ -21,7 +21,13 @@ export default function BookFlight() {
   useEffect(() => {
     const getBookedSeats = async () => {
       try {
-        const res = await fetch(`${apiURL}/Bookings/seats/${flight.id}`);
+        const res = await fetch(`${apiURL}/Bookings/seats/${flight.id}`,{
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
         const data = await res.json();
         const parsed = data.flatMap(str => {
           const cleaned = /^[EBF]/.test(str) ? str.slice(1) : str;

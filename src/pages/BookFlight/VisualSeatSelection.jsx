@@ -93,7 +93,7 @@ export default function VisualSeatSelection(props) {
           <div id="Header">
         <h1 id="HeaderTitle">Choose your seat:</h1>
         { selectedSeat && (
-          <p style={{ color: 'white', textAlign: 'center' }}>
+          <p style={{ color: '#333', textAlign: 'center' }}>
             Selected Seat: <strong>{selectedSeat}</strong>
           </p>
         )}
