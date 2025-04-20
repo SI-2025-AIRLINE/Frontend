@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 //import EditIcon from '../../components/Icons/pencil.svg';
 import './FlightScheduling.css';
@@ -208,6 +209,8 @@ function FlightScheduling() {
         }
     };
 
+////////////// DEPRECATED - AIRCRAFT ID SE FETCHA DIREKTNO IZ LISTE AVIONA /////////////
+/*
     const getAircraftIdByModel = async (model) => {
         const response = await fetch(`${apiURL}/Aircraft/byModel/${model}`);
         console.log("model: ", model);
@@ -227,6 +230,8 @@ function FlightScheduling() {
             throw new Error("Error finding an plane.");
         }
     };
+*/
+////////////////////////////////////////////////////////////////////////////////////////
 
     // Funkcija za dodavanje novog leta  
     const handleAddFlight = async () => {
@@ -243,10 +248,8 @@ function FlightScheduling() {
 
         try {
 
-            const aircraftID = await getAircraftIdByModel(newFlight.aircraftType);
             const departureId = await getDestinationIdByCityCode(newFlight.origin);
             const arrivalId = await getDestinationIdByCityCode(newFlight.destination);
-
 
             const flightPayload = {
                 flightNumber: newFlight.flightNumber,
@@ -256,7 +259,7 @@ function FlightScheduling() {
                 arrivalTime: `2025-01-01T${newFlight.arrivalTime}`,
                 validFrom: newFlight.validFrom,
                 validTo: newFlight.validTo,
-                aircraftId: aircraftID,
+                aircraftId: newFlight.aircraftID,
                 departureDestinationId: departureId,
                 arrivalDestinationId: arrivalId,
                 economyPrice: 150,
@@ -541,14 +544,13 @@ function FlightScheduling() {
                 .then(res => res.json())
                 .then(data => setAircraftOptions(data))
                 .catch(console.error);
+            console.log("Aircraft data: ", aircraftOptions);
         } else {
             setAircraftOptions([]);
         }
     }, [selectedAirline]);
 
-    useEffect(() => {
-    console.log("Selected airline:", selectedAirline);
-}, [selectedAirline]);
+
    
 
     return (
@@ -613,17 +615,24 @@ function FlightScheduling() {
                                 />
                             </div>
                         </div>
-                        <div className="form-group">
-                            <label className="time-label">Aircraft Type</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={newFlight.aircraftType}
-                                onChange={(e) => setNewFlight({ ...newFlight, aircraftType: e.target.value.toUpperCase() })}
-                                placeholder="BCS1"
+
+                       <div className="form-group">
+                           <label className="time-label">Aircraft</label>
+                            <Select
+                                options={aircraftOptions}
+                                isDisabled={!selectedAirline}
+                                placeholder={!selectedAirline ? 'Select airline first' : 'Select aircraft'}
+                                getOptionLabel={(a) => `${a.description} [${a.registrationNumber}]`}
+                                getOptionValue={(a) => String(a.id)}
+                                value={aircraftOptions.find((a) => a.id === newFlight.aircraftId) || null}
+                                onChange={(selected) =>
+                                    setNewFlight((prev) => ({
+                                        ...prev,
+                                        aircraftID: selected?.id || null,
+                                    }))
+                                }
                             />
                         </div>
-
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '1.5rem' }}>
@@ -739,6 +748,7 @@ function FlightScheduling() {
                         <button className="btn" onClick={() => {
                             setIsAddingNew(false);
                             setEditingFlight(null);
+                            setSelectedAirline(null);
                             setNewFlight({
                                 flightNumber: '',
                                 schedule: '',
@@ -748,7 +758,8 @@ function FlightScheduling() {
                                 destination: '',
                                 aircraftType: '',
                                 validFrom: '',
-                                validTo: ''
+                                validTo: '',
+                                aircraftId: null
                             });
                         }}>
                             Cancel

@@ -324,11 +324,14 @@
 }
 
 .flight-prefix {
+  background-color: #f0f0f0;
   padding: 2px 12px;
   font-weight: 500;
   display: flex;
   align-items: center;
   border-right: 1px solid #ccc;
+  height: 100%;
+  width: 11%;
 }
 
 .flight-number-suffix {
