@@ -1,14 +1,14 @@
-.booking-container {
+   .booking-container {
   min-height: 100vh;
   background: url('./assets/airplane.jpg') no-repeat center center fixed;
   background-size: cover;
   display: flex;
   justify-content: center;
-  align-items: flex-start; 
+  align-items: center; 
   padding: 40px 20px;
   overflow-y: auto;
-  margin-left: 350px;
 }
+
 .booking-scroll-wrapper {
   max-height: 90vh;
   overflow-y: auto;
@@ -16,8 +16,6 @@
   box-sizing: border-box;
   width: 100%;
 }
-
-
 
 .passenger-count-container {
   background: rgba(255, 255, 255, 0.95);
@@ -57,6 +55,7 @@
   width: 100%;
   max-width: 800px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: auto; /* centriranje */
 }
 
 .airline-header {
@@ -147,7 +146,6 @@
 .bookbutton:hover {
   background: #0085c7;
 }
-
 
 .boarding-passes-container {
   min-height: 100vh;
@@ -279,6 +277,7 @@
     width: 100%;
   }
 }
+
 .class-select {
   position: absolute;
   top: 45px;
@@ -296,17 +295,16 @@
   appearance: none; 
 }
 
-
 .class-select::-ms-expand {
   display: none;
 }
-
 
 .class-select option {
   background-color: white; 
   color: #333; 
 }
 
-.seat-info{
+.seat-info {
+  color: #333;
   margin-top: 15px;
 }

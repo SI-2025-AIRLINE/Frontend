@@ -1,0 +1,72 @@
+.visual-seat-selection #Header {
+    margin-top: 40px;
+    align-self: center;
+}
+
+.visual-seat-selection #Header h1{
+    color: white;
+}
+
+.visual-seat-selection #Seats {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.visual-seat-selection .seat-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 40px; /* razmak između lijeve i desne strane */
+}
+
+.visual-seat-selection .seat-side {
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* razmak između redova */
+}
+
+.visual-seat-selection .seat-row {
+    display: flex;
+    flex-direction: row;
+    gap: 6px; /* razmak između sjedala u redu */
+}
+
+.visual-seat-selection .seat {
+    width: 30px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.visual-seat-selection .seat:hover {
+    background-color: #aaa;
+}
+
+.visual-seat-selection .seat-gap {
+    width: 50px; /* širina prolaza između dva niza sjedala */
+}
+
+.visual-seat-selection .seat.booked {
+    background-color: red;
+    color: white;
+    cursor: not-allowed;
+}
+
+.visual-seat-selection .seat.taken {
+    background-color: yellow;
+    color: black;
+    cursor: not-allowed;
+}
+
+.visual-seat-selection .seat.available {
+    background-color: #32CD32;
+    color: white;
+}
+
+.visual-seat-selection .seat.selected {
+    background-color: #00a1e4;
+    color: white;
+}
