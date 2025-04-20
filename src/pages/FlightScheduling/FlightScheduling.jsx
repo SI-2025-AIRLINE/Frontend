@@ -533,8 +533,23 @@ function FlightScheduling() {
             .then(setAirlines)
             .catch(console.error);
     }, []);
-   
 
+    const [aircraftOptions, setAircraftOptions] = useState([]);
+    useEffect(() => {
+        if (selectedAirline) {
+            fetch(`${apiURL}/Aircraft/byAirline/${selectedAirline.value}`)
+                .then(res => res.json())
+                .then(data => setAircraftOptions(data))
+                .catch(console.error);
+        } else {
+            setAircraftOptions([]);
+        }
+    }, [selectedAirline]);
+
+    useEffect(() => {
+    console.log("Selected airline:", selectedAirline);
+}, [selectedAirline]);
+   
 
     return (
         <div className="container">
