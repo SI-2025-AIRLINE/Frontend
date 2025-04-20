@@ -193,95 +193,6 @@ function FlightScheduling() {
         setIsCanceling(null);
         resetForm();
     };
-    /*
-        const handleEditFlight = (flight) => {
-            console.log("Valid to: ", flight.validTo);
-            const flightSchedule = initializeDaysFromSchedule(flight.schedule);
-            console.log("schedule:", flightSchedule);
-    
-            const selected = convertScheduleStringToSelectedDays(flight.schedule); 
-            setSelectedDays(selected); 
-    
-            setIsAddingNew(true); 
-            setEditingFlight(flight); 
-            setNewFlight({
-                flightNumber: flight.flightNumber,
-                schedule: flightSchedule,
-                aircraftType: flight.aircraft?.model,
-                departureTime: flight.departureTime.slice(11, 16),
-                arrivalTime: flight.arrivalTime.slice(11, 16),
-                origin: flight.departureDestination?.cityCode,
-                destination: flight.arrivalDestination?.cityCode,
-                validTo: formatDateForInput(flight.validTo.slice(0, 10)),
-                validFrom: formatDateForInput(flight.validFrom.slice(0, 10)),
-            });
-        };*/
-
-    /*  // Update flight via API
-      const updateFlight = async (flightData) => {
-          // If newFlight is undefined or lacks essential information, exit early
-          if (!newFlight || !newFlight.flightNumber || !newFlight.origin || !newFlight.destination) {
-              window.alert("Missing flight data");
-              return false;
-          }
-          console.log("Editing data: ", editingFlight);
-          console.log("FlightData: ", flightData);
-          console.log("New flight: ", newFlight);
-  
-          try {
-              // Fetch IDs for the aircraft, departure, and arrival destinations
-              const aircraftId = await getAircraftIdByModel(newFlight.aircraftType);
-              const departureId = await getDestinationIdByCityCode(newFlight.origin);
-              const arrivalId = await getDestinationIdByCityCode(newFlight.destination);
-  
-              // Prepare updated flight data payload
-              const updatedFlightData = {
-                  flightNumber: newFlight.flightNumber,
-                  schedule: newFlight.schedule,
-                  aircraftId: aircraftId,
-                  departureDestinationId: departureId,
-                  arrivalDestinationId: arrivalId,
-                  departureTime: `2025-01-01T${newFlight.departureTime}`.toString(),
-                  arrivalTime: `2025-01-01T${newFlight.arrivalTime}`.toString(),
-                  // Ensure correct date format
-                  validFrom: newFlight.validFrom,
-                  validTo: newFlight.validTo,
-                  economyPrice: flightData.economyPrice,
-                  businessPrice: flightData.businessPrice,
-                  firstClassPrice: flightData.firstClassPrice,
-                  capacity: flightData.capacity,
-                  availableSeats: flightData.availableSeats,
-              };
-  
-              console.log(updatedFlightData);
-  
-              // Send PUT request to update the flight
-              const res = await fetch(`${apiURL}/Flight/${flightData.id}`, {
-                  method: 'PUT',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(updatedFlightData),
-              });
-  
-              // Check for successful response
-              if (!res.ok) {
-                  // Only consume the body once
-                  const errorResponse = await res.text();
-                  throw new Error(`HTTP ${res.status}: ${errorResponse}`);
-              }
-  
-              // Refresh flight list after update
-              await fetchFlights();  // Re-fetch updated list of flights
-              closeEditForm();
-              window.alert("Flight is successfully updated!");
-              return true;  // Return true to indicate success
-          } catch (error) {
-              console.log('Failed to update flight:', error);
-              window.alert('Failed to update flight.');
-              return false;  
-          }
-      };*/
 
     const getDestinationIdByCityCode = async (cityCode) => {
         const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
@@ -339,6 +250,7 @@ function FlightScheduling() {
 
             const flightPayload = {
                 flightNumber: newFlight.flightNumber,
+                airlineId: selectedAirline.value,
                 schedule: newFlight.schedule,
                 departureTime: `2025-01-01T${newFlight.departureTime}`,
                 arrivalTime: `2025-01-01T${newFlight.arrivalTime}`,
@@ -374,37 +286,6 @@ function FlightScheduling() {
             console.error("Flight creation failed:", error.message);
         }
     };
-
-    /* Delete vise nije potreban
-
-    //DELETE: /api/Flight/id
-    const handleDeleteFlight = async (id) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this flight?");
-
-        if (!confirmDelete) {
-            return; 
-        }
-
-        try {
-           
-            const response = await fetch(`${apiURL}/Flight/${id}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                
-                throw new Error('Failed to delete flight');
-            }
-
-            setFlights(flights.filter(f => f.id !== id));
-            window.alert("Flight deleted successfully.");
-
-            fetchFlights(); 
-        } catch (error) {
-            console.error('An error occured:', error);
-            window.alert("Failed to delete flight.");
-        }
-    };*/
 
     const formatSchedule = (schedule) => {
         if (!schedule) return '';
@@ -631,6 +512,29 @@ function FlightScheduling() {
         }));
     };
 
+    const [selectedAirline, setSelectedAirline] = useState(null);
+    const loadAirlineOptions = async (inputValue) => {
+        if (!inputValue || inputValue.length < 1) return [];
+        const res = await fetch(`${apiURL}/Airline/search?term=${encodeURIComponent(inputValue)}`);
+        const data = await res.json();
+        console.log("Airline data: ", data);
+        return data.map(airline => ({
+            iata: airline.iata,
+            label: `${airline.name} (${airline.iata})`,
+            value: airline.id
+        }));
+    };
+
+    const [airlines, setAirlines] = useState([]);
+
+    useEffect(() => {
+        fetch(`${apiURL}/Airline/all`) // Replace with your actual endpoint
+            .then(res => res.json())
+            .then(setAirlines)
+            .catch(console.error);
+    }, []);
+   
+
 
     return (
         <div className="container">
@@ -649,15 +553,50 @@ function FlightScheduling() {
                         {'Add New Flight'}
                     </h2>
                     <div className="form-grid">
+
+                        <div className="form-group">
+                            <label className="time-label">Airline</label>
+                            <AsyncSelect
+                                cacheOptions
+                                loadOptions={loadAirlineOptions}
+                                defaultOptions
+                                onChange={(selectedOption) => {
+                                    setSelectedAirline(selectedOption);
+                                    setNewFlight(prev => ({
+                                        ...prev,
+                                        flightNumber: `${selectedOption.value}-` // Reset flight number prefix
+                                    }));
+                                }}
+                                placeholder="Search airline..."
+                                value={selectedAirline}
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minHeight: '38px'
+                                    })
+                                }}
+                            />
+                        </div>
+
                         <div className="form-group">
                             <label className="time-label">Flight Number</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={newFlight.flightNumber}
-                                onChange={(e) => setNewFlight({ ...newFlight, flightNumber: e.target.value })}
-
-                            />
+                            <div className="flight-number-wrapper">
+                                <span className="flight-prefix">
+                                    {selectedAirline ? `${selectedAirline.iata}-` : ''}
+                                </span>
+                                <input
+                                    type="text"
+                                    className="flight-number-suffix"
+                                    value={newFlight.flightNumber.replace(/^[A-Z0-9]+-/, '')} // Remove prefix for input
+                                    onChange={(e) => {
+                                        const suffix = e.target.value.replace(/[^A-Z0-9]/gi, ''); // alphanumeric only
+                                        const prefix = selectedAirline ? `${selectedAirline.iata}-` : '';
+                                        setNewFlight({ ...newFlight, flightNumber: `${prefix}${suffix}` });
+                                    }}
+                                    disabled={!selectedAirline}
+                                    placeholder="e.g. 1234"
+                                />
+                            </div>
                         </div>
                         <div className="form-group">
                             <label className="time-label">Aircraft Type</label>
@@ -974,11 +913,14 @@ function FlightScheduling() {
                 </div>
 
             )}
+
+            {/* Tabela letova */}
             <div className="table-container">
                 <table className="table">
                     <thead>
                         <tr>
                             <th>Flight</th>
+                            <th>Airline</th>
                             <th>Schedule</th>
                             <th>Route</th>
                             <th>D/A Times</th>
@@ -995,6 +937,7 @@ function FlightScheduling() {
                                 className={flight.status === 5 ? 'inactive-row' : ''}
                             >
                                 <td>{flight.flightNumber}</td>
+                                <td>{airlines.find((a) => a.id === flight.airlineId)?.name || '-'}</td>
                                 <td>{formatSchedule(flight.schedule)}</td>
                                 <td>{flight.departureDestination?.name} → {flight.arrivalDestination?.name}</td>
                                 <td>
