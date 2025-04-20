@@ -550,6 +550,17 @@ function FlightScheduling() {
         }
     }, [selectedAirline]);
 
+    const [seatingConfig, setSeatingConfig] = useState([]);
+
+    const seatClassLabel = (seatClass) => {
+        switch (seatClass) {
+          case 0: return 'Economy';
+          case 1: return 'Business';
+          case 2: return 'First Class';
+          default: return 'Unknown Class';
+        }
+      };
+
 
    
 
@@ -579,6 +590,7 @@ function FlightScheduling() {
                                 defaultOptions
                                 onChange={(selectedOption) => {
                                     setSelectedAirline(selectedOption);
+                                    setSeatingConfig([]); // Reset seating config when airline changes
                                     setNewFlight(prev => ({
                                         ...prev,
                                         flightNumber: `${selectedOption.value}-` // Reset flight number prefix
@@ -622,16 +634,52 @@ function FlightScheduling() {
                                 options={aircraftOptions}
                                 isDisabled={!selectedAirline}
                                 placeholder={!selectedAirline ? 'Select airline first' : 'Select aircraft'}
-                                getOptionLabel={(a) => `${a.description} [${a.registrationNumber}]`}
+                                formatOptionLabel={(a) => (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                      <span>{a.description}</span>
+                                      <span style={{ fontStyle: 'italic', color: '#666' }}>{a.registrationNumber}</span>
+                                    </div>
+                                  )}
                                 getOptionValue={(a) => String(a.id)}
-                                value={aircraftOptions.find((a) => a.id === newFlight.aircraftId) || null}
-                                onChange={(selected) =>
+                                value={aircraftOptions.find((a) => a.id === newFlight.aircraftID) || null}
+                                onChange={async (selected) =>{
                                     setNewFlight((prev) => ({
                                         ...prev,
                                         aircraftID: selected?.id || null,
-                                    }))
-                                }
+                                    }));
+                                    try {
+                                        const res = await fetch(`${apiURL}/Aircraft/${selected.id}/seating`);
+                                        const data = await res.json();
+                                        console.log("Seating config data: ", data);
+                                        setSeatingConfig(data);
+                                      } catch (error) {
+                                        console.error('Failed to fetch seating config:', error);
+                                        setSeatingConfig([]);
+                                      }
+                                }}                               
                             />
+                            {seatingConfig.length > 0 && (
+                                <div className="seating-config">
+                                    <label className='time-label' style={{ marginTop: '15px', marginBottom: '15px' }}>SEATING CONFIGURATION:</label>
+                                    <ul style={{ paddingLeft: '1.2rem', listStyleType: 'none' }}>
+                                    {seatingConfig.map((config) => (
+                                        <li key={config.id} style={{ color: '#555', alignItems: 'center', display: 'flex', marginBottom: '0.5rem' }}>
+                                            {/* Icon for seat class */}
+                                            {config.seatClass === 0 && (
+                                                <img src="/src/assets/icons/seatingClasses/economy.png" alt="Economy" style={{ width: '40px', marginRight: '10px' }} />
+                                            )}
+                                            {config.seatClass === 1 && (
+                                                <img src="/src/assets/icons/seatingClasses/business.png" alt="Business" style={{ width: '40px', marginRight: '10px' }} />
+                                            )}
+                                            {config.seatClass === 2 && (
+                                                <img src="/src/assets/icons/seatingClasses/first.png" alt="First Class" style={{ width: '40px', marginRight: '10px' }} />
+                                            )}
+                                            {seatClassLabel(config.seatClass)}: {config.rowCount} rows × {config.seatsPerRow} seats/row
+                                        </li>
+                                    ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -749,6 +797,7 @@ function FlightScheduling() {
                             setIsAddingNew(false);
                             setEditingFlight(null);
                             setSelectedAirline(null);
+                            setSeatingConfig([]);
                             setNewFlight({
                                 flightNumber: '',
                                 schedule: '',
