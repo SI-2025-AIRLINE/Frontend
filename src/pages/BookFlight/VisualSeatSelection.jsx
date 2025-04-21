@@ -34,6 +34,7 @@ export default function VisualSeatSelection(props) {
       .map((p, i) => (i !== props.currentPassenger ? p.seat : ''))
       .filter(seat => !!seat)
   ];
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSeat, setSelectedSeat] = useState(
     props.passengers[props.currentPassenger].seat || ''
   );

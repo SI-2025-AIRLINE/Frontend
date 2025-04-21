@@ -12,10 +12,16 @@ export default function BookFlight() {
   const [showBoardingPasses, setShowBoardingPasses] = useState(false);
   const [selectedSeatDisplay, setSelectedSeatDisplay] = useState('');
   const [bookedSeats, setBookedSeats] = useState([]);
+  
+  
+
+
+  const totalPassengerss = passengerCount.adults + passengerCount.children;
 
   const customerId = localStorage.getItem('userId');
   const flight = JSON.parse(sessionStorage.getItem('flight') || '{}');
   const seatData = JSON.parse(sessionStorage.getItem('seats') || '[]');
+  
 
   
   useEffect(() => {
@@ -92,7 +98,6 @@ export default function BookFlight() {
     date: flight.departureTime?.split('T')[0] || '',
     time: flight.departureTime?.split('T')[1]?.slice(0, 5) || '',
     flight: flight.flightNumber || '',
-    gate: '18',
     boardTill: flight.departureTime
       ? new Date(departureTime.getTime() - 20 * 60000).toTimeString().slice(0, 5)
       : ''
@@ -184,10 +189,6 @@ export default function BookFlight() {
             <span className="label">Flight</span>
             <span className="value">{flightData.flight}</span>
           </div>
-          <div className="detail-group">
-            <span className="label">Gate</span>
-            <span className="value">{flightData.gate}</span>
-          </div>
         </div>
         <div className="right-section">
           <div className="detail-group">
@@ -216,6 +217,14 @@ export default function BookFlight() {
             <BoardingPass key={i} passenger={p} flightData={flightData} />
           ))}
         </div>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <button
+            className="submit-button"
+            onClick={() => window.location.href = '/flight-search'}
+          >
+            Finalize
+          </button>
+        </div>
       </div>
     );
   }
@@ -224,31 +233,52 @@ export default function BookFlight() {
   if (step === 'passengers') {
     return (
       <div className="passenger-count-container">
-        <h2>How many passengers?</h2>
-        <div className="passenger-inputs">
-          <div>
-            <label>Adults:</label>
-            <input
-              type="number"
-              min="1"
-              value={passengerCount.adults}
-              onChange={e => setPassengerCount({ ...passengerCount, adults: parseInt(e.target.value) })}
-            />
-          </div>
-          <div>
-            <label>Children:</label>
-            <input
-              type="number"
-              min="0"
-              value={passengerCount.children}
-              onChange={e => setPassengerCount({ ...passengerCount, children: parseInt(e.target.value) })}
-            />
-          </div>
+      <h2>How many passengers?</h2>
+      <div className="passenger-inputs">
+        <div>
+          <label>Adults:</label>
+          <input
+            type="number"
+            min="1"
+            value={passengerCount.adults}
+            onChange={(e) => {
+              const newAdults = parseInt(e.target.value) || 0;
+              const total = newAdults + passengerCount.children;
+              if (total <= 5) {
+                setPassengerCount({ ...passengerCount, adults: newAdults });
+              }
+            }}
+          />
         </div>
-        <button className="update-button" onClick={handlePassengerCountSubmit}>
-          Continue
-        </button>
+        <div>
+          <label>Children:</label>
+          <input
+            type="number"
+            min="0"
+            value={passengerCount.children}
+            onChange={(e) => {
+              const newChildren = parseInt(e.target.value) || 0;
+              const total = passengerCount.adults + newChildren;
+              if (total <= 5) {
+                setPassengerCount({ ...passengerCount, children: newChildren });
+              }
+            }}
+          />
+        </div>
       </div>
+
+      {totalPassengerss > 5 && (
+        <p style={{ color: "red" }}>Maximum number of passengers is 5.</p>
+      )}
+
+      <button
+        className="update-button"
+        onClick={handlePassengerCountSubmit}
+        disabled={totalPassengerss > 5}
+      >
+        Continue
+      </button>
+    </div>
     );
   }
 
@@ -325,23 +355,42 @@ export default function BookFlight() {
                     onChange={e => handlePassengerInputChange('surname', e.target.value)}
                   />
                 </div>
-                <div className="form-group">
-                  <input
-                    type="date"
-                    required
-                    value={passenger.dateOfBirth}
-                    onChange={e => handlePassengerInputChange('dateOfBirth', e.target.value)}
-                  />
-                  <select
-                    required
-                    value={passenger.gender}
-                    onChange={e => handlePassengerInputChange('gender', e.target.value)}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
+                {/* Date of birth and gender field */}
+<div className="form-group">
+  {(() => {
+    const today = new Date();
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    const isChild = currentPassenger >= passengerCount.adults;
+
+    const minDateChild = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+    const maxDateChild = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+
+    const maxDateAdult = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
+    const minDateAdult = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+
+    return (
+      <>
+        <input
+          type="date"
+          required
+          value={passenger.dateOfBirth}
+          onChange={e => handlePassengerInputChange('dateOfBirth', e.target.value)}
+          min={formatDate(isChild ? minDateChild : minDateAdult)}
+          max={formatDate(isChild ? maxDateChild : maxDateAdult)}
+        />
+        <select
+          required
+          value={passenger.gender}
+          onChange={e => handlePassengerInputChange('gender', e.target.value)}
+        >
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </>
+    );
+  })()}
+</div>
                 <div className="form-group">
                   <input
                     type="email"
@@ -362,7 +411,7 @@ export default function BookFlight() {
                   </div>
                   <div>
                     <p>Flight: {flightData.flight}</p>
-                    <p>Gate: {flightData.gate}</p>
+                   
                   </div>
                   <div className="seat-group">
                     <button type="button" className="seat-button" onClick={handleSeatSelection}>
