@@ -212,10 +212,12 @@ export default function BookFlight() {
   if (showBoardingPasses) {
     return (
       <div className="boarding-passes-container">
-        <div className="boarding-passes-grid">
-          {passengers.map((p, i) => (
-            <BoardingPass key={i} passenger={p} flightData={flightData} />
-          ))}
+        <div className="boarding-passes-scroll">
+          <div className="boarding-passes-grid">
+            {passengers.map((p, i) => (
+              <BoardingPass key={i} passenger={p} flightData={flightData} />
+            ))}
+          </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <button
@@ -228,6 +230,7 @@ export default function BookFlight() {
       </div>
     );
   }
+  
 
   // Render passenger-count step
   if (step === 'passengers') {
