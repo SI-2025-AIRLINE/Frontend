@@ -531,6 +531,8 @@ function FlightScheduling() {
             .then(res => res.json())
             .then(data => {
                 const mapped = data.map(airline => ({
+                    id: airline.id,
+                    name: airline.name,
                     label: `${airline.name} (${airline.iata})`,
                     value: airline.id,
                     iata: airline.iata,
