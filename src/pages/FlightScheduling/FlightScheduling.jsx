@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import { PlusCircle, Save, Trash2, Edit} from 'lucide-react';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
-import BClass from '../../components/Icons/business-class.svg';
-import EClass from '../../components/Icons/economy-class.svg';
-import FClass from '../../components/Icons/first-class.svg';
+import BClass from '../../components/Icons/business-class.png';
+import EClass from '../../components/Icons/economy-class.png';
+import FClass from '../../components/Icons/first-class.png';
 import './FlightScheduling.css';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
@@ -506,36 +507,36 @@ function FlightScheduling() {
         5: 'Cancelled',
         6: 'Diverted'
     };
-
-    const loadDestinationOptions = async (inputValue) => {
-        if (!inputValue || inputValue.length < 1) return [];
-        const res = await fetch(`${apiURL}/Destination/search?term=${encodeURIComponent(inputValue)}`);
-        const data = await res.json();
-        return data.map(dest => ({
-            label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
-            value: dest.cityCode // or use dest.id if that’s what you store
-        }));
-    };
-
-    const [selectedAirline, setSelectedAirline] = useState(null);
-    const loadAirlineOptions = async (inputValue) => {
-        if (!inputValue || inputValue.length < 1) return [];
-        const res = await fetch(`${apiURL}/Airline/search?term=${encodeURIComponent(inputValue)}`);
-        const data = await res.json();
-        console.log("Airline data: ", data);
-        return data.map(airline => ({
-            iata: airline.iata,
-            label: `${airline.name} (${airline.iata})`,
-            value: airline.id
-        }));
-    };
-
-    const [airlines, setAirlines] = useState([]);
+    
+    const [allDestinations, setAllDestinations] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${apiURL}/Airline/all`) // Replace with your actual endpoint
+        fetch(`${apiURL}/Destination/all`)
             .then(res => res.json())
-            .then(setAirlines)
+            .then(data => {
+                const mapped = data.map(dest => ({
+                    label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
+                    value: dest.cityCode
+                }));
+                setAllDestinations(mapped);
+                setLoading(false);
+            });
+    }, []);
+
+    const [selectedAirline, setSelectedAirline] = useState(null);
+    const [airlines, setAirlines] = useState([]);
+    useEffect(() => {
+        fetch(`${apiURL}/Airline/all`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(airline => ({
+                    label: `${airline.name} (${airline.iata})`,
+                    value: airline.id,
+                    iata: airline.iata,
+                }));
+                setAirlines(mapped);
+            })
             .catch(console.error);
     }, []);
 
@@ -544,9 +545,15 @@ function FlightScheduling() {
         if (selectedAirline) {
             fetch(`${apiURL}/Aircraft/byAirline/${selectedAirline.value}`)
                 .then(res => res.json())
-                .then(data => setAircraftOptions(data))
+                .then(data => {
+                    const mapped = data.map(a => ({
+                        ...a,
+                        label: `${a.description} (${a.registrationNumber})`,
+                        value: a.id
+                    }));
+                    setAircraftOptions(mapped);
+                })
                 .catch(console.error);
-            console.log("Aircraft data: ", aircraftOptions);
         } else {
             setAircraftOptions([]);
         }
@@ -561,10 +568,20 @@ function FlightScheduling() {
           case 2: return 'First Class';
           default: return 'Unknown Class';
         }
-      };
+    };
 
-
-   
+    const seatIcons = {
+        0: EClass,
+        1: BClass,
+        2: FClass
+    };   
+    
+    const selectStyles = {
+        control: (provided) => ({
+            ...provided,
+            minHeight: '38px'
+        })
+    };     
 
     return (
         <div className="container">
@@ -586,26 +603,20 @@ function FlightScheduling() {
 
                         <div className="form-group">
                             <label className="time-label">Airline</label>
-                            <AsyncSelect
-                                cacheOptions
-                                loadOptions={loadAirlineOptions}
-                                defaultOptions
+                            <Select
+                                options={airlines}
+                                isSearchable
                                 onChange={(selectedOption) => {
                                     setSelectedAirline(selectedOption);
-                                    setSeatingConfig([]); // Reset seating config when airline changes
+                                    setSeatingConfig([]);
                                     setNewFlight(prev => ({
                                         ...prev,
-                                        flightNumber: `${selectedOption.value}-` // Reset flight number prefix
+                                        flightNumber: `${selectedOption.iata}-`
                                     }));
                                 }}
                                 placeholder="Search airline..."
                                 value={selectedAirline}
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        minHeight: '38px'
-                                    })
-                                }}
+                                styles={selectStyles}
                             />
                         </div>
 
@@ -712,38 +723,26 @@ function FlightScheduling() {
                     <div className="form-grid">
                         <div className="form-group">
                             <label className="time-label">Origin</label>
-                            <AsyncSelect
-                                cacheOptions
-                                loadOptions={loadDestinationOptions}
-                                defaultOptions
+                            <Select
+                                options={allDestinations}
+                                isLoading={loading}
                                 onChange={(selectedOption) =>
                                     setNewFlight({ ...newFlight, origin: selectedOption.value })
                                 }
                                 placeholder="Search origin..."
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        minHeight: '38px'
-                                    })
-                                }}
+                                styles={selectStyles}
                             />
                         </div>
                         <div className="form-group">
                             <label className="time-label">Destination</label>
-                            <AsyncSelect
-                                cacheOptions
-                                loadOptions={loadDestinationOptions}
-                                defaultOptions
+                            <Select
+                                options={allDestinations}
+                                isLoading={loading}
                                 onChange={(selectedOption) =>
                                     setNewFlight({ ...newFlight, destination: selectedOption.value })
                                 }
                                 placeholder="Search destination..."
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        minHeight: '38px'
-                                    })
-                                }}
+                                styles={selectStyles}
                             />
                         </div>
                     </div>
