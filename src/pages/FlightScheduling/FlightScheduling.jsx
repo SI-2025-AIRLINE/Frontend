@@ -62,6 +62,10 @@ function FlightScheduling() {
     };
 
     const resetForm = () => {
+        setIsAddingNew(false);
+        setEditingFlight(null);
+        setSelectedAirline(null);
+        setSeatingConfig([]);
         setNewFlight({
             flightNumber: '',
             schedule: '',
@@ -71,7 +75,8 @@ function FlightScheduling() {
             destination: '',
             aircraftType: '',
             validFrom: '',
-            validTo: ''
+            validTo: '',
+            aircraftId: null
         });
         setSelectedDays({
             mon: false,
