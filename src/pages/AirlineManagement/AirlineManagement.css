@@ -178,7 +178,7 @@ body {
     }
 
     .airlines-list td {
-        padding: 1rem 1.5rem;
+        padding: 0.1rem 0rem;
         font-size: 12pt;
         color: var(--gray-500);
         border-top: 1px solid var(--gray-200);
