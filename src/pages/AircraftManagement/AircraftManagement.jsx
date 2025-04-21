@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 import './AircraftManagement.css';
 
 // Import local icons
@@ -166,7 +167,8 @@ function AircraftManagement() {
         body: JSON.stringify({
           model: newAircraft.model,
           description: newAircraft.description,
-          registrationNumber: newAircraft.registrationNumber
+          registrationNumber: newAircraft.registrationNumber,
+          airlineId: selectedAirlineId // Use the selected airline ID
         })
       });
 
@@ -204,6 +206,7 @@ function AircraftManagement() {
       // Reset form
       setIsAddingNew(false);
       setNewAircraft({
+        airlineId: '',
         model: '',
         description: '',
         registrationNumber: '',
@@ -223,14 +226,19 @@ function AircraftManagement() {
   const handleEditAircraft = async (id) => {
     try {
       const aircraftToEdit = aircraft.find((a) => a.id === id);
+
+      const airlineInfo = airlines.find((airline) => airline.id === aircraftToEdit.airlineId);
       
       // Create a formatted version with the UI-expected structure
       const formattedAircraft = {
         ...aircraftToEdit,
-        seatConfiguration: getFormattedSeatingConfig(aircraftToEdit.seatingConfigs)
+        seatConfiguration: getFormattedSeatingConfig(aircraftToEdit.seatingConfigs),
+         airlineId: aircraftToEdit.airlineId, 
+      airlineName: airlineInfo ? airlineInfo.name : ''
       };
       
       setEditAircraft(formattedAircraft);
+      setSelectedAirlineId(aircraftToEdit.airlineId);
       setIsEditing(true);
     } catch (err) {
       console.error('Error preparing aircraft for edit:', err);
@@ -249,7 +257,8 @@ function AircraftManagement() {
           id: editAircraft.id,
           model: editAircraft.model,
           description: editAircraft.description,
-          registrationNumber: editAircraft.registrationNumber
+          registrationNumber: editAircraft.registrationNumber,
+          airlineId: selectedAirlineId
         })
       });
 
@@ -333,6 +342,29 @@ function AircraftManagement() {
     setError(null);
   };
 
+  const [airlines, setAirlines] = useState([]);
+  const [selectedAirlineId, setSelectedAirlineId] = useState(null);
+
+  useEffect(() => {
+    if (isEditing && editAircraft?.airline) {
+      setSelectedAirlineId(editAircraft.airlineId);
+    }
+  }, [isEditing, editAircraft]);
+
+  useEffect(() => {
+    const fetchAirlines = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/Airline/all`); // Adjust the URL if needed
+        const data = await response.json();
+        setAirlines(data);
+      } catch (error) {
+        console.error('Failed to fetch airlines:', error);
+      }
+    };
+  
+    fetchAirlines();
+  }, []);
+
   return (
     <div className="container">
       {error && (
@@ -354,6 +386,23 @@ function AircraftManagement() {
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
             {isEditing ? 'Edit Aircraft' : 'Add New Aircraft'}
           </h2>
+          <div className="form-grid">
+          <div className="form-group">
+            <label className="form-label">Airline</label>
+            <select
+              className="form-input"
+              value={selectedAirlineId || ''}
+              onChange={(e) => setSelectedAirlineId(e.target.value)}
+            >
+              <option value="">Select an Airline</option>
+              {airlines.map((airline) => (
+                <option key={airline.id} value={airline.id}>
+                  {airline.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          </div>
           <div className="form-grid">
             <div className="form-group">
               <label className="form-label">Model</label>
@@ -520,6 +569,7 @@ function AircraftManagement() {
               <tr>
                 <th>Model</th>
                 <th>Description</th>
+                <th>Airline</th>
                 <th>Registration</th>
                 <th>First Class</th>
                 <th>Business Class</th>
@@ -541,6 +591,7 @@ function AircraftManagement() {
                     <tr key={plane.id}>
                       <td>{plane.model}</td>
                       <td>{plane.description}</td>
+                      <td>{airlines.find((a) => a.id === plane.airlineId).name}</td>
                       <td>{plane.registrationNumber}</td>
                       <td>
                         {seatingConfig.firstClass.total > 0 
