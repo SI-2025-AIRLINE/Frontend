@@ -96,14 +96,14 @@
   margin-top: 20px;
 }
 
-.form-group {
+.booking-container .form-group {
   display: flex;
   gap: 20px;
   margin-bottom: 15px;
 }
 
-.form-group input,
-.form-group select {
+.booking-container .form-group input,
+.booking-container .form-group select {
   flex: 1;
   padding: 10px;
   border: 1px solid #ccc;
@@ -255,7 +255,7 @@
 }
 
 @media (max-width: 768px) {
-  .form-group {
+  .booking-container .form-group {
     flex-direction: column;
   }
   
