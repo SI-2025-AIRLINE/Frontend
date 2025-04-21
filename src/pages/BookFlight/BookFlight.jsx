@@ -27,7 +27,7 @@ export default function BookFlight() {
   useEffect(() => {
     const getBookedSeats = async () => {
       try {
-        const res = await fetch(`${apiURL}/Bookings/seats/${flight.id}`,{
+        const res = await fetch(`${apiURL}/Booking/seats/${flight.id}`,{
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export default function BookFlight() {
         extraReservations
       };
   
-      const res = await fetch(`${apiURL}/Bookings`, {
+      const res = await fetch(`${apiURL}/Booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
