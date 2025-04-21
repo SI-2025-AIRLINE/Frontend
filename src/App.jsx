@@ -12,9 +12,10 @@ import UserManagement from './pages/UserManagement/UserManagement';
 import HeaderWrapper from './components/Header/HeaderWrapper';
 import AdminHomePage from './pages/AdminHomePage/AdminHomePage';
 import Profile from './pages/Profile/Profile';
-import FlightSearch from './pages/FlightSearch/FlightSearch';
 import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
+import BookFlight from './pages/BookFlight/BookFlight';
 import AirlineManagement from './pages/AirlineManagement/AirlineManagement'
+import { FlightSearch } from './pages';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/admin" element={<AdminHomePage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/flight-search" element={<FlightSearch />} />
+          <Route path="/bookflight" element={<BookFlight />} />
           <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
       </Routes>
 

@@ -2,15 +2,19 @@ import './FlightSearch.css';
 import { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function FlightSearch() {
   const today = new Date();
+  const navigate = useNavigate();
+  /********************************
+   *     Search Bar Logic         *
+   ********************************/
   const [originAirport, setOriginAirport] = useState("");
   const [destinationAirport, setDestinationAirport] = useState("");
   const [departDate, setDepartDate] = useState(null);
-
   const handleOriginChange = (e) => {
     setOriginAirport(e.target.value);
   };
@@ -20,6 +24,10 @@ export default function FlightSearch() {
   const handleDepartChange = (date) => {
     setDepartDate(date);
   };
+
+  /********************************
+   *     Filter Bars Logic        *
+   ********************************/
 
   const [data, setData] = useState([]);
   const [flights, setFlights] = useState([]);
@@ -109,6 +117,10 @@ export default function FlightSearch() {
     setDurationOption(e.target.value);
   };
 
+  /*********************************
+   *     Fetch Flights logic       *
+   *********************************/
+
   const [showFlights, setShowFlights] = useState(false);
 
   const getFlights = () => {
@@ -135,8 +147,58 @@ export default function FlightSearch() {
       });
   };
 
+  /*********************************
+   *       Fetch Seats data        *
+   *********************************/
+  const classMap = {
+    0: 'Economy',
+    1: 'Business',
+    2: 'First Class'
+  };
+
+  const getSeatData = (aircraftId) => {
+    fetch(`${apiURL}/SeatingConfig/aircraft/${aircraftId}/summary`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('HTTP greška: ' + res.status);
+      return res.json();
+    })
+    .then(json => {
+      const cfgData = json.configurations.map(config => ({
+        seatClass: classMap[config.seatClass],
+        rowCount: config.rowCount,
+        seatsPerRow: config.seatsPerRow
+      }));
+      sessionStorage.setItem('seats', JSON.stringify(cfgData));
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  };
+
+  /********************************
+   *          THE PAGE            *
+   ********************************/
+  if (sessionStorage.getItem("flight")) {
+    sessionStorage.removeItem("flight");
+  }
+  if (sessionStorage.getItem("class")){
+    sessionStorage.removeItem("class");
+  }
+  if(sessionStorage.getItem("seats")){
+    sessionStorage.removeItem("seats");
+  }
+  
   return (
     <>
+      {/********************************
+        *          Search Bar          *
+        ********************************/}
       <div className="FlightSearchDiv">
         <input
           type="text"
@@ -168,6 +230,10 @@ export default function FlightSearch() {
           Search
         </button>
       </div>
+
+      {/********************************
+        *          Filters Bar         *
+        ********************************/}
 
       {showFlights && flights.length > 0 &&
         <div className="FlightFiltersDiv">
@@ -251,6 +317,10 @@ export default function FlightSearch() {
         </div>
       }
 
+      {/********************************
+        *          Flights Bar         *
+        ********************************/}
+
       <div className="FlightTicketsDiv">
         {showFlights && flights.length > 0 ? (
           data.map((flight, index) => (
@@ -294,7 +364,12 @@ export default function FlightSearch() {
                 <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
                   First Class: €{flight.firstClassPrice}
                 </p>
-                <button className="BookBtn">Book Now</button>
+                <button className="BookBtn" onClick={
+                  () => {
+                    sessionStorage.setItem('flight', JSON.stringify(flight));
+                    getSeatData(flight.aircraftId);
+                    navigate('/bookflight');}
+                }>Book Now</button>
               </div>
             </div>
           ))
