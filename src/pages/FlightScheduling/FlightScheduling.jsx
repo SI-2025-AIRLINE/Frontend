@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, Save, Trash2, Edit} from 'lucide-react';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
-//import EditIcon from '../../components/Icons/pencil.svg';
+import BClass from '../../components/Icons/business-class.svg';
+import EClass from '../../components/Icons/economy-class.svg';
+import FClass from '../../components/Icons/first-class.svg';
 import './FlightScheduling.css';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
@@ -666,13 +668,13 @@ function FlightScheduling() {
                                         <li key={config.id} style={{ color: '#555', alignItems: 'center', display: 'flex', marginBottom: '0.5rem' }}>
                                             {/* Icon for seat class */}
                                             {config.seatClass === 0 && (
-                                                <img src="/src/assets/icons/seatingClasses/economy.png" alt="Economy" style={{ width: '40px', marginRight: '10px' }} />
+                                                <img src={EClass} alt="Economy" style={{ width: '40px', marginRight: '10px' }} />
                                             )}
                                             {config.seatClass === 1 && (
-                                                <img src="/src/assets/icons/seatingClasses/business.png" alt="Business" style={{ width: '40px', marginRight: '10px' }} />
+                                                <img src={BClass} alt="Business" style={{ width: '40px', marginRight: '10px' }} />
                                             )}
                                             {config.seatClass === 2 && (
-                                                <img src="/src/assets/icons/seatingClasses/first.png" alt="First Class" style={{ width: '40px', marginRight: '10px' }} />
+                                                <img src={FClass} alt="First Class" style={{ width: '40px', marginRight: '10px' }} />
                                             )}
                                             {seatClassLabel(config.seatClass)}: {config.rowCount} rows × {config.seatsPerRow} seats/row
                                         </li>
