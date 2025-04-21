@@ -58,6 +58,12 @@
   margin: auto; /* centriranje */
 }
 
+.boarding-passes-scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
 .airline-header {
   display: flex;
   align-items: center;
