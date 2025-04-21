@@ -365,6 +365,16 @@ function AircraftManagement() {
     fetchAirlines();
   }, []);
 
+  const airlineOptions = airlines.map((airline) => ({
+    value: airline.id,
+    iata: airline.iata,
+    label: airline.name
+  }));
+
+  const selectedAirlineOption = selectedAirlineId
+    ? airlineOptions.find((option) => option.value === selectedAirlineId)
+    : null;
+
   return (
     <div className="container">
       {error && (
@@ -389,18 +399,13 @@ function AircraftManagement() {
           <div className="form-grid">
           <div className="form-group">
             <label className="form-label">Airline</label>
-            <select
-              className="form-input"
-              value={selectedAirlineId || ''}
-              onChange={(e) => setSelectedAirlineId(e.target.value)}
-            >
-              <option value="">Select an Airline</option>
-              {airlines.map((airline) => (
-                <option key={airline.id} value={airline.id}>
-                  {airline.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              value={selectedAirlineOption}
+              onChange={(option) => setSelectedAirlineId(option ? option.value : '')}
+              options={airlineOptions}
+              placeholder="Select an Airline"
+              isClearable
+            />
           </div>
           </div>
           <div className="form-grid">
