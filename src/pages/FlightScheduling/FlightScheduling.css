@@ -313,6 +313,35 @@
         background-color: #a1a1a1;
     }
 
+.flight-number-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 38px;
+  background: white;
+}
+
+.flight-prefix {
+  background-color: #f0f0f0;
+  padding: 2px 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #ccc;
+  height: 100%;
+  width: 11%;
+}
+
+.flight-number-suffix {
+  flex: 1;
+  padding: 0 12px;
+  border: none;
+  outline: none;
+  height: 100%;
+}
+
 
 
 
