@@ -727,30 +727,34 @@ function FlightScheduling() {
                         </div>
                     </div>
 
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label className="time-label">Origin</label>
-                            <Select
-                                options={allDestinations}
-                                isLoading={loading}
-                                onChange={(selectedOption) =>
+                    <div className="form-group time-inputs">
+                        <label className="form-label">Route</label>
+                        <div className="time-input-group">
+                            <div className="time-input">
+                                <span className="time-label">Origin</span>
+                                <Select
+                                    options={allDestinations}
+                                    isLoading={loading}
+                                    onChange={(selectedOption) =>
                                     setNewFlight({ ...newFlight, origin: selectedOption.value })
-                                }
-                                placeholder="Search origin..."
-                                styles={selectStyles}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label className="time-label">Destination</label>
-                            <Select
-                                options={allDestinations}
-                                isLoading={loading}
-                                onChange={(selectedOption) =>
+                                    }
+                                    placeholder="Search origin..."
+                                    styles={selectStyles}
+                                />
+                            </div>
+                            <div className="destination-separator">→</div>
+                            <div className="time-input">
+                                <span className="time-label">Destination</span>
+                                <Select
+                                    options={allDestinations}
+                                    isLoading={loading}
+                                    onChange={(selectedOption) =>
                                     setNewFlight({ ...newFlight, destination: selectedOption.value })
-                                }
-                                placeholder="Search destination..."
-                                styles={selectStyles}
-                            />
+                                    }
+                                    placeholder="Search destination..."
+                                    styles={selectStyles}
+                                />
+                            </div>
                         </div>
                     </div>
 

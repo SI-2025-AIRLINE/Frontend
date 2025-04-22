@@ -196,7 +196,14 @@
   
   .time-separator {
     color: var(--gray-500);
-    font-size: 1.25rem;
+    font-size: 2rem;
+    margin-top: 18px;
+  }
+
+  .destination-separator {
+    color: var(--gray-500);
+    font-size: 2rem;
+    margin-top: 14px;
   }
   
   .table-container {
