@@ -39,6 +39,9 @@ export default function FlightSearch() {
 
   const [priceOption, setPriceOption] = useState("");
   const [durationOption, setDurationOption] = useState("");
+  const [classOption, setClassOption] = useState("All");
+
+  
 
   const priceFilterMap = {
     'Economy: Cheapest to Priciest': (a, b) => a.economyPrice - b.economyPrice,
@@ -85,6 +88,15 @@ export default function FlightSearch() {
       });
     }
 
+    if (classOption !== "All") {
+    filtered = filtered.filter(flight => {
+      if (classOption === "Economy") return flight.economyPrice !== null;
+      if (classOption === "Business") return flight.businessPrice !== null;
+      if (classOption === "First") return flight.firstClassPrice !== null;
+      return true;
+    });
+  }
+
     if (priceOption) {
       filtered.sort(priceFilterMap[priceOption]);
     }
@@ -107,8 +119,8 @@ export default function FlightSearch() {
   };
 
   useEffect(() => {
-    applyFilters();
-  }, [takeoffBegin, takeoffEnd, landingBegin, landingEnd, priceOption, durationOption, flights]);
+  applyFilters();
+}, [takeoffBegin, takeoffEnd, landingBegin, landingEnd, priceOption, durationOption, flights, classOption]);
 
   const handlePriceOptionChange = (e) => {
     setPriceOption(e.target.value);
@@ -222,6 +234,17 @@ export default function FlightSearch() {
           wrapperClassName="fs-wrapper"
           onChangeRaw={(e) => e.preventDefault()}
         />
+        <select
+        id="FlightClassDropdown"
+        value={classOption}
+        onChange={(e) => setClassOption(e.target.value)}
+        className="fs-input"
+        >
+        <option value="All">All Classes</option>
+        <option value="Economy">Economy</option>
+        <option value="Business">Business</option>
+        <option value="First">First Class</option>
+        </select>
         <button
           className="Btn"
           onClick={getFlights}
@@ -355,21 +378,44 @@ export default function FlightSearch() {
               </div>
 
               <div className="FlightPrices">
-                <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
-                  Economy: €{flight.economyPrice}
-                </p>
-                <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
-                  Business: €{flight.businessPrice}
-                </p>
-                <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
-                  First Class: €{flight.firstClassPrice}
-                </p>
+              {(classOption === "All" || classOption === "Economy") && flight.economyPrice !== null && (
+              <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
+              Economy: €{flight.economyPrice}
+              </p>
+              )}
+              {(classOption === "All" || classOption === "Business") && flight.businessPrice !== null && (
+              <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
+              Business: €{flight.businessPrice}
+              </p>
+             )}
+            {(classOption === "All" || classOption === "First") && flight.firstClassPrice !== null && (
+             <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
+              First Class: €{flight.firstClassPrice}
+             </p>
+             )}
                 <button className="BookBtn" onClick={
-                  () => {
-                    sessionStorage.setItem('flight', JSON.stringify(flight));
-                    getSeatData(flight.aircraftId);
-                    navigate('/bookflight');}
-                }>Book Now</button>
+  () => {
+    sessionStorage.setItem('flight', JSON.stringify(flight));
+    
+    // Map the class option to the format expected in BookFlight
+    let classForBooking;
+    if (classOption === "All") {
+      classForBooking = "BUSINESS"; // Default if no specific class was selected
+    } else if (classOption === "Economy") {
+      classForBooking = "ECONOMY";
+    } else if (classOption === "Business") {
+      classForBooking = "BUSINESS";
+    } else if (classOption === "First") {
+      classForBooking = "FIRST_CLASS";
+    }
+    
+    sessionStorage.setItem('class', classForBooking);
+    sessionStorage.setItem('classLocked', classOption !== "All" ? "true" : "false");
+    
+    getSeatData(flight.aircraftId);
+    navigate('/bookflight');
+  }
+}>Book Now</button>
               </div>
             </div>
           ))

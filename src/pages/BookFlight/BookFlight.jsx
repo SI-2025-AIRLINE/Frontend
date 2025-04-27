@@ -12,6 +12,7 @@ export default function BookFlight() {
   const [showBoardingPasses, setShowBoardingPasses] = useState(false);
   const [selectedSeatDisplay, setSelectedSeatDisplay] = useState('');
   const [bookedSeats, setBookedSeats] = useState([]);
+  const [classIsLocked, setClassIsLocked] = useState(false);
   
   
 
@@ -23,7 +24,25 @@ export default function BookFlight() {
   const seatData = JSON.parse(sessionStorage.getItem('seats') || '[]');
   
 
-  
+  useEffect(() => {
+    const selectedClass = sessionStorage.getItem('class');
+    const isClassLocked = sessionStorage.getItem('classLocked') === "true";
+    
+    if (selectedClass) {
+      // If there are already passengers set up, update them with the selected class
+      if (passengers.length > 0) {
+        const updatedPassengers = passengers.map(p => ({
+          ...p,
+          class: selectedClass
+        }));
+        setPassengers(updatedPassengers);
+      }
+      
+      // Set the class lock state
+      setClassIsLocked(isClassLocked);
+    }
+  }, [passengers.length]);
+
   useEffect(() => {
     const getBookedSeats = async () => {
       try {
@@ -104,9 +123,10 @@ export default function BookFlight() {
   };
 
   const handlePassengerCountSubmit = () => {
+    const selectedClass = sessionStorage.getItem('class') || 'BUSINESS';
     const total = passengerCount.adults + passengerCount.children;
     setPassengers(new Array(total).fill(null).map(() => ({
-      name: '', surname: '', dateOfBirth: '', gender: '', email: '', seat: '', class: 'BUSINESS'
+      name: '', surname: '', dateOfBirth: '', gender: '', email: '', seat: '', class: selectedClass
     })));
     setStep('details');
   };
@@ -316,16 +336,17 @@ export default function BookFlight() {
             <div className="airline-logo" />
             <h1>SI 2025 Airline</h1>
             <select
-              className="class-select"
-              value={passenger.class}
-              onChange={e => handlePassengerInputChange('class', e.target.value)}
-            >
-              {classOptions.map(cls => (
-                <option key={cls} value={cls}>
-                  {cls.replace('_', ' ')}
-                </option>
-              ))}
-            </select>
+  className="class-select"
+  value={passenger.class}
+  onChange={e => handlePassengerInputChange('class', e.target.value)}
+  disabled={classIsLocked}
+>
+  {classOptions.map(cls => (
+    <option key={cls} value={cls}>
+      {cls.replace('_', ' ')}
+    </option>
+  ))}
+</select>
           </div>
           <div className="flight-info">
             <div className="passenger-info">
