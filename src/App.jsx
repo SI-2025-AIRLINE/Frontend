@@ -17,6 +17,7 @@ import BookFlight from './pages/BookFlight/BookFlight';
 import MyBooking from './pages/MyBooking/MyBooking';
 import AirlineManagement from './pages/AirlineManagement/AirlineManagement'
 import { FlightSearch } from './pages';
+import FareManagement from './pages/FareManagement/FareManagement';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/book-flight" element={<BookFlight />} />
           <Route path="/my-booking" element={<MyBooking />} />
           <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
+          <Route path="/admin/fareManagement" element={<FareManagement />} />
       </Routes>
 
       </div>
