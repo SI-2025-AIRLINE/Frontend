@@ -63,7 +63,6 @@ function FareManagement() {
                     validTo: flight.validTo
                 }));
                 setFlights(mapped);
-                console.log("Flightd: ", mapped);
             })
             .catch(console.error);
 
@@ -79,7 +78,6 @@ function FareManagement() {
             }
 
             const data = await response.json();
-            console.log(data);
             setFares(data);
 
         } catch (error) {
@@ -134,7 +132,6 @@ function FareManagement() {
 
     //POST- /api/Fares
     const createFare = async(flightNumber, fareData) => {
-        console.log("FlightNumber: ", flightNumber);
         try {
             const res = await fetch(`${apiURL}/Fares/${flightNumber}`, {
                 method: 'POST',
@@ -170,8 +167,6 @@ function FareManagement() {
             economyPrice: parseFloat(newFare.economyPrice) || 0,
         };
 
-        console.log("fareData: ", fareData);
-
         const success = await createFare(selectedFlight.flightNumber, fareData);
 
         if (success) {
@@ -180,6 +175,7 @@ function FareManagement() {
             setIsAddingNew(false);
             resetFareForm();
         } else {
+            alert('Failed to add fare');
             setError('Failed to add fare');
             setShowError(true);
         }
@@ -190,40 +186,44 @@ function FareManagement() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        return new Date(dateString).toISOString().split('T')[0];
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     };
     // Fetch the fare details based on the fare ID
     const fetchFareToEdit = async (id) => {
-        console.log("Fare to fetch: ", id);
         try {
             const response = await fetch(`${apiURL}/Fares/${id}`);
             if (!response.ok) {
                 throw new Error(`Error fetching fare details: ${response.statusText}`);
             }
             const fareData = await response.json();
-            console.log('Fare data to edit:', fareData);
+            setSelectedFare(fareData);  // Set the fare data to selectedFare for later use
 
-            const flight = flights.find(f => f.value === fareData.flightNumber);
-            setSelectedFlight(flight);
-            
+            const flight = flights.find(f => f.flightNumber === fareData.flightNumber);
+            setSelectedFlight(flight); // Set the selected flight based on the fare data
+
             // Pre-fill the form fields with the fetched fare data
             setFormData({
                 flightId: fareData.flightId,
-                validFrom: formatDate(fareData.fare?.validFrom),
-                validTo: formatDate(fareData.fare?.validTo),
+                validFrom: fareData.fare.validFrom.split('T')[0],
+                validTo: fareData.fare.validTo.split('T')[0],
                 firstClassPrice: fareData.fare?.firstClassPrice,
                 businessPrice: fareData.fare?.businessPrice,
                 economyPrice: fareData.fare?.economyPrice,
             });
-            setSelectedFare(fareData);  // Set the fare data to selectedFare for later use
         } catch (error) {
             console.error('Failed to fetch fare:', error);
         }
     };
+
     const handleEditFare = (fareId) => {
         fetchFareToEdit(fareId);
         setEditingFare(true); // Show the form for editing
     };
+
     const updateFare = async (fareId, updatedFareData) => {
         try {
             const res = await fetch(`${apiURL}/Fares/${fareId}`, {
@@ -253,6 +253,8 @@ function FareManagement() {
             return;
         }
 
+        console.log("HANDLING UPDATE FARE");
+
         const updatedFareData = {
             validFrom: formData.validFrom,
             validTo: formData.validTo,
@@ -261,21 +263,20 @@ function FareManagement() {
             economyPrice: parseFloat(formData.economyPrice) || 0,
         };
 
-        console.log("Updated fare data:", updatedFareData);
-        console.log("SelectedFare: ", selectedFare);
-
         const success = await updateFare(selectedFare.fare?.id, updatedFareData);
 
         if (success) {
-            alert('Fare updated successfully');
-            setShowMessage(true);
-            setIsAddingNew(false);
-            setShowForm(false);
-        } else {
-            setError('Failed to update fare');
-            setShowError(true);
-        }
+          alert('Fare updated successfully');
+          setShowMessage(true);
+          setIsAddingNew(false);
+          resetFareForm();
+      } else {
+          alert('Failed to update fare');
+          setError('Failed to update fare');
+          setShowError(true);
+      }
     };
+
     const resetFareForm = () => {
         setFormData({
             flightId: '',
@@ -287,13 +288,13 @@ function FareManagement() {
         });
         setShowForm(false);
         setSelectedFare(null); // Clear selected fare
-    };
+        setSelectedFlight(null); // Clear selected flight
+        setEditingFare(null); // Clear editing state
+      };
 
 
     // Handle form data change and tracking
     const handleInputChange = (key, value) => {
-        console.log("HandleInputChange");
-       
         setFormData(prev => ({
             ...prev,
             [key]: value
@@ -600,7 +601,6 @@ function FareManagement() {
 
   const handleFlightSelect = (selected) => {
     setSelectedFlight(selected);
-    console.log("Selected Flight data:", selected)
     if (selected) {
       setNewFare(prev => ({
         ...prev,
@@ -773,8 +773,8 @@ function FareManagement() {
                               className="form-input"
                               value={newFare.validFrom}
                               onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
-                              min={selectedFlight ? formatDate(selectedFlight.validFrom) : ''}
-                              max={selectedFlight ? formatDate(selectedFlight.validTo) : ''}
+                              min={selectedFlight ? selectedFlight.validFrom.split('T')[0] : ''}
+                              max={selectedFlight ? selectedFlight.validTo.split('T')[0] : ''}
                               disabled = {!selectedFlight}
                           />
                       </div>
@@ -785,10 +785,9 @@ function FareManagement() {
                               className="form-input"
                               value={newFare.validTo}
                               onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
-                              min={selectedFlight ? formatDate(selectedFlight.validFrom) : ''}
-                              max={selectedFlight ? formatDate(selectedFlight.validTo) : ''}
-                              disabled = {!selectedFlight}
-                          />
+                              min={selectedFlight ? selectedFlight.validFrom.split('T')[0] : ''}
+                              max={selectedFlight ? selectedFlight.validTo.split('T')[0] : ''}
+                              disabled = {!selectedFlight}                         />
                       </div>
                   </div>
 
@@ -871,8 +870,8 @@ function FareManagement() {
                       <div className="flight-valid-dates">
                           {selectedFare ? (
                               <>
-                                  <span>From {new Date(selectedFare.validFrom).toLocaleDateString()}</span>
-                                  <span> To {new Date(selectedFare.validTo).toLocaleDateString()}</span>
+                                  <span> From {selectedFlight ? formatDate(selectedFlight.validFrom) : ''}</span>
+                                  <span> To {selectedFlight ? formatDate(selectedFlight.validTo) : ''}</span>
                               </>
                           ) : (
                               <span>Select a flight to see validity.</span>
@@ -889,8 +888,9 @@ function FareManagement() {
                               value={formData.validFrom}
                               onChange={(e) => handleInputChange('validFrom', e.target.value)} // Handle change here
                               name="validFrom"
-                              min={selectedFare?.validFrom}
-                              max={selectedFare?.validTo}
+                              min={selectedFare ? selectedFare.fare.validFrom.split("T")[0] : ''}
+                              max={selectedFare ? selectedFare.fare.validTo.split("T")[0] : ''}
+                              disabled = {!selectedFare}
                           />
                       </div>
                       <div className="form-group">
@@ -951,6 +951,7 @@ function FareManagement() {
                           onClick={() => {
                               setEditingFare(null);
                               setSelectedFare(null);
+                              resetFareForm();
                           }}
                       >
                           Cancel
