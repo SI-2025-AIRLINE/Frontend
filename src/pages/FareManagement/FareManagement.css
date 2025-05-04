@@ -145,13 +145,12 @@
 
   .fare-inputs {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
     margin-bottom: 1.5rem;
   }
 
   .fare-input-group {
-    display: flex;
     align-items: center;
     gap: 1rem;
     padding: 0.75rem;
@@ -231,7 +230,8 @@
   }
 
   .flight-valid-container {
-    margin: 1rem 0;
+    max-width: 33%;
+    margin-bottom: 24px;
     padding: 1rem;
     background-color: var(--gray-50);
     border-radius: 0.375rem;

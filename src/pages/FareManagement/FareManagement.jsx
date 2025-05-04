@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
 import Select from 'react-select';
+import './FareManagement.css';
 
 function FareManagement() {
   const [fares, setFares] = useState([
