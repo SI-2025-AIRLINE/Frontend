@@ -190,7 +190,7 @@ function FareManagement() {
 
           <div className="fare-inputs" style={{ display: 'flex', gap: '20px' }}>
             <div className="fare-input-group" style={{ flex: 1 }}>
-              <label className="fare-label">First Class Price</label>
+              <label className="form-label">First Class Price</label>
               <input
                 type="number"
                 className="form-input"
@@ -201,7 +201,7 @@ function FareManagement() {
             </div>
 
             <div className="fare-input-group" style={{ flex: 1 }}>
-              <label className="fare-label">Business Class Price</label>
+              <label className="form-label">Business Class Price</label>
               <input
                 type="number"
                 className="form-input"
@@ -212,7 +212,7 @@ function FareManagement() {
             </div>
 
             <div className="fare-input-group" style={{ flex: 1 }}>
-              <label className="fare-label">Economy Class Price</label>
+              <label className="form-label">Economy Class Price</label>
               <input
                 type="number"
                 className="form-input"
