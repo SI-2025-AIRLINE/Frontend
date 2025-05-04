@@ -22,11 +22,18 @@ export default function BookFlight() {
   const customerId = localStorage.getItem('userId');
   const flight = JSON.parse(sessionStorage.getItem('flight') || '{}');
   const seatData = JSON.parse(sessionStorage.getItem('seats') || '[]');
-  
+  const [price, setPrice] = useState(null);
 
   useEffect(() => {
     const selectedClass = sessionStorage.getItem('class');
     const isClassLocked = sessionStorage.getItem('classLocked') === "true";
+    const selectedPrice = localStorage.getItem('selectedPrice');
+    
+    // If price exists in localStorage, set it in the state
+    if (selectedPrice) {
+      setPrice(selectedPrice);
+    }
+
     
     if (selectedClass) {
       // If there are already passengers set up, update them with the selected class
@@ -305,7 +312,6 @@ export default function BookFlight() {
     );
   }
 
-  // Render seat-selection step - Benjamin Uzunovic
   if (step === 'seat-selection') {
     return (
       <div className="booking-container">
@@ -326,7 +332,8 @@ export default function BookFlight() {
 
   const passenger = passengers[currentPassenger] || {};
   const totalPassengers = passengers.length;
-  const classOptions = ['ECONOMY', 'BUSINESS', 'FIRST_CLASS'].filter(c => seatCounts[c] > 0);
+  
+  const selectedClass = localStorage.getItem('selectedClass'); 
 
   return (
     <div className="booking-container">
@@ -335,18 +342,15 @@ export default function BookFlight() {
           <div className="airline-header">
             <div className="airline-logo" />
             <h1>SI 2025 Airline</h1>
-            <select
-  className="class-select"
-  value={passenger.class}
-  onChange={e => handlePassengerInputChange('class', e.target.value)}
-  disabled={classIsLocked}
->
-  {classOptions.map(cls => (
-    <option key={cls} value={cls}>
-      {cls.replace('_', ' ')}
-    </option>
-  ))}
-</select>
+            
+
+<div className="class-select">
+  {selectedClass?.replace(/([A-Z])/g, ' ').toUpperCase() || 'CLASS'}
+</div>
+
+
+  
+
           </div>
           <div className="flight-info">
             <div className="passenger-info">
@@ -437,6 +441,10 @@ export default function BookFlight() {
                     <p>Flight: {flightData.flight}</p>
                    
                   </div>
+                  <div>
+  <p>Price: {localStorage.getItem('selectedPrice') ? `$${localStorage.getItem('selectedPrice')}` : 'Loading...'}</p>
+</div>
+
                   <div className="seat-group">
                     <button type="button" className="seat-button" onClick={handleSeatSelection}>
                       Select Seat

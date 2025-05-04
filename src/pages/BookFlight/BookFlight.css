@@ -118,13 +118,15 @@
 
 .flight-details {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr); /* fiksno 3 kolone */
+  grid-template-rows: repeat(2, auto);   /* 2 reda, visina po sadržaju */
+  gap: 10px;
   margin: 20px 0;
   padding: 20px;
   background: #f5f5f5;
   border-radius: 10px;
 }
+
 
 .seat-button {
   background: #00a1e4;
