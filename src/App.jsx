@@ -16,6 +16,7 @@ import FlightScheduling from './pages/FlightScheduling/FlightScheduling';
 import BookFlight from './pages/BookFlight/BookFlight';
 import AirlineManagement from './pages/AirlineManagement/AirlineManagement'
 import { FlightSearch } from './pages';
+import FareManagement from './pages/FareManagement/FareManagement';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="/flight-search" element={<FlightSearch />} />
           <Route path="/bookflight" element={<BookFlight />} />
           <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
+          <Route path="/admin/fareManagement" element={<FareManagement />} />
       </Routes>
 
       </div>
