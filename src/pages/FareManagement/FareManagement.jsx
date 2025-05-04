@@ -600,6 +600,7 @@ function FareManagement() {
 
   const handleFlightSelect = (selected) => {
     setSelectedFlight(selected);
+    console.log("Selected Flight data:", selected)
     if (selected) {
       setNewFare(prev => ({
         ...prev,
@@ -772,8 +773,9 @@ function FareManagement() {
                               className="form-input"
                               value={newFare.validFrom}
                               onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
-                              min={new Date(selectedFlight?.validFrom)}
-                              max={new Date(selectedFlight?.validTo)}
+                              min={selectedFlight ? formatDate(selectedFlight.validFrom) : ''}
+                              max={selectedFlight ? formatDate(selectedFlight.validTo) : ''}
+                              disabled = {!selectedFlight}
                           />
                       </div>
                       <div className="form-group">
@@ -783,8 +785,9 @@ function FareManagement() {
                               className="form-input"
                               value={newFare.validTo}
                               onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
-                              min={selectedFlight?.validFrom}
-                              max={selectedFlight?.validTo}
+                              min={selectedFlight ? formatDate(selectedFlight.validFrom) : ''}
+                              max={selectedFlight ? formatDate(selectedFlight.validTo) : ''}
+                              disabled = {!selectedFlight}
                           />
                       </div>
                   </div>
