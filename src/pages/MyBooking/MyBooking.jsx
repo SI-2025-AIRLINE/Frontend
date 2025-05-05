@@ -9,6 +9,9 @@ const MyBooking = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [customerId, setCustomerId] = useState(null);
+  const [modifyingBookingId, setModifyingBookingId] = useState(null);
+  const [newFlightId, setNewFlightId] = useState('');
+
 
   useEffect(() => {
     const storedId = localStorage.getItem('userId');
@@ -87,9 +90,11 @@ const MyBooking = () => {
   };
 
   const handleModify = async (bookingId) => {
-    const newFlightId = prompt('Enter the new Flight ID:');
-    if (!newFlightId) return;
-
+    if (!newFlightId) {
+      alert('Please enter a new Flight ID.');
+      return;
+    }
+  
     try {
       const response = await fetch(`${apiURL}/Booking/${bookingId}`, {
         method: 'PATCH',
@@ -98,10 +103,11 @@ const MyBooking = () => {
         },
         body: JSON.stringify({ newFlightId: parseInt(newFlightId, 10) }),
       });
-
+  
       if (response.status === 204) {
         alert('Booking successfully modified.');
-        // Optionally reload or update local state here
+        setModifyingBookingId(null);
+        setNewFlightId('');
       } else if (response.status === 400) {
         const errorText = await response.text();
         alert(`Bad request: ${errorText}`);
@@ -115,6 +121,7 @@ const MyBooking = () => {
       alert('Failed to modify booking.');
     }
   };
+  
 
   if (loading) {
     return <div className="booking-containera">Loading your bookings...</div>;
@@ -187,25 +194,51 @@ const MyBooking = () => {
               </div>
 
               <div className="booking-actions">
-                {!booking.isPast && !booking.isCanceled && (
-                  <button
-                    className="booking-action-button modify"
-                    onClick={() => handleModify(booking.id)}
-                  >
-                    <Edit2 size={16} />
-                    <span>Modify</span>
-                  </button>
-                )}
-                {!booking.isCanceled && (
-                  <button
-                    className="booking-action-button cancel"
-                    onClick={() => handleCancel(booking.id)}
-                  >
-                    <X size={16} />
-                    <span>Cancel</span>
-                  </button>
-                )}
-              </div>
+
+  {!booking.isPast && !booking.isCanceled && (
+    <>
+      <button
+        className="booking-action-button modify"
+        onClick={() =>
+          setModifyingBookingId(
+            modifyingBookingId === booking.id ? null : booking.id
+          )
+        }
+      >
+        <Edit2 size={16} />
+        <span>Modify</span>
+      </button>
+
+      {modifyingBookingId === booking.id && (
+        <div className="modify-input-group">
+          <input
+            type="number"
+            placeholder="Enter new Flight ID"
+            value={newFlightId}
+            onChange={(e) => setNewFlightId(e.target.value)}
+            className="modify-input"
+          />
+          <button
+            className="booking-action-button confirm"
+            onClick={() => handleModify(booking.id)}
+          >
+            Confirm
+          </button>
+        </div>
+      )}
+
+      <button
+        className="booking-action-button cancel"
+        onClick={() => handleCancel(booking.id)}
+      >
+        <X size={16} />
+        <span>Cancel</span>
+      </button>
+    </>
+  )}
+</div>
+
+
             </div>
           ))
         ) : (
