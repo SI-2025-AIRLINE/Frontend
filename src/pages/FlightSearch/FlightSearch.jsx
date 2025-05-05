@@ -439,30 +439,35 @@ export default function FlightSearch() {
               </div>
 
               <div className="FlightPrices">
-  {(selectedClass === "all" || selectedClass === "economy") && flight.fares?.economyPrice !== null && (
-    <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
-      Economy: €{flight.fares.economyPrice}
-    </p>
+  {flight.fares && (
+    <>
+      {(selectedClass === "all" || selectedClass === "economy") && (
+        <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
+          Economy: {flight.fares.economyPrice !== null ? `€${flight.fares.economyPrice}` : "Not available"}
+        </p>
+      )}
+
+      {(selectedClass === "all" || selectedClass === "business") && (
+        <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
+          Business: {flight.fares.businessPrice !== null ? `€${flight.fares.businessPrice}` : "Not available"}
+        </p>
+      )}
+
+      {(selectedClass === "all" || selectedClass === "firstClass") && (
+        <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
+          First Class: {flight.fares.firstClassPrice !== null ? `€${flight.fares.firstClassPrice}` : "Not available"}
+        </p>
+      )}
+
+      {flight.fares.validFrom && flight.fares.validTo && (
+        <p className="valid-period">
+          Valid: {new Date(flight.fares.validFrom).toLocaleDateString()} – {new Date(flight.fares.validTo).toLocaleDateString()}
+        </p>
+      )}
+    </>
   )}
 
-  {(selectedClass === "all" || selectedClass === "business") && flight.fares?.businessPrice !== null && (
-    <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
-      Business: €{flight.fares.businessPrice}
-    </p>
-  )}
 
-  {(selectedClass === "all" || selectedClass === "firstClass") && flight.fares?.firstClassPrice !== null && (
-    <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
-      First Class: €{flight.fares.firstClassPrice}
-    </p>
-  )}
-
-  {/* Prikaz perioda važenja cijena */}
-  {flight.fares?.validFrom && flight.fares?.validTo && (
-    <p className="valid-period">
-      Valid: {new Date(flight.fares.validFrom).toLocaleDateString()} – {new Date(flight.fares.validTo).toLocaleDateString()}
-    </p>
-  )}
 
 
                 <button className="BookBtn" onClick={
