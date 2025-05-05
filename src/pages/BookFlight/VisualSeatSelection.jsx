@@ -12,11 +12,10 @@ export default function VisualSeatSelection(props) {
   const classMap = {
     ECONOMY: 2,
     BUSINESS: 1,
-    FIRSTCLASS: 0
+    FIRST_CLASS: 0
   };
 
   const classType = props.passengers[props.currentPassenger].class;
-  console.log('Class type:', classType);
   const classIndex = classMap[classType];
 
   if (classIndex === undefined || classIndex >= seatsData.length) {

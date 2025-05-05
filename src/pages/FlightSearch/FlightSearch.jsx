@@ -120,8 +120,7 @@ export default function FlightSearch() {
   const handleClassChange = (e) => {
     const selected = e.target.value;
     setSelectedClass(selected);
-    localStorage.setItem('selectedClass', selected.toUpperCase()); 
-    sessionStorage.setItem('class', selected);
+    localStorage.setItem("selectedClass", selected); 
   };
   
 
