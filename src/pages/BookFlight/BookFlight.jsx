@@ -25,7 +25,7 @@ export default function BookFlight() {
   const [price, setPrice] = useState(null);
 
   useEffect(() => {
-    const selectedClass = sessionStorage.getItem('class');
+    const selectedClass = localStorage.getItem('selectedClass');
     const isClassLocked = sessionStorage.getItem('classLocked') === "true";
     const selectedPrice = localStorage.getItem('selectedPrice');
     
@@ -36,7 +36,7 @@ export default function BookFlight() {
 
     
     if (selectedClass) {
-      // If there are already passengers set up, update them with the selected class
+
       if (passengers.length > 0) {
         const updatedPassengers = passengers.map(p => ({
           ...p,
@@ -130,8 +130,9 @@ export default function BookFlight() {
   };
 
   const handlePassengerCountSubmit = () => {
-    const selectedClass = sessionStorage.getItem('class') || 'BUSINESS';
+    const selectedClass = localStorage.getItem('selectedClass') || 'BUSINESS';
     const total = passengerCount.adults + passengerCount.children;
+    console.log('Selected class is:', selectedClass);
     setPassengers(new Array(total).fill(null).map(() => ({
       name: '', surname: '', dateOfBirth: '', gender: '', email: '', seat: '', class: selectedClass
     })));
