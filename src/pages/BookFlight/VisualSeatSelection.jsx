@@ -15,8 +15,11 @@ export default function VisualSeatSelection(props) {
     FIRSTCLASS: 0
   };
 
-  const classType = props.passengers[props.currentPassenger].class;
-  console.log('Class type:', classType);
+  let classtyper = props.passengers[props.currentPassenger].class;
+  if (classtyper === 'ALL'){
+    classtyper = 'BUSINESS';
+  }
+  const classType = classtyper;
   const classIndex = classMap[classType];
 
   if (classIndex === undefined || classIndex >= seatsData.length) {
