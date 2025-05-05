@@ -107,6 +107,11 @@ function Profile() {
     className="update-button"
     onClick={() => navigate('/')}
   >Back to home page</button>
+  <button
+    type="submit"
+    className="update-button"
+    onClick={() => navigate('/my-booking')}
+  >My Bookings</button>
       </div>
     </div>
   );
