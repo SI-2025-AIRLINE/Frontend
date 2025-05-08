@@ -1,259 +1,262 @@
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --danger-color: #dc2626;
-    --danger-hover: #b91c1c;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-500: #6b7280;
-    --gray-700: #374151;
-    --gray-900: #111827;
-  }
-  
- body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--gray-50);
-  }
-  
-  .container {
-    min-height: auto;
-    max-width: 100rem;
-    margin: 0 auto;
-    padding: 1.5rem;
-  }
-  .nav-buttons {
-    display: flex;
-    gap: 1rem;
-  }
-  
- .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
-  
-  .section-header h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin: 0;
-  }
-  
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid transparent;
-    background-color: white;
-    color: var(--gray-700);
-    transition: all 0.2s;
-  }
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger-color: #dc2626;
+  --danger-hover: #b91c1c;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+}
 
-    .btn:hover {
-        background-color: #f1f1f1;
-    }
-  
-  
-  .btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-  }
-  
-  .btn-primary:hover {
-    background-color: var(--primary-hover);
-  }
-  
-  .btn-danger {
-    color: var(--danger-color);
-  }
-  
-  .btn-danger:hover {
-    color: var(--danger-hover);
-  }
-  
-  .btn-icon {
-    padding: 0.5rem;
-  }
-  
-  .button-group {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-  }
-  
-  .form-container {
-    background-color: white;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  .form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--gray-700);
-    margin-bottom: 0.5rem;
-  }
-  
-  .form-input,
-  .form-select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--gray-300);
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-  }
-  
-  .form-input:focus,
-  .form-select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-  }
-  
-  .schedule-checkboxes {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  
-  .schedule-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
-    padding: 0.5rem;
-    border-radius: 0.375rem;
-    background-color: var(--gray-50);
-    transition: all 0.2s;
-  }
-  
-  .schedule-checkbox:hover {
-    background-color: var(--gray-100);
-  }
-  
-  .schedule-checkbox input[type="checkbox"] {
-    width: 1rem;
-    height: 1rem;
-    margin: 0;
-  }
-  
-  .schedule-checkbox span {
-    font-size: 0.875rem;
-    color: var(--gray-700);
-  }
-  
-  .time-inputs {
-    margin-bottom: 1.5rem;
-  }
-  
-  .time-input-group {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    /*background-color: var(--gray-50); boja oko input polja*/
-    padding: 1rem;
-    border-radius: 0.5rem;
-  }
-  
-  .time-input {
-    flex: 1;
-  }
-  
-  .time-label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--gray-500);
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  .time-separator {
-    color: var(--gray-500);
-    font-size: 2rem;
-    margin-top: 18px;
-  }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--gray-50);
+}
 
-  .destination-separator {
-    color: var(--gray-500);
-    font-size: 2rem;
-    margin-top: 14px;
-  }
-  
-  .table-container {
-    background-color: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .table th {
-    background-color: var(--gray-50);
-    padding: 0.75rem 1.5rem;
-    text-align: center;
-    font-size: 12pt;
-    font-weight: 500;
-    color: var(--gray-500);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  .table td {
-    padding: 1rem 1.5rem;
-    font-size: 0.875rem;
-    color: var(--gray-500);
-    border-top: 1px solid var(--gray-200);
-    text-align: center;
-  }
-  
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
+.container {
+  height: 100vh;
+  overflow-y: auto;
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background-color: white;
+  color: var(--gray-700);
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background-color: #f1f1f1;
+}
+
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-danger {
+  color: var(--danger-color);
+}
+
+.btn-danger:hover {
+  color: var(--danger-hover);
+}
+
+.btn-icon {
+  padding: 0.5rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.form-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.schedule-checkboxes {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.schedule-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: var(--gray-50);
+  transition: all 0.2s;
+}
+
+.schedule-checkbox:hover {
+  background-color: var(--gray-100);
+}
+
+.schedule-checkbox input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+.schedule-checkbox span {
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.time-inputs {
+  margin-bottom: 1.5rem;
+}
+
+.time-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  /*background-color: var(--gray-50); boja oko input polja*/
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.time-input {
+  flex: 1;
+}
+
+.time-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.time-separator {
+  color: var(--gray-500);
+  font-size: 2rem;
+  margin-top: 18px;
+}
+
+.destination-separator {
+  color: var(--gray-500);
+  font-size: 2rem;
+  margin-top: 14px;
+}
+
+.table-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding-bottom: 5%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background-color: var(--gray-50);
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  font-size: 12pt;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  border-top: 1px solid var(--gray-200);
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
 
 .button-container {
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
     margin-bottom: 16px; /* po �elji */
 }
 
 
 .inactive-row {
-    background-color: #f1f1f1;
-    color: #888;
+  background-color: #f1f1f1;
+  color: #888;
 }
 
 
@@ -261,64 +264,64 @@
 
 
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Tamna pozadina */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
 .error-modal {
-    background-color: #fff;
-    padding: 25px 35px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
+  background-color: #fff;
+  padding: 25px 35px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
 }
 
-    .error-modal p {
-        color: red;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
+.error-modal p {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
 .message-modal {
-    background-color: #fff;
-    padding: 25px 35px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
+  background-color: #fff;
+  padding: 25px 35px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
 }
 
-    .message-modal p {
-        color: green;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
+.message-modal p {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
 .modal-close-btn {
-    background-color: #cecece;
-    color: black;
-    padding: 10px 18px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
+  background-color: #cecece;
+  color: black;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
 }
 
-    .modal-close-btn:hover {
-        background-color: #a1a1a1;
-    }
+.modal-close-btn:hover {
+  background-color: #a1a1a1;
+}
 
 .flight-number-wrapper {
   display: flex;
@@ -353,30 +356,77 @@
 
 
 .status-info.status-0 {
-    color: #007bff; /*plava*/
+  color: #007bff;
+  /*plava*/
 }
 
 .status-info.status-1 {
-    color: #0056b3; /*tamno plava*/
+  color: #0056b3;
+  /*tamno plava*/
 }
 
 .status-info.status-2 {
-    color: #17a2b8; /*tirkizna*/
+  color: #17a2b8;
+  /*tirkizna*/
 }
 
 .status-info.status-3 {
-    color: #28a745; /*zelena*/
+  color: #28a745;
+  /*zelena*/
 }
 
 .status-info.status-4 {
-    color: #fd7e14; /*narandzasta*/
+  color: #fd7e14;
+  /*narandzasta*/
 }
 
 .status-info.status-5 {
-    color: #dc3545; /*crvena*/
+  color: #dc3545;
+  /*crvena*/
 }
 
 .status-info.status-6 {
-    color: #6f42c1; /*ljubicasta*/
+  color: #6f42c1;
+  /*ljubicasta*/
 }
 
+
+
+/* Add to your FlightScheduling.css file */
+.flight-group-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.flight-group-header:hover {
+  background-color: #e9ecef !important;
+}
+
+.flight-instance {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.flight-instance td {
+  background-color: #fafafa;
+}
+
+.load-more-container {
+  margin: 20px 0;
+}
+
+/* Add a slight indent to flight instances */
+.flight-instance td:first-child {
+  padding-left: 30px;
+}
+
+.expand-icon {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  user-select: none;
+}
+
+.action-button {
+  cursor: pointer;
+}

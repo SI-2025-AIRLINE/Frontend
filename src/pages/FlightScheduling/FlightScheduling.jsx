@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { PlusCircle, Save, Trash2, Edit} from 'lucide-react';
+import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import BClass from '../../components/Icons/business-class.png';
@@ -18,6 +18,9 @@ function FlightScheduling() {
     const [message, setMessage] = useState(null);
     const [showMessage, setShowMessage] = useState(false);
 
+    const [flightGroups, setFlightGroups] = useState([]);
+    const [expandedGroups, setExpandedGroups] = useState({});
+    const [hasMoreGroups, setHasMoreGroups] = useState(true);
 
 
 
@@ -41,24 +44,60 @@ function FlightScheduling() {
 
     useEffect(() => {
         fetchFlights();
-    }, [pageNumber, pageSize]);
+    }, []);
 
-    // GET: api/Flight-ispravna
-    const fetchFlights = async () => {
+    const fetchFlights = async (loadMore = false) => {
         try {
-            const url = `${apiURL}/Flight?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+            const newPageNumber = loadMore ? pageNumber + 1 : 1;
+
+            // Update the URL to use the new grouped endpoint
+            const url = `${apiURL}/Flight/grouped?pageNumber=${newPageNumber}&pageSize=${pageSize}`;
             const response = await fetch(url);
+
+            console.log("Fetching flight groups from: ", url);
+
             if (!response.ok) {
-                throw new Error(`Error fetching flights: ${response.statusText}`);
+                throw new Error(`Error fetching flight groups: ${response.statusText}`);
             }
 
             const data = await response.json();
-            console.log(data);
-            setFlights(data);
 
+            if (loadMore) {
+                setFlightGroups(prevGroups => {
+                    const updatedGroups = [...prevGroups, ...data];
+                    console.log("Updated flight groups: ", updatedGroups);
+                    return updatedGroups;
+                });
+                setPageNumber(newPageNumber);
+            } else {
+                setFlightGroups(data);
+                setPageNumber(1);
+            }
+            
+            // Check if there are more groups to load
+            setHasMoreGroups(data.length === pageSize);
+            console.log(data)
+            console.log(pageSize)
         } catch (error) {
-            console.error('Failed to fetch flights:', error);
+            console.error('Failed to fetch flight groups:', error);
         }
+    };
+
+    // Add a function to load more groups
+    const loadMoreGroups = () => {
+        fetchFlights(true);
+    };
+
+    const toggleGroupExpansion = (flightNumber, event) => {
+        // Prevent triggering when clicking on action buttons
+        if (event.target.closest('.action-button')) {
+            return;
+        }
+
+        setExpandedGroups(prev => ({
+            ...prev,
+            [flightNumber]: !prev[flightNumber]
+        }));
     };
 
     const resetForm = () => {
@@ -203,6 +242,33 @@ function FlightScheduling() {
         resetForm();
     };
 
+    // Add this new function to handle single instance cancellation
+    const cancelFlightInstance = async (flightId) => {
+        try {
+            const res = await fetch(`${apiURL}/Flight/cancel/${flightId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`HTTP ${res.status}: ${errText}`);
+            } else {
+                setMessage("Flight instance successfully cancelled!");
+                setShowMessage(true);
+
+                // Refresh flight data
+                fetchFlights();
+            }
+        } catch (error) {
+            console.error("Cancel failed:", error);
+            setError("Failed to cancel flight instance.");
+            setShowError(true);
+        }
+    };
+
     const getDestinationIdByCityCode = async (cityCode) => {
         const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
         if (response.ok) {
@@ -217,29 +283,29 @@ function FlightScheduling() {
         }
     };
 
-////////////// DEPRECATED - AIRCRAFT ID SE FETCHA DIREKTNO IZ LISTE AVIONA /////////////
-/*
-    const getAircraftIdByModel = async (model) => {
-        const response = await fetch(`${apiURL}/Aircraft/byModel/${model}`);
-        console.log("model: ", model);
-
-        if (response.ok) {
-            const aircrafts = await response.json();
-            console.log("aircrafts: ", aircrafts);
-
-            const aircraft = aircrafts.find(aircraft => String(aircraft.model) === String(model));
-
-            if (aircraft) {
-                return aircraft.id;
+    ////////////// DEPRECATED - AIRCRAFT ID SE FETCHA DIREKTNO IZ LISTE AVIONA /////////////
+    /*
+        const getAircraftIdByModel = async (model) => {
+            const response = await fetch(`${apiURL}/Aircraft/byModel/${model}`);
+            console.log("model: ", model);
+    
+            if (response.ok) {
+                const aircrafts = await response.json();
+                console.log("aircrafts: ", aircrafts);
+    
+                const aircraft = aircrafts.find(aircraft => String(aircraft.model) === String(model));
+    
+                if (aircraft) {
+                    return aircraft.id;
+                } else {
+                    throw new Error("Plane with that model can't be found.");
+                }
             } else {
-                throw new Error("Plane with that model can't be found.");
+                throw new Error("Error finding an plane.");
             }
-        } else {
-            throw new Error("Error finding an plane.");
-        }
-    };
-*/
-////////////////////////////////////////////////////////////////////////////////////////
+        };
+    */
+    ////////////////////////////////////////////////////////////////////////////////////////
 
     // Funkcija za dodavanje novog leta  
     const handleAddFlight = async () => {
@@ -512,7 +578,7 @@ function FlightScheduling() {
         5: 'Cancelled',
         6: 'Diverted'
     };
-    
+
     const [allDestinations, setAllDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -570,10 +636,10 @@ function FlightScheduling() {
 
     const seatClassLabel = (seatClass) => {
         switch (seatClass) {
-          case 0: return 'Economy';
-          case 1: return 'Business';
-          case 2: return 'First Class';
-          default: return 'Unknown Class';
+            case 0: return 'Economy';
+            case 1: return 'Business';
+            case 2: return 'First Class';
+            default: return 'Unknown Class';
         }
     };
 
@@ -581,14 +647,14 @@ function FlightScheduling() {
         0: EClass,
         1: BClass,
         2: FClass
-    };   
-    
+    };
+
     const selectStyles = {
         control: (provided) => ({
             ...provided,
             minHeight: '38px'
         })
-    };     
+    };
 
     return (
         <div className="container">
@@ -648,21 +714,21 @@ function FlightScheduling() {
                             </div>
                         </div>
 
-                       <div className="form-group">
-                           <label className="time-label">Aircraft</label>
+                        <div className="form-group">
+                            <label className="time-label">Aircraft</label>
                             <Select
                                 options={aircraftOptions}
                                 isDisabled={!selectedAirline}
                                 placeholder={!selectedAirline ? 'Select airline first' : 'Select aircraft'}
                                 formatOptionLabel={(a) => (
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                      <span>{a.description}</span>
-                                      <span style={{ fontStyle: 'italic', color: '#666' }}>{a.registrationNumber}</span>
+                                        <span>{a.description}</span>
+                                        <span style={{ fontStyle: 'italic', color: '#666' }}>{a.registrationNumber}</span>
                                     </div>
-                                  )}
+                                )}
                                 getOptionValue={(a) => String(a.id)}
                                 value={aircraftOptions.find((a) => a.id === newFlight.aircraftID) || null}
-                                onChange={async (selected) =>{
+                                onChange={async (selected) => {
                                     setNewFlight((prev) => ({
                                         ...prev,
                                         aircraftID: selected?.id || null,
@@ -672,31 +738,31 @@ function FlightScheduling() {
                                         const data = await res.json();
                                         console.log("Seating config data: ", data);
                                         setSeatingConfig(data);
-                                      } catch (error) {
+                                    } catch (error) {
                                         console.error('Failed to fetch seating config:', error);
                                         setSeatingConfig([]);
-                                      }
-                                }}                               
+                                    }
+                                }}
                             />
                             {seatingConfig.length > 0 && (
                                 <div className="seating-config">
                                     <label className='time-label' style={{ marginTop: '15px', marginBottom: '15px' }}>SEATING CONFIGURATION:</label>
                                     <ul style={{ paddingLeft: '1.2rem', listStyleType: 'none' }}>
-                                    {seatingConfig.map((config) => (
-                                        <li key={config.id} style={{ color: '#555', alignItems: 'center', display: 'flex', marginBottom: '0.5rem' }}>
-                                            {/* Icon for seat class */}
-                                            {config.seatClass === 0 && (
-                                                <img src={EClass} alt="Economy" style={{ width: '40px', marginRight: '10px' }} />
-                                            )}
-                                            {config.seatClass === 1 && (
-                                                <img src={BClass} alt="Business" style={{ width: '40px', marginRight: '10px' }} />
-                                            )}
-                                            {config.seatClass === 2 && (
-                                                <img src={FClass} alt="First Class" style={{ width: '40px', marginRight: '10px' }} />
-                                            )}
-                                            {seatClassLabel(config.seatClass)}: {config.rowCount} rows × {config.seatsPerRow} seats/row
-                                        </li>
-                                    ))}
+                                        {seatingConfig.map((config) => (
+                                            <li key={config.id} style={{ color: '#555', alignItems: 'center', display: 'flex', marginBottom: '0.5rem' }}>
+                                                {/* Icon for seat class */}
+                                                {config.seatClass === 0 && (
+                                                    <img src={EClass} alt="Economy" style={{ width: '40px', marginRight: '10px' }} />
+                                                )}
+                                                {config.seatClass === 1 && (
+                                                    <img src={BClass} alt="Business" style={{ width: '40px', marginRight: '10px' }} />
+                                                )}
+                                                {config.seatClass === 2 && (
+                                                    <img src={FClass} alt="First Class" style={{ width: '40px', marginRight: '10px' }} />
+                                                )}
+                                                {seatClassLabel(config.seatClass)}: {config.rowCount} rows × {config.seatsPerRow} seats/row
+                                            </li>
+                                        ))}
                                     </ul>
                                 </div>
                             )}
@@ -736,7 +802,7 @@ function FlightScheduling() {
                                     options={allDestinations}
                                     isLoading={loading}
                                     onChange={(selectedOption) =>
-                                    setNewFlight({ ...newFlight, origin: selectedOption.value })
+                                        setNewFlight({ ...newFlight, origin: selectedOption.value })
                                     }
                                     placeholder="Search origin..."
                                     styles={selectStyles}
@@ -749,7 +815,7 @@ function FlightScheduling() {
                                     options={allDestinations}
                                     isLoading={loading}
                                     onChange={(selectedOption) =>
-                                    setNewFlight({ ...newFlight, destination: selectedOption.value })
+                                        setNewFlight({ ...newFlight, destination: selectedOption.value })
                                     }
                                     placeholder="Search destination..."
                                     styles={selectStyles}
@@ -1012,69 +1078,122 @@ function FlightScheduling() {
                             <th>Route</th>
                             <th>D/A Times</th>
                             <th>Aircraft</th>
-                            <th>Departure Date</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {flights.map((flight) => (
-                            <tr
-                                key={flight.id}
-                                className={flight.status === 5 ? 'inactive-row' : ''}
-                            >
-                                <td>{flight.flightNumber}</td>
-                                <td>{airlines.find((a) => a.id === flight.airlineId)?.name || '-'}</td>
-                                <td>{formatSchedule(flight.schedule)}</td>
-                                <td>{flight.departureDestination?.name} → {flight.arrivalDestination?.name}</td>
-                                <td>
-                                    {flight.departureTime.slice(11, 16)} - {flight.arrivalTime.slice(11, 16)}
-                                </td>
-
-                                <td>{flight.aircraft?.model}</td>
-
-                                <td>
-                                    {flight.departureTime ? new Date(flight.departureTime).toLocaleDateString('en-GB') : ''}
-                                </td>
-                                <td className={`status-info status-${flight.status}`}>
-                                    {statusMap[flight.status] || 'Unknown'}
-                                </td>
-
-                                <td style={{ textAlign: 'right' }}>
-                                    <div className="button-group">
-                                        {flight.status !== 5 && (
-                                            <button className="btn btn-danger"
+                        {flightGroups.map((group) => (
+                            <React.Fragment key={group.flightNumber}>
+                                <tr
+                                    className="flight-group-header"
+                                    onClick={(e) => toggleGroupExpansion(group.flightNumber, e)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        backgroundColor: '#f8f9fa',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    <td>{group.flightNumber || '-'}</td>
+                                    <td>{airlines.find((a) => a.id === group.airlineId)?.name || '-'}</td>
+                                    <td>{formatSchedule(group.schedule) || '-'}</td>
+                                    <td>
+                                        {group.departureDestination?.name || '-'} → {group.arrivalDestination?.name || '-'}
+                                    </td>
+                                    <td>
+                                        {/* Check if departureTime exists before using slice */}
+                                        {group.instances[0].departureTime && group.instances[0].arrivalTime ?
+                                            `${group.instances[0].departureTime.slice(11, 16)} - ${group.instances[0].arrivalTime.slice(11, 16)}` :
+                                            '-'
+                                        }
+                                    </td>
+                                    <td>{group.aircraft?.model || '-'}</td>
+                                    <td>Schedule</td>
+                                    <td style={{ textAlign: 'right' }}>
+                                        <div className="button-group">
+                                            <button
+                                                className="btn btn-danger action-button"
                                                 style={{ backgroundColor: 'white' }}
-                                                onClick={() => handleCancelFlight(flight)}>
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleCancelFlight(group);
+                                                }}
+                                            >
                                                 <Trash2 style={{ width: 20, height: 20 }} />
                                             </button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
+                                            <span className="expand-icon" style={{ marginLeft: '8px' }}>
+                                                {expandedGroups[group.flightNumber] ? '▼' : '►'}
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                {expandedGroups[group.flightNumber] && group.instances && group.instances.map((flight) => (
+                                    <tr
+                                        key={flight.id}
+                                        className={flight.status === 5 ? 'inactive-row flight-instance' : 'flight-instance'}
+                                        style={{ backgroundColor: '#fff' }}
+                                    >
+                                        <td style={{ paddingLeft: '30px' }}>{flight.flightNumber || '-'}</td>
+                                        <td>{airlines.find((a) => a.id === flight.airlineId)?.name || '-'}</td>
+                                        <td>
+                                            {flight.departureTime ?
+                                                new Date(flight.departureTime).toLocaleDateString('en-GB', {
+                                                    weekday: 'short',
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                    year: 'numeric'
+                                                }) :
+                                                '-'
+                                            }
+                                        </td>
+                                        <td>
+                                            {flight.departureDestination?.name || '-'} → {flight.arrivalDestination?.name || '-'}
+                                        </td>
+                                        <td>
+                                            {flight.departureTime && flight.arrivalTime ?
+                                                `${flight.departureTime.slice(11, 16)} - ${flight.arrivalTime.slice(11, 16)}` :
+                                                '-'
+                                            }
+                                        </td>
+                                        <td>{flight.aircraft?.model || '-'}</td>
+                                        <td className={`status-info status-${flight.status}`}>
+                                            {statusMap[flight.status] || 'Unknown'}
+                                        </td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <div className="button-group">
+                                                {flight.status !== 5 && (
+                                                    <button
+                                                        className="btn btn-danger action-button"
+                                                        style={{ backgroundColor: 'white' }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            cancelFlightInstance(flight.id);
+                                                        }}
+                                                    >
+                                                        <Trash2 style={{ width: 20, height: 20 }} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </React.Fragment>
                         ))}
                     </tbody>
-
                 </table>
 
-                <div className="pagination">
-                    <button
-                        className="btn"
-                        disabled={pageNumber <= 1}
-                        onClick={() => setPageNumber(prev => Math.max(1, prev - 1))}
-                    >
-                        Previous
-                    </button>
-                    <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
-                    <button
-                        className="btn"
-                        onClick={() => setPageNumber(prev => prev + 1)}
-                        disabled={flights.length < pageSize}
-                    >
-                        Next
-
-                    </button>
-                </div>
+                {/* Load more button */}
+                {hasMoreGroups && (
+                    <div className="load-more-container" style={{ textAlign: 'center', padding: '20px' }}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={loadMoreGroups}
+                        >
+                            Load More
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
