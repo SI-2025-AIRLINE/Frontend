@@ -277,8 +277,8 @@
     background-color: #fff;
     padding: 25px 35px;
     border-radius: 12px;
-    border: 3px solid #dc2626;
-    box-shadow: 0 0 20px rgba(255, 26, 26, 0.8), 0 0 35px rgba(255, 26, 26, 0.8);
+    border: 3px solid #c23c3c;
+    box-shadow: 0 0 20px rgba(255, 26, 26, 0.3), 0 0 35px rgba(255, 26, 26, 0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
@@ -295,8 +295,8 @@
     background-color: #fff;
     padding: 25px 35px;
     border-radius: 12px;
-    border: 3px solid #33b026;
-    box-shadow: 0 0 20px rgba(0, 200, 0, 0.5), 0 0 35px rgba(0, 200, 0, 0.3);
+    border: 3px solid #3cc260;
+    box-shadow: 0 0 20px rgba(0, 200, 0, 0.3), 0 0 35px rgba(0, 200, 0, 0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
