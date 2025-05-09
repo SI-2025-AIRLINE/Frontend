@@ -22,6 +22,10 @@ function AirlineTable() {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
+
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+
     const fetchAirlines = async () => {
         try {
             setLoading(true);
@@ -84,24 +88,30 @@ function AirlineTable() {
         setIsFormOpen(true);
     };
 
+
+    function confirmModal(actionToRun) {
+        setConfirmAction(() => actionToRun);
+        setShowConfirm(true);
+    }
+
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this airline?')) return;
+        confirmModal(async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/Airline/${id}`, {
+                    method: 'DELETE',
+                });
 
-        try {
-            const res = await fetch(`${API_BASE_URL}/Airline/${id}`, {
-                method: 'DELETE',
-            });
+                if (!res.ok) {
+                    const msg = await res.text();
+                    throw new Error(msg || 'Error deleting airline.');
+                }
 
-            if (!res.ok) {
-                const msg = await res.text();
-                throw new Error(msg || 'Error deleting airline.');
+                await fetchAirlines();
+                setListError(null);
+            } catch (err) {
+                setListError(err.message);
             }
-
-            await fetchAirlines();
-            setListError(null);
-        } catch (err) {
-            setListError(err.message);
-        }
+        });
     };
 
     const handleCloseForm = () => {
@@ -134,7 +144,7 @@ function AirlineTable() {
                 <div className="airline-management-container">
                     {isFormOpen && (
                         <div className="add-form-modal">
-                            {formError && <p className="error-message">{formError}</p>}
+                            {/*  {formError && <p className="error-message">{formError}</p>}*/}
 
                             <div className="add-form-container">
                                 <h2 className="section-title">{editingAirline ? 'Edit Airline' : 'Add New Airline'}</h2>
@@ -192,7 +202,59 @@ function AirlineTable() {
                         </div>
                     )}
 
-                    {listError && <p className="error-message">{listError}</p>}
+                    {/*Error messages*/}
+
+                    
+                    {formError && (
+                        <div className="modal-overlay">
+                            <div className="error-modal">
+                                <p>{formError}</p>
+                                <button onClick={() => setFormError(null)} className="modal-close-btn">
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {listError && (
+                        <div className="modal-overlay-airline">
+                            <div className="error-modal-airline">
+                                <p>{listError}</p>
+                                <button onClick={() => setListError(null)} className="modal-close-btn-airline">
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showConfirm && (
+                        <div className="modal-overlay-airline">
+                            <div className="confirm-modal-airline">
+                                <p>Are you sure you want to delete this airline?</p>
+                                <div className="modal-buttons-airline">
+                                    <button
+                                        className="modal-close-btn-airline"
+                                        onClick={() => {
+                                            confirmAction(); // Poziva funkciju ako user potvrdi
+                                            setShowConfirm(false);
+                                        }}
+                                    >
+                                        Yes
+                                    </button>
+                                    <button
+                                        className="modal-close-btn-airline"
+                                        onClick={() => setShowConfirm(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                   
+
 
                     {loading ? (
                         <p className="loading-message">Loading airlines...</p>

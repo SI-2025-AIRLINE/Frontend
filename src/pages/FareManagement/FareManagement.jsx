@@ -964,6 +964,52 @@ function FareManagement() {
               </div>
           )}
 
+          {error && showError && (
+              <div className="modal-overlay-fare">
+                  <div className="error-modal-fare">
+                      <p>{error}</p>
+                      <button onClick={() => setShowError(false)} className="modal-close-btn-fare">
+                          OK
+                      </button>
+                  </div>
+              </div>
+          )}
+
+          {message && showMessage && (
+              <div className="modal-overlay-fare">
+                  <div className="message-modal-fare">
+                      <p>{message}</p>
+                      <button onClick={() => setShowMessage(false)} className="modal-close-btn-fare">
+                          OK
+                      </button>
+                  </div>
+              </div>
+          )}
+
+          {showConfirm && (
+              <div className="modal-overla-farey">
+                  <div className="confirm-modal-fare">
+                      <p>Are you sure you want to delete this fare?</p>
+                      <div className="modal-buttons-fare">
+                          <button
+                              className="modal-close-btn-fare"
+                              onClick={() => {
+                                  confirmAction(); // Poziva funkciju ako user potvrdi
+                                  setShowConfirm(false);
+                              }}
+                          >
+                              Yes
+                          </button>
+                          <button
+                              className="modal-close-btn-fare"
+                              onClick={() => setShowConfirm(false)}
+                          >
+                              Cancel
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          )}
 
 
       <div className="table-container">
