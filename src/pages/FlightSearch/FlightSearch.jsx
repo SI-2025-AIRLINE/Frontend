@@ -24,7 +24,7 @@ export default function FlightSearch() {
   const handleDepartChange = (date) => {
     setDepartDate(date);
   };
-
+  const [selectedClass, setSelectedClass] = useState("all");
   /********************************
    *     Filter Bars Logic        *
    ********************************/
@@ -39,6 +39,9 @@ export default function FlightSearch() {
 
   const [priceOption, setPriceOption] = useState("");
   const [durationOption, setDurationOption] = useState("");
+  const [classOption] = useState("All");
+
+  
 
   const priceFilterMap = {
     'Economy: Cheapest to Priciest': (a, b) => a.economyPrice - b.economyPrice,
@@ -85,6 +88,15 @@ export default function FlightSearch() {
       });
     }
 
+    if (classOption !== "All") {
+    filtered = filtered.filter(flight => {
+      if (classOption === "Economy") return flight.economyPrice !== null;
+      if (classOption === "Business") return flight.businessPrice !== null;
+      if (classOption === "First") return flight.firstClassPrice !== null;
+      return true;
+    });
+  }
+
     if (priceOption) {
       filtered.sort(priceFilterMap[priceOption]);
     }
@@ -105,10 +117,17 @@ export default function FlightSearch() {
     setDurationOption("");
     setData(flights);
   };
+  const handleClassChange = (e) => {
+    const selected = e.target.value;
+    setSelectedClass(selected);
+    localStorage.setItem('selectedClass', selected.toUpperCase()); 
+    sessionStorage.setItem('class', selected); 
+  };
+  
 
   useEffect(() => {
-    applyFilters();
-  }, [takeoffBegin, takeoffEnd, landingBegin, landingEnd, priceOption, durationOption, flights]);
+  applyFilters();
+}, [takeoffBegin, takeoffEnd, landingBegin, landingEnd, priceOption, durationOption, flights, classOption]);
 
   const handlePriceOptionChange = (e) => {
     setPriceOption(e.target.value);
@@ -125,27 +144,81 @@ export default function FlightSearch() {
 
   const getFlights = () => {
     const formattedDate = departDate?.toLocaleDateString('en-CA'); // yyyy-mm-dd
-
-    fetch(`${apiURL}/FlightSearch/search?from=${originAirport}&to=${destinationAirport}&date=${formattedDate}`, {
+  
+    // Mapiranje za API
+    const seatClassParam = classOption === 'First' ? 'First Class' : classOption;
+  
+    // Mapiranje za lookup u fares
+    const classKeyMap = {
+      Economy: 'economyPrice',
+      Business: 'businessPrice',
+      'First': 'firstClassPrice',
+    };
+    const seatClassKey = classKeyMap[classOption];
+  
+    const url = new URL(`${apiURL}/FlightSearch/search`);
+    url.searchParams.append('from', originAirport);
+    url.searchParams.append('to', destinationAirport);
+    url.searchParams.append('date', formattedDate);
+    if (seatClassParam !== 'All') {
+      url.searchParams.append('seatClass', seatClassParam);
+    }
+  
+    fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => {
-        if (!res.ok) throw new Error('HTTP greška: ' + res.status);
-        return res.json();
-      })
-      .then(json => {
-        resetFilters();
-        setFlights(json);
-        setData(json);
-        setShowFlights(true);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    .then(res => {
+      if (!res.ok) throw new Error('HTTP greška: ' + res.status);
+      return res.json();
+    })
+    .then(json => {
+      resetFilters();
+      setFlights(json);
+      setData(json);
+      setShowFlights(true);
+  
+      const flightData = Array.isArray(json) ? json[0] : null;
+  
+      if (!flightData || !flightData.fares) {
+        console.log('Nema validnog flightData ili fares objekta.');
+        return;
+      }
+  
+      const fares = flightData.fares;
+      let selectedPrice = 0;
+  
+      if (classOption === 'All') {
+        // Ako je "All", uzmi bilo koju dostupnu cijenu
+        selectedPrice = fares.economyPrice || fares.businessPrice || fares.firstClassPrice || 0;
+  
+        if (selectedPrice === 0) {
+          console.log('Nema cene za All klasu.');
+        }
+      } else {
+        selectedPrice = fares[seatClassKey];
+      }
+  
+      // Spremi u localStorage ako postoji cijena
+      if (selectedPrice !== 0) {
+        
+        localStorage.setItem('selectedPrice', selectedPrice);
+        console.log(`Cijena za ${classOption} klasu je sačuvana u localStorage: ${selectedPrice}`);
+      } else {
+        console.log('Cijena nije sačuvana jer je 0 ili nepoznata klasa.');
+      }
+    })
+    .catch(error => {
+      console.log(error);
+    });
   };
+
+  
+
+
+
 
   /*********************************
    *       Fetch Seats data        *
@@ -222,6 +295,18 @@ export default function FlightSearch() {
           wrapperClassName="fs-wrapper"
           onChangeRaw={(e) => e.preventDefault()}
         />
+        <select
+  id="FlightClassDropdown"
+  value={selectedClass}  
+  onChange={handleClassChange}  
+  className="fs-input"
+>
+  <option value="all">All Classes</option>
+  <option value="economy">Economy</option>
+  <option value="business">Business</option>
+  <option value="firstClass">First Class</option>
+</select>
+
         <button
           className="Btn"
           onClick={getFlights}
@@ -355,21 +440,60 @@ export default function FlightSearch() {
               </div>
 
               <div className="FlightPrices">
-                <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
-                  Economy: €{flight.economyPrice}
-                </p>
-                <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
-                  Business: €{flight.businessPrice}
-                </p>
-                <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
-                  First Class: €{flight.firstClassPrice}
-                </p>
+  {flight.fares && (
+    <>
+      {(selectedClass === "all" || selectedClass === "economy") && (
+        <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
+          Economy: {flight.fares.economyPrice !== null ? `€${flight.fares.economyPrice}` : "Not available"}
+        </p>
+      )}
+
+      {(selectedClass === "all" || selectedClass === "business") && (
+        <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
+          Business: {flight.fares.businessPrice !== null ? `€${flight.fares.businessPrice}` : "Not available"}
+        </p>
+      )}
+
+      {(selectedClass === "all" || selectedClass === "firstClass") && (
+        <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
+          First Class: {flight.fares.firstClassPrice !== null ? `€${flight.fares.firstClassPrice}` : "Not available"}
+        </p>
+      )}
+
+      {flight.fares.validFrom && flight.fares.validTo && (
+        <p className="valid-period">
+          Valid: {new Date(flight.fares.validFrom).toLocaleDateString()} – {new Date(flight.fares.validTo).toLocaleDateString()}
+        </p>
+      )}
+    </>
+  )}
+
+
+
+
                 <button className="BookBtn" onClick={
-                  () => {
-                    sessionStorage.setItem('flight', JSON.stringify(flight));
-                    getSeatData(flight.aircraftId);
-                    navigate('/bookflight');}
-                }>Book Now</button>
+  () => {
+    sessionStorage.setItem('flight', JSON.stringify(flight));
+    
+    // Map the class option to the format expected in BookFlight
+    let classForBooking;
+    if (classOption === "All") {
+      classForBooking = "BUSINESS"; // Default if no specific class was selected
+    } else if (classOption === "Economy") {
+      classForBooking = "ECONOMY";
+    } else if (classOption === "Business") {
+      classForBooking = "BUSINESS";
+    } else if (classOption === "First") {
+      classForBooking = "FIRST_CLASS";
+    }
+    
+    sessionStorage.setItem('class', classForBooking);
+    sessionStorage.setItem('classLocked', classOption !== "All" ? "true" : "false");
+    
+    getSeatData(flight.aircraftId);
+    navigate('/book-flight');
+  }
+}>Book Now</button>
               </div>
             </div>
           ))

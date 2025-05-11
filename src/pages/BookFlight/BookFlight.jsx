@@ -12,6 +12,7 @@ export default function BookFlight() {
   const [showBoardingPasses, setShowBoardingPasses] = useState(false);
   const [selectedSeatDisplay, setSelectedSeatDisplay] = useState('');
   const [bookedSeats, setBookedSeats] = useState([]);
+  const [classIsLocked, setClassIsLocked] = useState(false);
   
   
 
@@ -21,9 +22,34 @@ export default function BookFlight() {
   const customerId = localStorage.getItem('userId');
   const flight = JSON.parse(sessionStorage.getItem('flight') || '{}');
   const seatData = JSON.parse(sessionStorage.getItem('seats') || '[]');
-  
+  const [price, setPrice] = useState(null);
 
-  
+  useEffect(() => {
+    const selectedClass = localStorage.getItem('selectedClass');
+    const isClassLocked = sessionStorage.getItem('classLocked') === "true";
+    const selectedPrice = localStorage.getItem('selectedPrice');
+    
+    // If price exists in localStorage, set it in the state
+    if (selectedPrice) {
+      setPrice(selectedPrice);
+    }
+
+    
+    if (selectedClass) {
+
+      if (passengers.length > 0) {
+        const updatedPassengers = passengers.map(p => ({
+          ...p,
+          class: selectedClass
+        }));
+        setPassengers(updatedPassengers);
+      }
+      
+      // Set the class lock state
+      setClassIsLocked(isClassLocked);
+    }
+  }, [passengers.length]);
+
   useEffect(() => {
     const getBookedSeats = async () => {
       try {
@@ -104,9 +130,11 @@ export default function BookFlight() {
   };
 
   const handlePassengerCountSubmit = () => {
+    const selectedClass = localStorage.getItem('selectedClass') || 'BUSINESS';
     const total = passengerCount.adults + passengerCount.children;
+    console.log('Selected class is:', selectedClass);
     setPassengers(new Array(total).fill(null).map(() => ({
-      name: '', surname: '', dateOfBirth: '', gender: '', email: '', seat: '', class: 'BUSINESS'
+      name: '', surname: '', dateOfBirth: '', gender: '', email: '', seat: '', class: selectedClass
     })));
     setStep('details');
   };
@@ -285,7 +313,6 @@ export default function BookFlight() {
     );
   }
 
-  // Render seat-selection step - Benjamin Uzunovic
   if (step === 'seat-selection') {
     return (
       <div className="booking-container">
@@ -306,7 +333,8 @@ export default function BookFlight() {
 
   const passenger = passengers[currentPassenger] || {};
   const totalPassengers = passengers.length;
-  const classOptions = ['ECONOMY', 'BUSINESS', 'FIRST_CLASS'].filter(c => seatCounts[c] > 0);
+  
+  const selectedClass = localStorage.getItem('selectedClass'); 
 
   return (
     <div className="booking-container">
@@ -315,17 +343,15 @@ export default function BookFlight() {
           <div className="airline-header">
             <div className="airline-logo" />
             <h1>SI 2025 Airline</h1>
-            <select
-              className="class-select"
-              value={passenger.class}
-              onChange={e => handlePassengerInputChange('class', e.target.value)}
-            >
-              {classOptions.map(cls => (
-                <option key={cls} value={cls}>
-                  {cls.replace('_', ' ')}
-                </option>
-              ))}
-            </select>
+            
+
+<div className="class-select">
+  {selectedClass?.replace(/([A-Z])/g, ' ').toUpperCase() || 'CLASS'}
+</div>
+
+
+  
+
           </div>
           <div className="flight-info">
             <div className="passenger-info">
@@ -416,6 +442,10 @@ export default function BookFlight() {
                     <p>Flight: {flightData.flight}</p>
                    
                   </div>
+                  <div>
+  <p>Price: {localStorage.getItem('selectedPrice') ? `$${localStorage.getItem('selectedPrice')}` : 'Loading...'}</p>
+</div>
+
                   <div className="seat-group">
                     <button type="button" className="seat-button" onClick={handleSeatSelection}>
                       Select Seat
