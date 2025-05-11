@@ -506,11 +506,12 @@ function FlightScheduling() {
     const statusMap = {
         0: 'Scheduled',
         1: 'Departed',
-        2: 'InAir',
+        2: 'In Air',
         3: 'Landed',
         4: 'Delayed',
         5: 'Cancelled',
-        6: 'Diverted'
+        6: 'Diverted', 
+        7: 'Flown'
     };
     
     const [allDestinations, setAllDestinations] = useState([]);
