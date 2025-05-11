@@ -199,6 +199,7 @@ function FareManagement() {
         }
 
         setLoading(true);
+        resetForm();
         setError(null);
         try {
             const res = await fetch(`${apiURL}/Fares/${id}`, {
@@ -342,7 +343,7 @@ function FareManagement() {
     };
     */
 
-    const handleAddFare = async () => {
+    const handleAddFare_nevaljala = async () => {
         if (!selectedFlights) {
             alert("Please select a flight.");
             return;
@@ -408,6 +409,87 @@ function FareManagement() {
             DestinationIdTo: arrivalId
         };
 
+        try {
+            const result = await createFare(fareData);
+
+            if (result) {
+                alert("Fare successfully added to flight(s).");
+                setShowMessage(true);
+                setIsAddingNew(false);
+                setEditingFare(null);
+                resetForm();
+            } else {
+                throw new Error("Failed to save fare.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Failed to save fare.");
+            setError(err.message);
+            setShowError(true);
+        }
+    };
+
+        const handleAddFare = async () => {
+        if (!selectedFlights) {
+            alert("Please select a flight.");
+            return;
+        }
+
+        // Parse range values first
+        const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
+        const rangeTo = parseInt(newFare.flightNumberTo) || 0;
+        
+        // Determine the mode directly from the data, don't rely on isFlightRangeMode state
+        const hasFlightRange = rangeFrom > 0 && rangeTo >= rangeFrom;
+
+        // Pozivanje handleFlightRangeInput ako je potrebno
+        handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
+        handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
+        
+        let departureId = 0;
+        let arrivalId = 0;
+        
+        // Only try to get destination IDs if we're not using flight range
+        if (!hasFlightRange) {
+            try {
+                departureId = await getDestinationIdByCityCode(newFare.origin);
+                arrivalId = await getDestinationIdByCityCode(newFare.destination);
+            } catch (err) {
+                console.error("Destination error:", err);
+                alert("Invalid origin or destination.");
+                return;
+            }
+        }
+        
+        // Check if we have valid data
+        const hasValidDestinations = departureId && arrivalId;
+        
+        if (!hasFlightRange && !hasValidDestinations) {
+            alert("Please fill either origin/destination or flight number range.");
+            return;
+        }
+        
+        const fareData = {
+            FareCode: newFare.fareCode,
+            AirlineId: newFare.airline.value,
+            EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
+            BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
+            FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
+            ValidFrom: newFare.validFrom,
+            ValidTo: newFare.validTo,
+            SingleFlights: selectedFlights
+                .map(f => {
+                    const numberPart = f.split(/[^0-9]/g).pop(); // uzimamo broj iz stringa (npr. "XY123" -> "123")
+                    const parsed = parseInt(numberPart);
+                    return isNaN(parsed) ? null : parsed;
+                })
+                .filter(f => f !== null),
+            RangeFrom: rangeFrom,
+            RangeTo: rangeTo,
+            DestinationIdFrom: departureId,
+            DestinationIdTo: arrivalId
+        };
+        
         try {
             const result = await createFare(fareData);
 
@@ -713,7 +795,7 @@ function FareManagement() {
         });
         setShowForm(false);
         setSelectedFare(null); // Clear selected fare
-        setSelectedFlights(null);
+        setSelectedFlights([]);
         setIsFlightRangeMode(false);
         setFieldsLocked(false);
         setEditingFare(null);
