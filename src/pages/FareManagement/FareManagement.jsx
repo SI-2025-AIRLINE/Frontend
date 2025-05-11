@@ -61,7 +61,7 @@ function FareManagement() {
 
     const [newFare, setNewFare] = useState({
         fareCode: '',
-        airline: '',
+        airline: null,
         flightNumberFrom: '',
         flightNumberTo: '',
         origin: '',
@@ -409,6 +409,8 @@ function FareManagement() {
             DestinationIdTo: arrivalId
         };
 
+        resetForm();
+        
         try {
             const result = await createFare(fareData);
 
@@ -417,7 +419,6 @@ function FareManagement() {
                 setShowMessage(true);
                 setIsAddingNew(false);
                 setEditingFare(null);
-                resetForm();
             } else {
                 throw new Error("Failed to save fare.");
             }
@@ -498,7 +499,7 @@ function FareManagement() {
                 alert("Fare successfully added to flight(s).");
                 setShowMessage(true);
                 setIsAddingNew(false);
-                setEditingFare(null);
+                setEditingFare(false);
                 resetForm();
             } else {
                 throw new Error("Failed to save fare.");
@@ -508,6 +509,7 @@ function FareManagement() {
             alert("Failed to save fare.");
             setError(err.message);
             setShowError(true);
+            resetForm();
         }
     };
 
@@ -781,6 +783,19 @@ function FareManagement() {
 
 
     const resetForm = () => {
+        setNewFare({
+            fareCode: '',
+            airline: null, // Must be null for Select
+            flightNumberFrom: '',
+            flightNumberTo: '',
+            origin: '',
+            destination: '',
+            validFrom: '',
+            validTo: '',
+            firstClassPrice: '',
+            businessClassPrice: '',
+            economyClassPrice: ''
+        });
         setFormData({
             code: '',
             airline: '',
@@ -794,12 +809,13 @@ function FareManagement() {
             businessClassPrice: '',
             economyClassPrice: ''
         });
+        setSelectedFlights([]); // Reset selected flights
         setShowForm(false);
-        setSelectedFare(null); // Clear selected fare
-        setSelectedFlights([]);
+        setSelectedFare(null);
         setIsFlightRangeMode(false);
         setFieldsLocked(false);
         setEditingFare(null);
+        setFlightNumber(''); // Reset the flight number input too
     };
 
     // Handle form data change and tracking
@@ -882,7 +898,7 @@ function FareManagement() {
                             <label className="form-label">Origin</label>
                             <Select
                                 options={allDestinations}
-                                //value={newFare.origin}
+                                value={allDestinations.find(option => option.value === newFare.origin) || null}
                                 onChange={(selectedOption) =>
                                     setNewFare({ ...newFare, origin: selectedOption.value })
                                 }
@@ -898,7 +914,7 @@ function FareManagement() {
                             <label className="form-label">Destination</label>
                             <Select
                                 options={allDestinations}
-                                //value={newFare.destination}
+                                value={allDestinations.find(option => option.value === newFare.destination) || null}
                                 onChange={(selectedOption) =>
                                     setNewFare({ ...newFare, destination: selectedOption.value })
                                 }
