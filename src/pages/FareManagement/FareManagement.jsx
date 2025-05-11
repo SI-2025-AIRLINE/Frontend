@@ -441,6 +441,7 @@ function FareManagement() {
         
         // Determine the mode directly from the data, don't rely on isFlightRangeMode state
         const hasFlightRange = rangeFrom > 0 && rangeTo >= rangeFrom;
+        const hasSingleFlights = selectedFlights.length > 0;
 
         // Pozivanje handleFlightRangeInput ako je potrebno
         handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
@@ -450,7 +451,7 @@ function FareManagement() {
         let arrivalId = 0;
         
         // Only try to get destination IDs if we're not using flight range
-        if (!hasFlightRange) {
+        if (!hasFlightRange && newFare.origin && newFare.destination) {
             try {
                 departureId = await getDestinationIdByCityCode(newFare.origin);
                 arrivalId = await getDestinationIdByCityCode(newFare.destination);
@@ -464,8 +465,8 @@ function FareManagement() {
         // Check if we have valid data
         const hasValidDestinations = departureId && arrivalId;
         
-        if (!hasFlightRange && !hasValidDestinations) {
-            alert("Please fill either origin/destination or flight number range.");
+        if (!hasFlightRange && !hasValidDestinations && !hasSingleFlights) {
+            alert("Please add flights or fill either origin/destination or flight number range.");
             return;
         }
         
