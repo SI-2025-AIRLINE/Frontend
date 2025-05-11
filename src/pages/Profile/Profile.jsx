@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './Profile.css';
 import { useNavigate } from 'react-router-dom';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 function Profile() {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
   const [userData, setUserData] = useState({
     id: '',
     firstName: '',

@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import './Register.css';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const Register = () => {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -50,13 +54,13 @@ const Register = () => {
     setLoading(true);
 
     if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.dob || !formData.gender) {
-      setError('All fields are required.');
+      setError(t("allFieldsRequired"));
       setLoading(false);
       return;
     }
 
     if (!isValidEmail(formData.email)) {
-      setError('Please enter a valid email address.');
+      setError(t("enterValidMail"));
       setLoading(false);
       return;
     }
@@ -90,10 +94,10 @@ const Register = () => {
       }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        throw new Error(data.message || `${t("registrationFailed")}.`);
       }
 
-      setSuccess('Registration successful! Redirecting to login...');
+      setSuccess(t("registrationSuccessful"));
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(err.message);
@@ -105,7 +109,7 @@ const Register = () => {
   return (
     <div className="register-container">
       <div className="register-form-container">
-        <h2>Register</h2>
+        <h2>{t("register")}</h2>
         <div className="message-container">
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">{success}</p>}
@@ -115,8 +119,8 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              name="firstName"
-              placeholder="First Name"
+              name={t("firstName")}
+              placeholder={t("firstName")}
               value={formData.firstName}
               onChange={handleChange}
             />
@@ -124,8 +128,8 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              name="lastName"
-              placeholder="Last Name"
+              name={t("lastName")}
+              placeholder={t("lastName")}
               value={formData.lastName}
               onChange={handleChange}
             />
@@ -133,8 +137,8 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              name="username"
-              placeholder="Username"
+              name={t("userName")}
+              placeholder={t("userName")}
               value={formData.username}
               onChange={handleChange}
             />
@@ -142,8 +146,8 @@ const Register = () => {
           <div className="form-group">
             <input
               type="email"
-              name="email"
-              placeholder="Email"
+              name={t("email")}
+              placeholder={t("email")}
               value={formData.email}
               onChange={handleChange}
             />
@@ -151,8 +155,8 @@ const Register = () => {
           <div className="form-group">
             <input
               type="password"
-              name="password"
-              placeholder="Password"
+              name={t("password")}
+              placeholder={t("password")}
               value={formData.password}
               onChange={handleChange}
             />
@@ -160,26 +164,26 @@ const Register = () => {
           <div className="form-group">
             <input
               type="date"
-              name="dob"
-              placeholder="Date of Birth"
+              name={t("dob")}
+              placeholder={t("dob")}
               value={formData.dob}
               onChange={handleChange}
             />
           </div>
           <div className="form-group">
             <select
-              name="gender"
+              name={t("gender")}
               value={formData.gender}
               onChange={handleChange}
             >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
+              <option value="">{t("selectGender")}</option>
+              <option value="male">{t("male")}</option>
+              <option value="female">{t("female")}</option>
              
             </select>
           </div>
           <button type="submit" className="update-button" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? `${t("registering")}...` : `${t("register")}`}
           </button>
         </form>
       </div>

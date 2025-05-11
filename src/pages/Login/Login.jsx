@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import './Login.css';
 
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
+
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -40,7 +46,7 @@ const Login = () => {
     setLoading(true);
   
     if (!formData.username || !formData.password) {
-      setError('Username and password are required.');
+      setError(`${t("userAndPasswordRequired")}`);
       setLoading(false);
       return;
     }
@@ -62,7 +68,7 @@ const Login = () => {
   
       console.log('Response data:', data);
   
-      if (!response.ok) throw new Error(data.message || 'Login failed');
+      if (!response.ok) throw new Error(data.message || `${t("loginFailed")}`);
   
       
       localStorage.setItem('token', data.token);
@@ -74,7 +80,7 @@ const Login = () => {
       
       console.log('User ID saved in localStorage:', data.id);
   
-       setSuccess('Login successful! Redirecting...');
+       setSuccess(`${t("loginSuccessfulMessage")}`);
        setTimeout(() => {
          if (data.role === 'Admin') {
            navigate('/admin');  
@@ -95,7 +101,7 @@ const Login = () => {
     <div className="login-container">
       
       <div className="login-form-container">
-        <h2>Login</h2>
+        <h2>{`${t("login")}`}</h2>
 
         {(error || success) && (
           <div className="message-container">
@@ -108,8 +114,8 @@ const Login = () => {
           <div className="form-group">
             <input
               type="text"
-              name="username"
-              placeholder="Username"
+              name={t("userName")}
+              placeholder={t("userName")}
               value={formData.username}
               onChange={handleChange}
             />
@@ -117,19 +123,19 @@ const Login = () => {
           <div className="form-group">
             <input
               type="password"
-              name="password"
-              placeholder="Password"
+              name={t("password")}
+              placeholder={t("password")}
               value={formData.password}
               onChange={handleChange}
             />
           </div>
           <button type="submit" className="update-button" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? `${t("logingIn")}...` : `${t("login")}`}
           </button>
         </form>
 
         <Link to="/reset-password" className="forgot-password">
-          Forgot your password?
+          {t("forgotYourPassword")}
         </Link>
       </div>
     </div>
