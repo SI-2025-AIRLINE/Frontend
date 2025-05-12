@@ -503,7 +503,7 @@ function FareManagement() {
             validTo: '',
             firstClassPrice: '',
             businessClassPrice: '',
-            economyClassPrice: ''
+            economyClassPrice: '',
         });
         setFormData({
             code: '',
@@ -525,6 +525,7 @@ function FareManagement() {
         setFieldsLocked(false);
         setEditingFare(null);
         setFlightNumber(''); // Reset the flight number input too
+        setSelectedAirline(null);
     };
 
     // Handle form data change and tracking
@@ -854,6 +855,7 @@ function FareManagement() {
                                 economyClassPrice: '',
                                 selectedFlights: ''
                             });
+                            resetForm();
                             //setSelectedFlight(null);
                         }}>
                             Cancel
