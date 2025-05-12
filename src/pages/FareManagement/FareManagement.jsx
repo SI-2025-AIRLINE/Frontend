@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Save, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, Save, Trash2, Edit, DollarSign, X } from 'lucide-react';
 import Select from 'react-select';
-import './FareManagement.css';
+import './FareManagement.css'
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 function FareManagement() {
-  const [fares, setFares] = useState([
+    const [fares, setFares] = useState([]);
+    const [selectedAirline, setSelectedAirline] = useState(null);
 
-  ]);
+    const [isAddingNew, setIsAddingNew] = useState(false);
+    const [editingFare, setEditingFare] = useState(null);
+    const [selectedFlights, setSelectedFlights] = useState([]);
 
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [editingFare, setEditingFare] = useState(null);
-    const [selectedFlight, setSelectedFlight] = useState(null);
     const [pageSize, setPageSize] = useState(10);
-    const [pageNumber, setPageNumber] = useState(1); 
+    const [pageNumber, setPageNumber] = useState(1);
+
+    const [flightNumber, setFlightNumber] = useState('');
+    const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
+    const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,28 +31,117 @@ function FareManagement() {
 
     const [showForm, setShowForm] = useState(false);
 
-  const [newFare, setNewFare] = useState({
-    flightId: '',
-    validFrom: '',
-    validTo: '',
-    firstClassPrice: '',
-    businessPrice: '',
-    economyPrice: ''
-  });
+    const [allDestinations, setAllDestinations] = useState([]);
+    useEffect(() => {
+        fetch(`${apiURL}/Destination/all`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(dest => ({
+                    label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
+                    value: dest.cityCode
+                }));
+                setAllDestinations(mapped);
+                setLoading(false);
+            });
+    }, []);
+
+    const [airports, setAirports] = useState([]);
+    useEffect(() => {
+        fetch(`${apiURL}/Aircraft`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(a => ({
+                    value: a.id,
+                    label: `${a.name} (${a.airportCode})`
+                }));
+                setAirports(mapped);
+            })
+            .catch(err => console.error("Failed to fetch airports:", err));
+    }, []);
 
 
-   const [formData, setFormData] = useState({
-       flightId: '',
-       validFrom: '',
-       validTo: '',
-       firstClassPrice: '',
-       businessPrice: '',
-       economyPrice: ''
+
+    const [newFare, setNewFare] = useState({
+        fareCode: '',
+        airline: null,
+        flightNumberFrom: '',
+        flightNumberTo: '',
+        origin: '',
+        destination: '',
+        validFrom: '',
+        validTo: '',
+        firstClassPrice: '',
+        businessClassPrice: '',
+        economyClassPrice: '',
+        selectedFlights: []
+    });
+    /*
+    const airlines = [
+      { value: 'BA', label: 'British Airways' },
+      { value: 'LH', label: 'Lufthansa' },
+      { value: 'AF', label: 'Air France' }
+    ];
+  
+    const airports = [
+      { value: 'LHR', label: 'London Heathrow (LHR)' },
+      { value: 'CDG', label: 'Paris Charles de Gaulle (CDG)' },
+      { value: 'FRA', label: 'Frankfurt (FRA)' },
+      { value: 'JFK', label: 'New York JFK (JFK)' }
+    ];*/
+
+    const [formData, setFormData] = useState({
+        fareCode: '',
+        airline: '',
+        flightNumberFrom: '',
+        flightNumberTo: '',
+        origin: '',
+        destination: '',
+        validFrom: '',
+        validTo: '',
+        firstClassPrice: '',
+        businessClassPrice: '',
+        economyClassPrice: '',
+        selectedFlights: []
     });
 
+    const selectStyles = {
+        control: (base, state) => ({
+            ...base,
+            minHeight: '42px',
+            borderColor: state.isDisabled ? 'var(--gray-200)' : 'var(--gray-300)',
+            backgroundColor: state.isDisabled ? 'var(--gray-100)' : 'white',
+            '&:hover': {
+                borderColor: state.isDisabled ? 'var(--gray-200)' : 'var(--primary-color)'
+            }
+        }),
+        option: (base, state) => ({
+            ...base,
+            backgroundColor: state.isSelected ? 'var(--primary-color)' : state.isFocused ? 'var(--gray-100)' : 'white',
+            '&:active': {
+                backgroundColor: 'var(--primary-color)'
+            }
+        })
+    };
+
     const [selectedFare, setSelectedFare] = useState(null);
-    //let pageSize = 100;
     const [flights, setFlights] = useState([]);
+    const [airlines, setAirlines] = useState([]);
+
+    useEffect(() => {
+        fetch(`${apiURL}/Airline/all`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(airline => ({
+                    id: airline.id,
+                    name: airline.name,
+                    label: `${airline.name} (${airline.iata})`,
+                    value: airline.id,
+                    iata: airline.iata,
+                }));
+                setAirlines(mapped);
+            })
+            .catch(console.error);
+    }, []);
 
     useEffect(() => {
         fetch(`${apiURL}/Flight/instances`)
@@ -60,14 +153,17 @@ function FareManagement() {
                     label: `${flight.flightNumber} (${flight.departureDestination?.airportCode} → ${flight.arrivalDestination?.airportCode})`,
                     value: flight.id,
                     validFrom: flight.validFrom,
-                    validTo: flight.validTo
+                    validTo: flight.validTo,
+                    departureDestination: flight.departureDestination,
+                    arrivalDestination: flight.arrivalDestination,
+                    fareId: flight.fareId // Add this to track if fare is already applied
                 }));
                 setFlights(mapped);
             })
             .catch(console.error);
 
     }, []);
-  
+
     // GET: api/Fares
     const fetchFares = async () => {
         try {
@@ -78,7 +174,18 @@ function FareManagement() {
             }
 
             const data = await response.json();
-            setFares(data);
+            const mappedFares = data.map(item => ({
+                id: item.fare.id,
+                code: item.fare.fareCode,
+                economyPrice: item.fare.economyPrice,
+                businessPrice: item.fare.businessPrice,
+                firstClassPrice: item.fare.firstClassPrice,
+                validFrom: item.fare.validFrom,
+                validTo: item.fare.validTo,
+                flightNumber: item.flightNumber
+            }));
+
+            setFares(mappedFares);
 
         } catch (error) {
             console.error('Failed to fetch flights:', error);
@@ -89,8 +196,6 @@ function FareManagement() {
         fetchFares();
     }, [pageNumber, pageSize]);
 
-
-
     //DELETE- api/Fares/id
     const handleDeleteFare = async (id) => {
         if (!window.confirm('Are you sure you want to delete this fare?')) {
@@ -98,6 +203,7 @@ function FareManagement() {
         }
 
         setLoading(true);
+        resetForm();
         setError(null);
         try {
             const res = await fetch(`${apiURL}/Fares/${id}`, {
@@ -106,34 +212,33 @@ function FareManagement() {
 
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-            await fetchFares(); 
+            await fetchFares();
             return true;
         } catch (error) {
             console.error('Failed to delete airport:', error);
             return false;
         }
     };
-   /* function confirmModal(actionToRun) {
-        setConfirmAction(() => actionToRun);
-        setShowConfirm(true);
-    }
-    function handleDeleteFare(id) {
-        confirmModal(async () => {
-            const success = await deleteFare(id);
-            if (success) {
-                setMessage('Airport deleted successfully');
-                setShowMessage(true);
+
+    const getDestinationIdByCityCode = async (cityCode) => {
+        const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
+        if (response.ok) {
+            const destinations = await response.json();
+            if (destinations.length > 0) {
+                return destinations[0].id;
             } else {
-                setError('Failed to delete airport');
-                setShowError(true);
+                throw new Error("Destination can't be found.");
             }
-        });
-    }*/
+        } else {
+            throw new Error("Error finding a destination.");
+        }
+    };
+
 
     //POST- /api/Fares
-    const createFare = async(flightNumber, fareData) => {
+    const createFare = async (fareData) => {
         try {
-            const res = await fetch(`${apiURL}/Fares/${flightNumber}`, {
+            const res = await fetch(`${apiURL}/Fares/List`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -143,7 +248,9 @@ function FareManagement() {
 
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-            await fetchFares(); // Refresh the airport list
+            //const result = await res.json(); 
+
+            await fetchFares();
 
             return true;
         } catch (error) {
@@ -153,145 +260,290 @@ function FareManagement() {
     };
 
     const handleAddFare = async () => {
-        if (!selectedFlight) {
-            alert("Please select a flight.");
+        if (!selectedFlights || selectedFlights.length === 0) {
+            alert("Please select or add flights.");
             return;
         }
 
+        if( !newFare.validFrom || !newFare.validTo) {
+            alert("Please select valid dates.");
+            return;
+        }
+        if (!newFare.firstClassPrice && !newFare.businessClassPrice && !newFare.economyClassPrice) {
+            alert("Please enter at least one fare price.");
+            return;
+        }
+        if (newFare.validFrom > newFare.validTo) {
+            alert("Valid From date cannot be later than Valid To date.");
+            return;
+        }
+        if (newFare.validFrom < new Date().toISOString().split("T")[0]) {
+            alert("Valid From date cannot be in the past.");
+            return;
+        }           
+
+        console.log("Selected flights:", selectedFlights);
+
+        // // Parse range values first
+        // const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
+        // const rangeTo = parseInt(newFare.flightNumberTo) || 0;
+
+        // // Determine the mode directly from the data, don't rely on isFlightRangeMode state
+        // const hasFlightRange = rangeFrom > 0 && rangeTo >= rangeFrom;
+        // const hasSingleFlights = selectedFlights.length > 0;
+
+        // Pozivanje handleFlightRangeInput ako je potrebno
+        // handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
+        // handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
+
+        // let departureId = 0;
+        // let arrivalId = 0;
+
+        // Only try to get destination IDs if we're not using flight range
+        // if (!hasFlightRange && newFare.origin && newFare.destination) {
+        //     try {
+        //         departureId = await getDestinationIdByCityCode(newFare.origin);
+        //         arrivalId = await getDestinationIdByCityCode(newFare.destination);
+        //     } catch (err) {
+        //         console.error("Destination error:", err);
+        //         alert("Invalid origin or destination.");
+        //         return;
+        //     }
+        // }
+
+        // Check if we have valid data
+        // const hasValidDestinations = departureId && arrivalId;
+
+        // if (!hasFlightRange && !hasValidDestinations && !hasSingleFlights) {
+        //     alert("Please add flights or fill either origin/destination or flight number range.");
+        //     return;
+        // }
+
         const fareData = {
-            flightId: selectedFlight.id,
-            validFrom: newFare.validFrom,
-            validTo: newFare.validTo,
-            firstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-            businessPrice: parseFloat(newFare.businessPrice) || 0,
-            economyPrice: parseFloat(newFare.economyPrice) || 0,
+            FareCode: newFare.fareCode,
+            EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
+            BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
+            FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
+            ValidFrom: newFare.validFrom,
+            ValidTo: newFare.validTo,
+            flightNumbers: selectedFlights.map(flight => {
+                if (typeof flight === 'object') {
+                    return flight.flightNumber;
+                }
+                return flight;
+            })
         };
 
-        const success = await createFare(selectedFlight.flightNumber, fareData);
+        console.log("Fare data:", fareData);
 
-        if (success) {
-            alert('Fare added successfully');
-            setShowMessage(true);
-            setIsAddingNew(false);
-            resetFareForm();
-        } else {
-            alert('Failed to add fare');
-            setError('Failed to add fare');
+        try {
+            const result = await createFare(fareData);
+
+            if (result) {
+                alert("Fare successfully added to flight(s).");
+                setShowMessage(true);
+                setIsAddingNew(false);
+                setEditingFare(null);
+                resetForm();
+            } else {
+                throw new Error("Failed to save fare.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Failed to save fare.");
+            setError(err.message);
             setShowError(true);
+            resetForm();
         }
     };
 
-
-
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+    const handleFlightRangeInput = (e, field) => {
+        const value = e.target.value;
+        setNewFare({ ...newFare, [field]: value });
+        setIsFlightRangeMode(!!value || !!newFare[field === 'flightNumberFrom' ? 'flightNumberTo' : 'flightNumberFrom']);
+        if (value) {
+            setNewFare(prev => ({
+                ...prev,
+                origin: '',
+                destination: ''
+            }));
+        }
     };
-    // Fetch the fare details based on the fare ID
-    const fetchFareToEdit = async (id) => {
+
+    const handleOriginDestinationChange = (selected, field) => {
+        setNewFare({ ...newFare, [field]: selected });
+        setIsFlightRangeMode(false);
+        if (selected || newFare[field === 'origin' ? 'destination' : 'origin']) {
+            setNewFare(prev => ({
+                ...prev,
+                flightNumberFrom: '',
+                flightNumberTo: ''
+            }));
+        }
+    };
+
+    const handleAddFlights = () => {
+        if (isFlightRangeMode) {
+            if (!newFare.flightNumberFrom || !newFare.flightNumberTo || !newFare.airline) return;
+
+            const prefix = newFare.airline.iata;
+            console.log("Prefix:", prefix);
+
+            const start = parseInt(newFare.flightNumberFrom);
+            const end = parseInt(newFare.flightNumberTo);
+
+            // flightnumber: "{prefix}-XXXXX"
+            let airlineFlights = flights.filter(flight => flight.flightNumber.startsWith(prefix));
+            console.log("Airline flights:", airlineFlights);
+
+            const affectedFlights = airlineFlights.filter(flight => {
+                const flightNumber = parseInt(flight.flightNumber.replace(prefix + "-", ''));
+                return flightNumber >= start && flightNumber <= end;
+            });
+
+            console.log("Affected flights:", affectedFlights);
+
+            // Use flight objects instead of strings
+            setSelectedFlights([...new Set([...selectedFlights, ...affectedFlights])]);
+
+        } else {
+            if (!newFare.origin || !newFare.destination || !newFare.airline) return;
+
+            // Find flights that match origin and destination
+            const matchingFlights = flights.filter(flight => {
+                const departure = flight.departureDestination?.cityCode || flight.departureDestination?.airportCode;
+                const arrival = flight.arrivalDestination?.cityCode || flight.arrivalDestination?.airportCode;
+                return departure === newFare.origin && arrival === newFare.destination;
+            });
+
+            setSelectedFlights([...new Set([...selectedFlights, ...matchingFlights])]);
+        }
+
+        setIsFlightRangeMode(false);
+        setFieldsLocked(true); // ZAKLJUČAJ SVE
+    };
+
+    const handleAddFlight = () => {
+        if (!flightNumber) return;
+
+        var flightNumberWithPrefix = selectedAirline?.iata + '-' + flightNumber;
+
+        const existingFlight = flights.find(flight => flight.flightNumber === flightNumberWithPrefix);
+        const isInSelected = selectedFlights.find(flight => flight.flightNumber === flightNumberWithPrefix);
+
+        if (existingFlight && !isInSelected) {
+            setSelectedFlights([...new Set([...selectedFlights, existingFlight])]);
+        }
+
+        setFlightNumber('');
+    };
+
+    const handleRemoveFlight = (flight) => {
+        setSelectedFlights(selectedFlights.filter(f => {
+            if (typeof f === 'object' && typeof flight === 'object') {
+                return f.id !== flight.id;
+            }
+            return f !== flight;
+        }));
+    };
+
+    const handleEditFare = async (id) => {
         try {
+            // Poziv na API da dobijemo detalje o tarifi prema ID-u
             const response = await fetch(`${apiURL}/Fares/${id}`);
             if (!response.ok) {
-                throw new Error(`Error fetching fare details: ${response.statusText}`);
-            }
-            const fareData = await response.json();
-            setSelectedFare(fareData);  // Set the fare data to selectedFare for later use
-
-            const flight = flights.find(f => f.flightNumber === fareData.flightNumber);
-            setSelectedFlight(flight); // Set the selected flight based on the fare data
-
-            // Pre-fill the form fields with the fetched fare data
-            setFormData({
-                flightId: fareData.flightId,
-                validFrom: fareData.fare.validFrom.split('T')[0],
-                validTo: fareData.fare.validTo.split('T')[0],
-                firstClassPrice: fareData.fare?.firstClassPrice,
-                businessPrice: fareData.fare?.businessPrice,
-                economyPrice: fareData.fare?.economyPrice,
-            });
-        } catch (error) {
-            console.error('Failed to fetch fare:', error);
-        }
-    };
-
-    const handleEditFare = (fareId) => {
-        fetchFareToEdit(fareId);
-        setEditingFare(true); // Show the form for editing
-    };
-
-    const updateFare = async (fareId, updatedFareData) => {
-        try {
-            const res = await fetch(`${apiURL}/Fares/${fareId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedFareData),
-            });
-
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error('Failed to fetch fare data.');
             }
 
-            // After successful update, fetch the latest fares to reflect changes
-            await fetchFares();
-            return true;
+            const fare = await response.json();
+
+            // Postavljamo vrednosti u stanje nakon što smo dobili podatke
+            setEditingFare(id);
+            setNewFare({
+                ...fare,
+                airline: airlines.find(a => a.label === fare.airline),
+                origin: airports.find(a => a.value === fare.origin),
+                destination: airports.find(a => a.value === fare.destination)
+            });
+            setSelectedFlights(fare.flights);
+            setIsAddingNew(true);
         } catch (error) {
-            console.error('Failed to update fare:', error);
-            return false;
+            console.error('Error fetching fare data:', error);
+            alert('Failed to load fare data for editing.');
         }
     };
 
     const handleUpdateFare = async () => {
-        if (!selectedFare) {
-            alert("Please select a fare to edit.");
-            return;
+        try {
+            const fareData = {
+                ...newFare, // Koristimo nove vrednosti koje je korisnik uneo
+                airline: newFare.airline.value, // Ako je "airline" objekat, pretvaramo ga u odgovarajući format
+                origin: newFare.origin.value,   // Isto za origin
+                destination: newFare.destination.value, // I za destination
+            };
+
+            const response = await fetch(`${apiURL}/Fares/${editingFare}`, {
+                method: 'PUT', // Metoda za ažuriranje resursa
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(fareData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update fare.');
+            }
+
+            const updatedFare = await response.json();
+
+            alert('Fare updated successfully.');
+            setIsAddingNew(false);
+            setEditingFare(null);
+            setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
+            await fetchFares(); // Ponovno učitaj sve tarife
+        } catch (error) {
+            console.error('Error updating fare:', error);
+            alert('Failed to update fare.');
         }
-
-        console.log("HANDLING UPDATE FARE");
-
-        const updatedFareData = {
-            validFrom: formData.validFrom,
-            validTo: formData.validTo,
-            firstClassPrice: parseFloat(formData.firstClassPrice) || 0,
-            businessPrice: parseFloat(formData.businessPrice) || 0,
-            economyPrice: parseFloat(formData.economyPrice) || 0,
-        };
-
-        const success = await updateFare(selectedFare.fare?.id, updatedFareData);
-
-        if (success) {
-          alert('Fare updated successfully');
-          setShowMessage(true);
-          setIsAddingNew(false);
-          resetFareForm();
-      } else {
-          alert('Failed to update fare');
-          setError('Failed to update fare');
-          setShowError(true);
-      }
     };
 
-    const resetFareForm = () => {
-        setFormData({
-            flightId: '',
+
+    const resetForm = () => {
+        setNewFare({
+            fareCode: '',
+            airline: null, // Must be null for Select
+            flightNumberFrom: '',
+            flightNumberTo: '',
+            origin: '',
+            destination: '',
             validFrom: '',
             validTo: '',
             firstClassPrice: '',
-            businessPrice: '',
-            economyPrice: ''
+            businessClassPrice: '',
+            economyClassPrice: '',
         });
+        setFormData({
+            code: '',
+            airline: '',
+            flightNumberFrom: '',
+            flightNumberTo: '',
+            origin: '',
+            destination: '',
+            validFrom: '',
+            validTo: '',
+            firstClassPrice: '',
+            businessClassPrice: '',
+            economyClassPrice: ''
+        });
+        setSelectedFlights([]); // Reset selected flights
         setShowForm(false);
-        setSelectedFare(null); // Clear selected fare
-        setSelectedFlight(null); // Clear selected flight
-        setEditingFare(null); // Clear editing state
-      };
-
+        setSelectedFare(null);
+        setIsFlightRangeMode(false);
+        setFieldsLocked(false);
+        setEditingFare(null);
+        setFlightNumber(''); // Reset the flight number input too
+        setSelectedAirline(null);
+    };
 
     // Handle form data change and tracking
     const handleInputChange = (key, value) => {
@@ -306,768 +558,595 @@ function FareManagement() {
         }));
     };
 
-
-
-
-
-
-
-
-
-
-    //PUT- api/Fares/id
-    // PUT - api/Fares/id
- /*   const updateFare = async (id, fareData) => {
-        try {
-            const res = await fetch(`${apiURL}/Fares/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(fareData),
-            });
-
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-            await fetchFares();
-            return true;
-        } catch (error) {
-            console.error('Failed to update fare:', error);
-            return false;
-        }
-    };
-
-    // Handle editing a fare
-    const handleEditFare = (fare) => {
-        console.log('Edit fare: ', fare);
-
-       
-
-        console.log("Fare.FlightNumber", fare.flightNumber);
-
-          
-        setFormData({
-            flightNumber: fare.flightNumber,
-            validFrom: fare.validFrom,
-            validTo: fare.validTo,
-            firstClassPrice: fare.firstClassPrice,
-            businessClassPrice: fare.businessClassPrice,
-            economyClassPrice: fare.economyClassPrice,
-        });
-        console.log("FormData: ", formData);
-        setIsAddingNew(false);
-        setShowForm(true); // tek na kraju
- // Make sure the form is being shown
-    };
-
-
-    // Handle form data change and tracking
-    const handleInputChange = (key, value) => {
-        console.log("HandleInputChange");
-        setEditingFare((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
-    };
-
-
-    // Handle form submission (Save changes)
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const fareData = {
-            flightNumber: formData.flightNumber,
-            validFrom: formData.validFrom,
-            validTo: formData.validTo,
-            firstClassPrice: formData.firstClassPrice,
-            businessClassPrice: formData.businessClassPrice,
-            economyClassPrice: formData.economyClassPrice,
-        };
-        console.log("FareDataSubmit: ", fareData);
-        const success = await updateFare(editingFare.id, fareData);
-
-        if (success) {
-            setShowForm(false); // Hide the form after successful update
-        }
-    };
-  /*  const updateFare = async (id, fareData) => {
-        try {
-            const res = await fetch(`${apiURL}/Fares/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(fareData),
-            });
-
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-            await fetchFares();
-            return true;
-        } catch (error) {
-            console.error('Failed to update fare:', error);
-            return false;
-        }
-    };
-
-
-
-    const handleEditFare = (fare) => {
-        console.log('Edit fare: ', fare);
-
-        setNewFare({
-            flightNumber: fare.flightNumber,
-            validFrom: fare.validFrom,
-            validTo: fare.validTo,
-            firstClassPrice: fare.firstClassPrice,
-            businessClassPrice: fare.businessClassPrice,
-            economyClassPrice: fare.economyClassPrice,
-        });
-
-        const flight = flights.find(f => f.value === fare.flightNumber);
-        setSelectedFlight(flight);
-
-        setEditingFare(fare);
-        setIsAddingNew(false);
-
-        setFormData({
-            flightNumber: fare.flightNumber,
-            validFrom: fare.validFrom,
-            validTo: fare.validTo,
-            firstClassPrice: fare.firstClassPrice,
-            businessClassPrice: fare.businessClassPrice,
-            economyClassPrice: fare.economyClassPrice,
-        });
-
-        setShowForm(true);
-    };*/
-
- /*   const handleEditFare = async (e) => {
-        e.preventDefault();
-
-        const fareData = {
-            flightNumber: formData.flightNumber,
-            validFrom: formData.fare?.validFrom,
-            validTo: formData.fare?.validTo,
-            firstClassPrice: formData.fare?.firstClassPrice,
-            businessPrice: formData.fare?.businessPrice,
-            economyPrice: formData.fare?.economyPrice
-        };
-
-        const success = await updateFare(editingFare.fare?.id, fareData);
-
-        if (success) {
-            setMessage('Fare updated successfully');
-            setShowMessage(true);
-            setEditingFare(null);
-            setShowForm(false);
-            resetFareForm();
-        } else {
-            setError('Failed to update fare');
-            setShowError(true);
-        }
-    };*/
- 
-
-/*
-    async function handleSubmit(e) {
-        e.preventDefault();
-        /*if (!formData.name || !formData.cityCode || !formData.airportCode) {
-            setError("Please fill out all required fields.");
-            setShowError(true);
-            return;
-        }
-
-        const onlyLettersRegex = /^[A-Za-z]+$/;
-        const onlyLettersAndSpacesRegex = /^[A-Za-z\s]+$/;
-
-        if (
-            !onlyLettersAndSpacesRegex.test(formData.name) ||
-            !onlyLettersRegex.test(formData.cityCode) ||
-            !onlyLettersRegex.test(formData.airportCode)
-        ) {
-            setError("Fields 'Airport name', 'City' and 'IATA' must contain only letters.");
-            setShowError(true);
-            return;
-        }
-
-
-        let success;
-        if (editingFare) {
-            // Update existing airport
-            success = await updateFare(editingFare.fare?.id, formData);
-            if (success) {
-                setMessage('Fare updated successfully');
-                setShowMessage(true);
-            } else {
-                setError('Failed to update fare');
-                setShowError(true);
-                return;
-            }
-        } else {
-            // Create new airport
-            delete formData.fare?.id;
-
-           
-            success = await createFare(formData);
-            if (success) {
-                setMessage('Fare added successfully');
-                setShowMessage(true);
-            } else {
-                setError('Failed to add fare');
-                setShowError(true);
-                return;
-            }
-        }
-
-        // Reset form state
-        setFormData({ name: '', cityCode: '', airportCode: '', Status: 1 });
-        setEditingFare(null);
-        setShowForm(false);
-
-
-    }
-    */
-
-
-
-
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: '42px',
-      borderColor: 'var(--gray-300)',
-      '&:hover': {
-        borderColor: 'var(--primary-color)'
-      }
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected ? 'var(--primary-color)' : state.isFocused ? 'var(--gray-100)' : 'white',
-      '&:active': {
-        backgroundColor: 'var(--primary-color)'
-      }
-    })
-  };
-  /*
-  const handleAddFare = () => {
-    if (!selectedFlight || !newFare.validFrom || !newFare.validTo) return;
-
-    if (editingFare) {
-      setFares(fares.map(fare => 
-        fare.id === editingFare ? { ...newFare, id: editingFare } : fare
-      ));
-      setEditingFare(null);
-    } else {
-      setFares([...fares, {
-        ...newFare,
-        flightNumber: selectedFlight.value,
-        id: Math.random().toString(36).substr(2, 9)
-      }]);
-    }
-
-    setIsAddingNew(false);
-    setNewFare({
-      flightNumber: '',
-      validFrom: '',
-      validTo: '',
-      firstClassPrice: '',
-      businessClassPrice: '',
-      economyClassPrice: ''
-    });
-    setSelectedFlight(null);
-  };
-/*
- const handleEditFare = (fare) => {
-    setEditingFare(fare.id);
-    setNewFare({
-      flightNumber: fare.flightNumber,
-      validFrom: fare.validFrom,
-      validTo: fare.validTo,
-      firstClassPrice: fare.firstClassPrice,
-      businessClassPrice: fare.businessClassPrice,
-      economyClassPrice: fare.economyClassPrice
-    });
-    const flight = flights.find(f => f.value === fare.flightNumber);
-    setSelectedFlight(flight);
-    setIsAddingNew(true);
-  };
-
-  
-  const handleDeleteFare = (id) => {
-    setFares(fares.filter(f => f.id !== id));
-  };*/
-
-  const handleFlightSelect = (selected) => {
-    setSelectedFlight(selected);
-    if (selected) {
-      setNewFare(prev => ({
-        ...prev,
-        validFrom: selected.validFrom,
-        validTo: selected.validTo
-      }));
-    }
-  };
-
-    
-
-
-  return (
-    <div className="container">
-      <div className="btn_add">
-        <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
-          <PlusCircle style={{ width: 20, height: 20, marginRight: 8 }} />
-          Add New Fare
-        </button>
-      </div>
-
-          {/* {isAddingNew && (
-        <div className="form-container">
-          <div className="form-group">
-            <label className="form-label">{editingFare ? 'Flight' : 'Select Flight'}</label>
-            <Select
-              options={flights}
-              value={selectedFlight}
-              onChange={handleFlightSelect}
-              styles={selectStyles}
-              placeholder="Search for a flight..."
-              isSearchable
-              isDisabled={!!editingFare}
-            />
-          </div>
-
-          <div className="flight-valid-container">
-            <label className="form-label">Flight Valid:</label>
-            <div className="flight-valid-dates">
-              {selectedFlight ? (
-                <>
-                  <span>From {new Date(selectedFlight.validFrom).toLocaleDateString()}</span>
-                  <span> To {new Date(selectedFlight.validTo).toLocaleDateString()}</span>
-                </>
-              ) : (
-                <span>Select a flight to see validity.</span>
-              )}
-            </div>
-          </div>
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label className="form-label">From</label>
-              <input
-                type="date"
-                className="form-input"
-                value={newFare.validFrom}
-                onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
-                min={selectedFlight?.validFrom}
-                max={selectedFlight?.validTo}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">To</label>
-              <input
-                type="date"
-                className="form-input"
-                value={newFare.validTo}
-                onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
-                min={selectedFlight?.validFrom}
-                max={selectedFlight?.validTo}
-              />
-            </div>
-          </div>
-
-          <div className="fare-inputs" style={{ display: 'flex', gap: '20px' }}>
-            <div className="fare-input-group" style={{ flex: 1 }}>
-              <label className="form-label">First Class Price</label>
-              <input
-                type="number"
-                className="form-input"
-                value={newFare.firstClassPrice}
-                onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
-                placeholder="0.00"
-              />
+    return (
+        <div className="container">
+            <div className="btn_add">
+                <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
+                    <PlusCircle style={{ width: 20, height: 20, marginRight: 8 }} />
+                    Add New Fare
+                </button>
             </div>
 
-            <div className="fare-input-group" style={{ flex: 1 }}>
-              <label className="form-label">Business Class Price</label>
-              <input
-                type="number"
-                className="form-input"
-                value={newFare.businessClassPrice}
-                onChange={(e) => setNewFare({ ...newFare, businessPrice: e.target.value })}
-                placeholder="0.00"
-              />
-            </div>
+            {isAddingNew && (
+                <div className="form-container">
+                    <div className="form-group">
+                        <label className="form-label">Code</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={newFare.fareCode}
+                            onChange={(e) => setNewFare({ ...newFare, fareCode: e.target.value })}
+                            placeholder="Enter fare code"
+                        />
+                    </div>
 
-            <div className="fare-input-group" style={{ flex: 1 }}>
-              <label className="form-label">Economy Class Price</label>
-              <input
-                type="number"
-                className="form-input"
-                value={newFare.economyClassPrice}
-                onChange={(e) => setNewFare({ ...newFare, economyPrice: e.target.value })}
-                placeholder="0.00"
-              />
-            </div>
-          </div>
+                    <div className="form-group">
+                        <label className="form-label">Airline</label>
+                        <Select
+                            options={airlines}
+                            isSearchable
+                            onChange={(selectedOption) => {
+                                setSelectedAirline(selectedOption);
+                                setNewFare({ ...newFare, airline: selectedOption });
+                            }}
+                            placeholder="Search airline..."
+                            value={newFare.airline}
+                            styles={selectStyles}
+                        />
+                    </div>
 
-          <div className="actions">
-            <button className="btn" onClick={() => {
-              setIsAddingNew(false);
-              setEditingFare(null);
-              setNewFare({
-                flightNumber: '',
-                validFrom: '',
-                validTo: '',
-                firstClassPrice: '',
-                businessClassPrice: '',
-                economyClassPrice: ''
-              });
-              setSelectedFlight(null);
-            }}>
-              Cancel
-            </button>
-            <button className="btn btn-primary" onClick={handleAddFare}>
-              <Save style={{ width: 16, height: 16, marginRight: 8 }} />
-              {editingFare ? 'Update Fare' : 'Save Fare'}
-            </button>
-          </div>
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Flight number from</label>
+                            {/* <input
+                                type="text"
+                                className="form-input"
+                                value={newFare.flightNumberFrom}
+                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
+                                placeholder="Start number"
+                                disabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                            /> */}
+                            <div className="flight-number-wrapper">
+                                <span className="flight-prefix">
+                                    {selectedAirline ? `${selectedAirline.iata}-` : ''}
+                                </span>
+                                <input
+                                    type="text"
+                                    className="flight-number-suffix"
+                                    value={newFare.flightNumberFrom} // Remove prefix for input
+                                    onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
+                                    disabled={!selectedAirline}
+                                    placeholder="e.g. 1234"
+                                />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            {/* <label className="form-label">Flight number to</label>
+                            <input
+                            type="text"
+                            className="form-input"
+                                value={newFare.flightNumberTo}
+                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
+                                placeholder="End number"
+                                //disabled={!!(newFare.origin || newFare.destination)}
+                                disabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                                /> */}
+                            <label className="form-label">Flight number from</label>
+                            <div className="flight-number-wrapper">
+                                <span className="flight-prefix">
+                                    {selectedAirline ? `${selectedAirline.iata}-` : ''}
+                                </span>
+                                <input
+                                    type="text"
+                                    className="flight-number-suffix"
+                                    value={newFare.flightNumberTo} // Remove prefix for input
+                                    onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
+                                    disabled={!selectedAirline}
+                                    placeholder="e.g. 1235"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Origin</label>
+                            <Select
+                                options={allDestinations}
+                                value={allDestinations.find(option => option.value === newFare.origin) || null}
+                                onChange={(selectedOption) =>
+                                    setNewFare({ ...newFare, origin: selectedOption.value })
+                                }
+                                styles={selectStyles}
+                                placeholder="Select origin..."
+                                isSearchable
+                                isClearable
+                                isDisabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Destination</label>
+                            <Select
+                                options={allDestinations}
+                                value={allDestinations.find(option => option.value === newFare.destination) || null}
+                                onChange={(selectedOption) =>
+                                    setNewFare({ ...newFare, destination: selectedOption.value })
+                                }
+                                styles={selectStyles}
+                                placeholder="Select destination..."
+                                isSearchable
+                                isClearable
+                                isDisabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE 
+                            />
+                        </div>
+                    </div>
+
+                    {((newFare.flightNumberFrom && newFare.flightNumberTo) ||
+                        (newFare.origin && newFare.destination)) && !fieldsLocked && (
+                            <div className="form-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button className="btn btn-primary" onClick={handleAddFlights}>
+                                    Add Flights
+                                </button>
+                            </div>
+                        )}
+
+                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                        <div style={{ flex: 1 }}>
+                            <label className="form-label">Flight number</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={flightNumber}
+                                onChange={(e) => setFlightNumber(e.target.value)}
+                                placeholder="Enter flight number"
+                                disabled={selectedAirline === null}
+                            />
+                        </div>
+                        <button className="btn btn-primary" onClick={handleAddFlight}>
+                            Add Flight
+                        </button>
+                    </div>
+
+                    {selectedFlights.length > 0 && (
+                        <div className="selected-flights-container" style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <h4 style={{ margin: 0, color: '#333', fontSize: '1.1rem' }}>Selected Flights ({selectedFlights.length})</h4>
+                            </div>
+                            <div className="flights-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                {selectedFlights.map((flight, index) => {
+                                    // Check if it's a flight object or a string
+                                    const isFlightObject = typeof flight === 'object';
+                                    const flightNumber = isFlightObject ? flight.flightNumber : flight;
+                                    const departureCode = isFlightObject ? flight.departureDestination?.airportCode : '';
+                                    const arrivalCode = isFlightObject ? flight.arrivalDestination?.airportCode : '';
+                                    const hasFare = isFlightObject && flight.fareId;
+
+                                    return (
+                                        <div
+                                            key={index}
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '0.75rem',
+                                                marginBottom: '0.5rem',
+                                                backgroundColor: 'white',
+                                                borderRadius: '6px',
+                                                border: '1px solid #e9ecef',
+                                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                                            }}
+                                        >
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: '600', color: '#2c3e50', marginBottom: '0.25rem' }}>
+                                                    {flightNumber}
+                                                </div>
+                                                {isFlightObject && (
+                                                    <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                                                        {departureCode} → {arrivalCode}
+                                                        {hasFare && (
+                                                            <span style={{
+                                                                marginLeft: '0.5rem',
+                                                                padding: '0.25rem 0.5rem',
+                                                                backgroundColor: '#f8d7da',
+                                                                color: '#721c24',
+                                                                fontSize: '0.75rem',
+                                                                borderRadius: '4px',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                Fare Already Applied
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {!isFlightObject && (
+                                                    <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                                                        Manual entry - details unavailable
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemoveFlight(flight)}
+                                                style={{
+                                                    padding: '0.5rem',
+                                                    backgroundColor: '#dc3545',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    transition: 'background-color 0.2s'
+                                                }}
+                                                onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
+                                                onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Valid From</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={newFare.validFrom}
+                                onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
+                                min={new Date().toISOString().split("T")[0]} //OD DANASNJEG DATUMA
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Valid To</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={newFare.validTo}
+                                onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
+                                min={newFare.validFrom || new Date().toISOString().split("T")[0]} //OD FROM DATUMA
+                            />
+                        </div>
+                    </div>
+
+                    <div className="fare-inputs">
+                        <div className="fare-input-group">
+                            <label className="fare-label">First Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.firstClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="fare-input-group">
+                            <label className="fare-label">Business Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.businessClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, businessClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="fare-input-group">
+                            <label className="fare-label">Economy Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.economyClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, economyClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="actions">
+                        <button className="btn" onClick={() => {
+                            setIsAddingNew(false);
+                            setEditingFare(null);
+                            setNewFare({
+                                code: '',
+                                airline: '',
+                                flightNumberFrom: '',
+                                flightNumberTo: '',
+                                origin: '',
+                                destination: '',
+                                validFrom: '',
+                                validTo: '',
+                                firstClassPrice: '',
+                                businessClassPrice: '',
+                                economyClassPrice: '',
+                                selectedFlights: ''
+                            });
+                            resetForm();
+                            //setSelectedFlight(null);
+                        }}>
+                            Cancel
+                        </button>
+                        <button className="btn btn-primary" onClick={handleAddFare}>
+                            <Save style={{ width: 16, height: 16, marginRight: 8 }} />
+                            {editingFare ? 'Update Fare' : 'Add Fare'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {editingFare && (
+                <div className="form-container">
+                    <div className="form-group">
+                        <label className="form-label">Code</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={newFare ? newFare.fareCode : ''}
+                            disabled
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Airline</label>
+                        <Select
+                            options={airlines}
+                            value={newFare.airline}
+                            onChange={(selected) => setNewFare({ ...newFare, airline: selected })}
+                            styles={selectStyles}
+                            placeholder="Select airline..."
+                            isSearchable
+                            isDisabled={!!editingFare || fieldsLocked} //ZAKLJUCAJ SVE
+                        />
+                    </div>
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Flight number from</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={newFare.flightNumberFrom}
+                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
+                                placeholder="Start number"
+                                //disabled={!!(newFare.origin || newFare.destination)}
+                                disabled={fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Flight number to</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={newFare.flightNumberTo}
+                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
+                                placeholder="End number"
+                                //disabled={!!(newFare.origin || newFare.destination)}
+                                disabled={fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Origin</label>
+                            <Select
+                                options={allDestinations}
+                                value={allDestinations.find(option => option.value === newFare.origin) || null}
+                                onChange={(selectedOption) =>
+                                    setNewFare({ ...newFare, origin: selectedOption.value })
+                                }
+                                styles={selectStyles}
+                                placeholder="Select origin..."
+                                isSearchable
+                                isClearable
+                                //isDisabled={isFlightRangeMode}
+                                isDisabled={fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Destination</label>
+                            <Select
+                                options={allDestinations}
+                                value={allDestinations.find(option => option.value === newFare.destination) || null}
+                                onChange={(selectedOption) =>
+                                    setNewFare({ ...newFare, destination: selectedOption.value })
+                                }
+                                styles={selectStyles}
+                                placeholder="Select destination..."
+                                isSearchable
+                                isClearable
+                                //isDisabled={isFlightRangeMode}
+                                isDisabled={fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE 
+                            />
+                        </div>
+                    </div>
+
+                    {((newFare.flightNumberFrom && newFare.flightNumberTo) ||
+                        (newFare.origin && newFare.destination)) && !fieldsLocked && (
+                            <div className="form-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button className="btn btn-primary" onClick={handleAddFlights}>
+                                    Add Flights
+                                </button>
+                            </div>
+                        )}
+
+                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                        <div style={{ flex: 1 }}>
+                            <label className="form-label">Flight number</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={flightNumber}
+                                onChange={(e) => setFlightNumber(e.target.value)}
+                                placeholder="Enter flight number"
+                            />
+                        </div>
+                        <button className="btn btn-primary" onClick={handleAddFlight}>
+                            Add Flight
+                        </button>
+                    </div>
+
+                    {selectedFlights.length > 0 && (
+                        <div className="selected-flights">
+                            <label className="form-label">Selected Flights</label>
+                            <div className="flight-chips">
+                                {selectedFlights.map((flight) => (
+                                    <div key={flight} className="flight-chip">
+                                        {flight}
+                                        <button
+                                            className="flight-chip-remove"
+                                            onClick={() => handleRemoveFlight(flight)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Valid From</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={newFare.validFrom}
+                                onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
+                                min={new Date().toISOString().split("T")[0]} //OD DANASNJEG DATUMA
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Valid To</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={newFare.validTo}
+                                onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
+                                min={newFare.validFrom || new Date().toISOString().split("T")[0]} //OD FROM DATUMA
+                            />
+                        </div>
+                    </div>
+
+                    <div className="fare-inputs">
+                        <div className="fare-input-group">
+                            <label className="fare-label">First Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.firstClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="fare-input-group">
+                            <label className="fare-label">Business Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.businessClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, businessClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="fare-input-group">
+                            <label className="fare-label">Economy Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.economyClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, economyClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="actions">
+                        <button className="btn" onClick={() => {
+                            setIsAddingNew(false);
+                            setEditingFare(null);
+                            setNewFare({
+                                code: '',
+                                airline: '',
+                                flightNumberFrom: '',
+                                flightNumberTo: '',
+                                origin: '',
+                                destination: '',
+                                validFrom: '',
+                                validTo: '',
+                                firstClassPrice: '',
+                                businessClassPrice: '',
+                                economyClassPrice: '',
+                                selectedFlights: ''
+                            });
+                            //setSelectedFlight(null);
+                        }}>
+                            Cancel
+                        </button>
+                        <button className="btn btn-primary" onClick={handleUpdateFare}>
+                            <Save style={{ width: 16, height: 16, marginRight: 8 }} />
+                            {editingFare ? 'Update Fare' : 'Add Fare'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className="table-container">
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Validity Period</th>
+                            <th>First Class</th>
+                            <th>Business Class</th>
+                            <th>Economy Class</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {fares.map((fare) => (
+                            <tr key={fare.id}>
+                                <td>{fare.code}</td>
+                                <td>{new Date(fare.validFrom).toLocaleDateString()} - {new Date(fare.validTo).toLocaleDateString()}</td>
+                                <td>${fare.firstClassPrice}</td>
+                                <td>${fare.businessPrice}</td>
+                                <td>${fare.economyPrice}</td>
+                                <td>
+                                    <div className="button-group">
+                                        <button className="btn btn-icon" onClick={() => handleEditFare(fare.id)}>
+                                            <Edit style={{ width: 20, height: 20 }} />
+                                        </button>
+                                        <button className="btn btn-danger" onClick={() => handleDeleteFare(fare.id)}>
+                                            <Trash2 style={{ width: 20, height: 20 }} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
-      )}
-      */}
-          {isAddingNew && (
-              <div className="form-container">
-                  <h3 className="form-title">Add New Fare</h3>
-
-                  <div className="form-group">
-                      <label className="form-label">Select Flight</label>
-                      <Select
-                          options={flights}
-                          value={selectedFlight}
-                          onChange={handleFlightSelect}
-                          styles={selectStyles}
-                          placeholder="Search for a flight..."
-                          isSearchable
-                      />
-                  </div>
-
-                  <div className="flight-valid-container">
-                      <label className="form-label">Flight Valid:</label>
-                      <div className="flight-valid-dates">
-                          {selectedFlight ? (
-                              <>
-                                  <span>From {new Date(selectedFlight.validFrom).toLocaleDateString()}</span>
-                                  <span> To {new Date(selectedFlight.validTo).toLocaleDateString()}</span>
-                              </>
-                          ) : (
-                              <span>Select a flight to see validity.</span>
-                          )}
-                      </div>
-                  </div>
-
-                  <div className="form-grid">
-                      <div className="form-group">
-                          <label className="form-label">From</label>
-                          <input
-                              type="date"
-                              className="form-input"
-                              value={newFare.validFrom}
-                              onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
-                              min={selectedFlight ? selectedFlight.validFrom.split('T')[0] : ''}
-                              max={selectedFlight ? selectedFlight.validTo.split('T')[0] : ''}
-                              disabled = {!selectedFlight}
-                          />
-                      </div>
-                      <div className="form-group">
-                          <label className="form-label">To</label>
-                          <input
-                              type="date"
-                              className="form-input"
-                              value={newFare.validTo}
-                              onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
-                              min={selectedFlight ? selectedFlight.validFrom.split('T')[0] : ''}
-                              max={selectedFlight ? selectedFlight.validTo.split('T')[0] : ''}
-                              disabled = {!selectedFlight}                         />
-                      </div>
-                  </div>
-
-                  <div className="fare-inputs" style={{ display: 'flex', gap: '20px' }}>
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">First Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={newFare.firstClassPrice}
-                              onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
-                              placeholder="0.00"
-                          />
-                      </div>
-
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">Business Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={newFare.businessPrice}
-                              onChange={(e) => setNewFare({ ...newFare, businessPrice: e.target.value })}
-                              placeholder="0.00"
-                          />
-                      </div>
-
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">Economy Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={newFare.economyPrice}
-                              onChange={(e) => setNewFare({ ...newFare, economyPrice: e.target.value })}
-                              placeholder="0.00"
-                          />
-                      </div>
-                  </div>
-
-                  <div className="actions">
-                      <button
-                          className="btn"
-                          onClick={() => {
-                              setIsAddingNew(false);
-                              setNewFare({
-                                  flightNumber: '',
-                                  validFrom: '',
-                                  validTo: '',
-                                  firstClassPrice: '',
-                                  businessPrice: '',
-                                  economyPrice: ''
-                              });
-                              setSelectedFlight(null);
-                          }}
-                      >
-                          Cancel
-                      </button>
-                      <button className="btn btn-primary" onClick={handleAddFare}>
-                          <Save style={{ width: 16, height: 16, marginRight: 8 }} />
-                          Save Fare
-                      </button>
-                  </div>
-              </div>
-          )}
-          {editingFare && (
-              <div className="form-container">
-                  <h3 className="form-title">Edit Fare</h3>
-
-                  <div className="form-group">
-                      <label className="form-label">Flight</label>
-                      <input
-                          type="text"
-                          value={selectedFare ? selectedFare.flightNumber : ''}
-                          styles={selectStyles}
-                          disabled
-                      />
-                  </div>
-
-                  <div className="flight-valid-container">
-                      <label className="form-label">Flight Valid:</label>
-                      <div className="flight-valid-dates">
-                          {selectedFare ? (
-                              <>
-                                  <span> From {selectedFlight ? formatDate(selectedFlight.validFrom) : ''}</span>
-                                  <span> To {selectedFlight ? formatDate(selectedFlight.validTo) : ''}</span>
-                              </>
-                          ) : (
-                              <span>Select a flight to see validity.</span>
-                          )}
-                      </div>
-                  </div>
-
-                  <div className="form-grid">
-                      <div className="form-group">
-                          <label className="form-label">From</label>
-                          <input
-                              type="date"
-                              className="form-input"
-                              value={formData.validFrom}
-                              onChange={(e) => handleInputChange('validFrom', e.target.value)} // Handle change here
-                              name="validFrom"
-                              min={selectedFare ? selectedFare.fare.validFrom.split("T")[0] : ''}
-                              max={selectedFare ? selectedFare.fare.validTo.split("T")[0] : ''}
-                              disabled = {!selectedFare}
-                          />
-                      </div>
-                      <div className="form-group">
-                          <label className="form-label">To</label>
-                          <input
-                              type="date"
-                              className="form-input"
-                              value={formData.validTo}
-                              onChange={(e) => handleInputChange('validTo', e.target.value)} // Handle change here
-                              name="validTo"
-                              min={formData.validFrom}
-                              max={formData.validTo}
-                          />
-                      </div>
-                  </div>
-
-                  <div className="fare-inputs" style={{ display: 'flex', gap: '20px' }}>
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">First Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={formData.firstClassPrice}
-                              onChange={(e) => handleInputChange('firstClassPrice', e.target.value)} // Handle change here
-                              name="firstClassPrice"
-                              placeholder="0.00"
-                          />
-                      </div>
-
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">Business Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={formData.businessPrice}
-                              onChange={(e) => handleInputChange('businessPrice', e.target.value)} // Handle change here
-                              name="businessPrice"
-                              placeholder="0.00"
-                          />
-                      </div>
-
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">Economy Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={formData.economyPrice}
-                              onChange={(e) => handleInputChange('economyPrice', e.target.value)} // Handle change here
-                              name="economyPrice"
-                              placeholder="0.00"
-                          />
-                      </div>
-                  </div>
-
-                  <div className="actions">
-                      <button
-                          className="btn"
-                          onClick={() => {
-                              setEditingFare(null);
-                              setSelectedFare(null);
-                              resetFareForm();
-                          }}
-                      >
-                          Cancel
-                      </button>
-                      <button className="btn btn-primary" onClick={handleUpdateFare}>  {/* Handle submit here */}
-                          <Save style={{ width: 16, height: 16, marginRight: 8 }} />
-                          Update Fare
-                      </button>
-                  </div>
-              </div>
-          )}
-
-          {error && showError && (
-              <div className="modal-overlay-fare">
-                  <div className="error-modal-fare">
-                      <p>{error}</p>
-                      <button onClick={() => setShowError(false)} className="modal-close-btn-fare">
-                          OK
-                      </button>
-                  </div>
-              </div>
-          )}
-
-          {message && showMessage && (
-              <div className="modal-overlay-fare">
-                  <div className="message-modal-fare">
-                      <p>{message}</p>
-                      <button onClick={() => setShowMessage(false)} className="modal-close-btn-fare">
-                          OK
-                      </button>
-                  </div>
-              </div>
-          )}
-
-          {showConfirm && (
-              <div className="modal-overla-farey">
-                  <div className="confirm-modal-fare">
-                      <p>Are you sure you want to delete this fare?</p>
-                      <div className="modal-buttons-fare">
-                          <button
-                              className="modal-close-btn-fare"
-                              onClick={() => {
-                                  confirmAction(); // Poziva funkciju ako user potvrdi
-                                  setShowConfirm(false);
-                              }}
-                          >
-                              Yes
-                          </button>
-                          <button
-                              className="modal-close-btn-fare"
-                              onClick={() => setShowConfirm(false)}
-                          >
-                              Cancel
-                          </button>
-                      </div>
-                  </div>
-              </div>
-          )}
-
-
-      <div className="table-container">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Flight</th>
-              <th>Validity Period</th>
-              <th>First Class</th>
-              <th>Business Class</th>
-              <th>Economy Class</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fares.map((fareDB) => (
-              <tr key={fareDB.fare?.id}>
-                <td>{fareDB.flightNumber}</td>
-                <td>{new Date(fareDB.fare?.validFrom).toLocaleDateString()} - {new Date(fareDB.fare?.validTo).toLocaleDateString()}</td>
-                <td>{fareDB.fare?.firstClassPrice}</td>
-                <td>{fareDB.fare?.businessPrice}</td>
-                <td>{fareDB.fare?.economyPrice}</td>
-                <td>
-                  <div className="button-group">
-                    <button className="btn btn-icon" onClick={() => handleEditFare(fareDB.fare?.id)}>
-                      <Edit style={{ width: 20, height: 20 }} />
-                    </button>
-                    <button className="btn btn-danger" onClick={() => handleDeleteFare(fareDB.fare?.id)}>
-                      <Trash2 style={{ width: 20, height: 20 }} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-              </table>
-              {/* Pagination */}
-              <div className="pagination">
-                  <button
-                      className="btn"
-                      disabled={pageNumber <= 1}
-                      onClick={() => setPageNumber(prev => Math.max(1, prev - 1))}
-                  >
-                      Previous
-                  </button>
-                  <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
-                  <button
-                      className="btn"
-                      onClick={() => setPageNumber(prev => prev + 1)}
-                      disabled={fares.length < pageSize}
-                  >
-                      Next
-                  </button>
-              </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default FareManagement;
-

@@ -21,6 +21,8 @@
   }
   
   .container {
+    max-height: 100vh;
+    overflow-y: auto;
     min-height: auto;
     max-width: 100rem;
     margin: 0 auto;
