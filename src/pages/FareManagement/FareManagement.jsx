@@ -1,48 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Save, Trash2, Edit, DollarSign } from 'lucide-react';
+import { PlusCircle, Save, Trash2, Edit, DollarSign, X } from 'lucide-react';
 import Select from 'react-select';
 import './FareManagement.css'
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 function FareManagement() {
-
-    // -------------------------------------------------------------------------
-    // State hooks
-    // -------------------------------------------------------------------------
-
-    // Fares, flights, destinations, airports (prepopulated)
     const [fares, setFares] = useState([]);
-    const [allDestinations, setAllDestinations] = useState([]);
-    const [airports, setAirports] = useState([]);
-    const [airlines, setAirlines] = useState([]);
-    const [flights, setFlights] = useState([]);
-    
-    // Selected (highlighted)
-    const [selectedFlights, setSelectedFlights] = useState([]);
-    const [selectedFare, setSelectedFare] = useState(null);
-    const [flightNumber, setFlightNumber] = useState('');
-    const [editingFare, setEditingFare] = useState(null);
-    // const [selectedAirline, setSelectedAirline] = useState(null);
-    
-    // Modes
-    const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
-    const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
-    const [isAddingNew, setIsAddingNew] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [showError, setShowError] = useState(false);
-    const [showMessage, setShowMessage] = useState(false);
-    // const [showConfirm, setShowConfirm] = useState(false);
-    // const [confirmAction, setConfirmAction] = useState(null);
-    const [showForm, setShowForm] = useState(false);
+    const [selectedAirline, setSelectedAirline] = useState(null);
 
-    // Page
+    const [isAddingNew, setIsAddingNew] = useState(false);
+    const [editingFare, setEditingFare] = useState(null);
+    const [selectedFlights, setSelectedFlights] = useState([]);
+
     const [pageSize, setPageSize] = useState(10);
     const [pageNumber, setPageNumber] = useState(1);
 
-    const [message, setMessage] = useState(null);
+    const [flightNumber, setFlightNumber] = useState('');
+    const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
+    const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
 
-    // New fare object
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [showError, setShowError] = useState(false);
+
+    const [message, setMessage] = useState(null);
+    const [showMessage, setShowMessage] = useState(false);
+
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+
+    const [showForm, setShowForm] = useState(false);
+
+    const [allDestinations, setAllDestinations] = useState([]);
+    useEffect(() => {
+        fetch(`${apiURL}/Destination/all`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(dest => ({
+                    label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
+                    value: dest.cityCode
+                }));
+                setAllDestinations(mapped);
+                setLoading(false);
+            });
+    }, []);
+
+    const [airports, setAirports] = useState([]);
+    useEffect(() => {
+        fetch(`${apiURL}/Aircraft`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(a => ({
+                    value: a.id,
+                    label: `${a.name} (${a.airportCode})`
+                }));
+                setAirports(mapped);
+            })
+            .catch(err => console.error("Failed to fetch airports:", err));
+    }, []);
+
+
+
     const [newFare, setNewFare] = useState({
         fareCode: '',
         airline: null,
@@ -57,8 +75,35 @@ function FareManagement() {
         economyClassPrice: '',
         selectedFlights: []
     });
+    /*
+    const airlines = [
+      { value: 'BA', label: 'British Airways' },
+      { value: 'LH', label: 'Lufthansa' },
+      { value: 'AF', label: 'Air France' }
+    ];
+  
+    const airports = [
+      { value: 'LHR', label: 'London Heathrow (LHR)' },
+      { value: 'CDG', label: 'Paris Charles de Gaulle (CDG)' },
+      { value: 'FRA', label: 'Frankfurt (FRA)' },
+      { value: 'JFK', label: 'New York JFK (JFK)' }
+    ];*/
 
-    // Style
+    const [formData, setFormData] = useState({
+        fareCode: '',
+        airline: '',
+        flightNumberFrom: '',
+        flightNumberTo: '',
+        origin: '',
+        destination: '',
+        validFrom: '',
+        validTo: '',
+        firstClassPrice: '',
+        businessClassPrice: '',
+        economyClassPrice: '',
+        selectedFlights: []
+    });
+
     const selectStyles = {
         control: (base, state) => ({
             ...base,
@@ -78,39 +123,10 @@ function FareManagement() {
         })
     };
 
-    // -------------------------------------------------------------------------
-    // Effect hooks
-    // -------------------------------------------------------------------------
-    
-    // Get all destinations
-    useEffect(() => {
-        fetch(`${apiURL}/Destination/all`)
-            .then(res => res.json())
-            .then(data => {
-                const mapped = data.map(dest => ({
-                    label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
-                    value: dest.cityCode
-                }));
-                setAllDestinations(mapped);
-                setLoading(false);
-            });
-    }, []);
+    const [selectedFare, setSelectedFare] = useState(null);
+    const [flights, setFlights] = useState([]);
+    const [airlines, setAirlines] = useState([]);
 
-    // Get all airports
-    useEffect(() => {
-        fetch(`${apiURL}/Aircraft`)
-            .then(res => res.json())
-            .then(data => {
-                const mapped = data.map(a => ({
-                    value: a.id,
-                    label: `${a.name} (${a.airportCode})`
-                }));
-                setAirports(mapped);
-            })
-            .catch(err => console.error("Failed to fetch airports:", err));
-    }, []);
-
-    // Get all airlines
     useEffect(() => {
         fetch(`${apiURL}/Airline/all`)
             .then(res => res.json())
@@ -127,7 +143,6 @@ function FareManagement() {
             .catch(console.error);
     }, []);
 
-    // Get all flight instances
     useEffect(() => {
         fetch(`${apiURL}/Flight/instances`)
             .then(res => res.json())
@@ -138,7 +153,10 @@ function FareManagement() {
                     label: `${flight.flightNumber} (${flight.departureDestination?.airportCode} → ${flight.arrivalDestination?.airportCode})`,
                     value: flight.id,
                     validFrom: flight.validFrom,
-                    validTo: flight.validTo
+                    validTo: flight.validTo,
+                    departureDestination: flight.departureDestination,
+                    arrivalDestination: flight.arrivalDestination,
+                    fareId: flight.fareId // Add this to track if fare is already applied
                 }));
                 setFlights(mapped);
             })
@@ -146,18 +164,7 @@ function FareManagement() {
 
     }, []);
 
-    // Gets all fares
-    useEffect(() => {
-        fetchFares();
-    }, [pageNumber, pageSize]);
-    
-    // -------------------------------------------------------------------------
-    // API call functions
-    // -------------------------------------------------------------------------
-
-    /**
-    * Fetches all fares (GET: api/Fares)
-    */
+    // GET: api/Fares
     const fetchFares = async () => {
         try {
             const url = `${apiURL}/Fares?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -175,7 +182,7 @@ function FareManagement() {
                 firstClassPrice: item.fare.firstClassPrice,
                 validFrom: item.fare.validFrom,
                 validTo: item.fare.validTo,
-                flightNumbers: item.flightNumbers
+                flightNumber: item.flightNumber
             }));
 
             setFares(mappedFares);
@@ -185,126 +192,11 @@ function FareManagement() {
         }
     };
 
-    // TODO:
-    const fetchFareToEdit = async (fareId) => {
-        try {
-            const response = await fetch(`${apiURL}/Fares/${fareId}`);
-            if (!response.ok) {
-                throw new Error(`Error fetching fare: ${response.statusText}`);
-            }
+    useEffect(() => {
+        fetchFares();
+    }, [pageNumber, pageSize]);
 
-            const fareData = await response.json();
-            setSelectedFare(fareData);
-
-            // Pronađi sve povezane entitete
-            const airline = airlines.find(a => a.value === fareData.airlineId);
-            const origin = airports.find(a => a.value === fareData.origin);
-            const destination = airports.find(a => a.value === fareData.destination);
-            const relatedFlights = fareData.flightNumbers
-
-            // Popuni formu (newFare)
-            setNewFare({
-                code: fareData.code,
-                airline: airline,
-                origin: origin,
-                destination:destination,
-                validFrom: fareData.validFrom?.split('T')[0],
-                validTo: fareData.validTo?.split('T')[0],
-                firstClassPrice: fareData.firstClassPrice,
-                businessPrice: fareData.businessPrice,
-                economyPrice: fareData.economyPrice,
-            });
-            
-            // Changing states
-            setSelectedFlights(relatedFlights);
-            setEditingFare(fareId);
-            setSelectedFare(fareId);
-            // setIsAddingNew(true); // ! Do we need this?
-        } catch (err) {
-            console.error("Failed to fetch fare for edit:", err);
-        }
-    };
-    
-    /**
-     * Returns a destination ID based on its city code.
-     * @param {Number} cityCode City code
-     * @returns Destination's ID
-     */
-    const getDestinationIdByCityCode = async (cityCode) => {
-        const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
-        if (response.ok) {
-            const destinations = await response.json();
-            if (destinations.length > 0) {
-                return destinations[0].id;
-            } else {
-                throw new Error("Destination can't be found.");
-            }
-        } else {
-            throw new Error("Error finding a destination.");
-        }
-    };
-
-    //
-    /**
-     * Creates a new fare (POST: /api/Fares)
-     * @param {*} fareData 
-     * @returns 
-     */
-    const createFare = async (fareData) => {
-        try {
-            const res = await fetch(`${apiURL}/Fares/Form`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(fareData),
-            });
-
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-            //const result = await res.json(); 
-
-            await fetchFares();
-
-            return true;
-        } catch (error) {
-            console.error('Failed to create fare:', error);
-            return false;
-        }
-    };
-
-    // TODO:
-    // const updateFare = async (fareId, updatedFareData) => {
-    //     try {
-    //         const res = await fetch(`${apiURL}/Fares/${fareId}`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(updatedFareData),
-    //         });
-
-    //         if (!res.ok) {
-    //             throw new Error(`HTTP ${res.status}`);
-    //         }
-
-    //         await fetchFares(); // ponovno učitaj sve tarife
-    //         return true;
-    //     } catch (error) {
-    //         console.error('Failed to update fare:', error);
-    //         return false;
-    //     }
-    // };
-
-    // -------------------------------------------------------------------------
-    // Handlers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Deletes a fare with ID `id` (DELETE: api/Fares/id)
-     * @param {Number} id Fare ID
-     * @returns 
-     */
+    //DELETE- api/Fares/id
     const handleDeleteFare = async (id) => {
         if (!window.confirm('Are you sure you want to delete this fare?')) {
             return;
@@ -328,68 +220,105 @@ function FareManagement() {
         }
     };
 
+    const getDestinationIdByCityCode = async (cityCode) => {
+        const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
+        if (response.ok) {
+            const destinations = await response.json();
+            if (destinations.length > 0) {
+                return destinations[0].id;
+            } else {
+                throw new Error("Destination can't be found.");
+            }
+        } else {
+            throw new Error("Error finding a destination.");
+        }
+    };
+
+
+    //POST- /api/Fares
+    const createFare = async (fareData) => {
+        try {
+            const res = await fetch(`${apiURL}/Fares/List`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(fareData),
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            //const result = await res.json(); 
+
+            await fetchFares();
+
+            return true;
+        } catch (error) {
+            console.error('Failed to create fare:', error);
+            return false;
+        }
+    };
+
     const handleAddFare = async () => {
-        if (!selectedFlights) {
-            alert("Please select a flight.");
+        if (!selectedFlights || selectedFlights.length === 0) {
+            alert("Please select or add flights.");
             return;
         }
 
-        // Parse range values first
-        const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
-        const rangeTo = parseInt(newFare.flightNumberTo) || 0;
-        
-        // Determine the mode directly from the data, don't rely on isFlightRangeMode state
-        const hasFlightRange = rangeFrom > 0 && rangeTo >= rangeFrom;
-        const hasSingleFlights = selectedFlights.length > 0;
+        console.log("Selected flights:", selectedFlights);
+
+        // // Parse range values first
+        // const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
+        // const rangeTo = parseInt(newFare.flightNumberTo) || 0;
+
+        // // Determine the mode directly from the data, don't rely on isFlightRangeMode state
+        // const hasFlightRange = rangeFrom > 0 && rangeTo >= rangeFrom;
+        // const hasSingleFlights = selectedFlights.length > 0;
 
         // Pozivanje handleFlightRangeInput ako je potrebno
-        handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
-        handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
-        
-        let departureId = 0;
-        let arrivalId = 0;
-        
+        // handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
+        // handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
+
+        // let departureId = 0;
+        // let arrivalId = 0;
+
         // Only try to get destination IDs if we're not using flight range
-        if (!hasFlightRange && newFare.origin && newFare.destination) {
-            try {
-                departureId = await getDestinationIdByCityCode(newFare.origin);
-                arrivalId = await getDestinationIdByCityCode(newFare.destination);
-            } catch (err) {
-                console.error("Destination error:", err);
-                alert("Invalid origin or destination.");
-                return;
-            }
-        }
-        
+        // if (!hasFlightRange && newFare.origin && newFare.destination) {
+        //     try {
+        //         departureId = await getDestinationIdByCityCode(newFare.origin);
+        //         arrivalId = await getDestinationIdByCityCode(newFare.destination);
+        //     } catch (err) {
+        //         console.error("Destination error:", err);
+        //         alert("Invalid origin or destination.");
+        //         return;
+        //     }
+        // }
+
         // Check if we have valid data
-        const hasValidDestinations = departureId && arrivalId;
-        
-        if (!hasFlightRange && !hasValidDestinations && !hasSingleFlights) {
-            alert("Please add flights or fill either origin/destination or flight number range.");
-            return;
-        }
-        
+        // const hasValidDestinations = departureId && arrivalId;
+
+        // if (!hasFlightRange && !hasValidDestinations && !hasSingleFlights) {
+        //     alert("Please add flights or fill either origin/destination or flight number range.");
+        //     return;
+        // }
+
         const fareData = {
             FareCode: newFare.fareCode,
-            AirlineId: newFare.airline.value,
             EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
             BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
             FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
             ValidFrom: newFare.validFrom,
             ValidTo: newFare.validTo,
-            SingleFlights: selectedFlights
-                .map(f => {
-                    const numberPart = f.split(/[^0-9]/g).pop(); // uzimamo broj iz stringa (npr. "XY123" -> "123")
-                    const parsed = parseInt(numberPart);
-                    return isNaN(parsed) ? null : parsed;
-                })
-                .filter(f => f !== null),
-            RangeFrom: rangeFrom,
-            RangeTo: rangeTo,
-            DestinationIdFrom: departureId,
-            DestinationIdTo: arrivalId
+            flightNumbers: selectedFlights.map(flight => {
+                if (typeof flight === 'object') {
+                    return flight.flightNumber;
+                }
+                return flight;
+            })
         };
-        
+
+        console.log("Fare data:", fareData);
+
         try {
             const result = await createFare(fareData);
 
@@ -423,42 +352,54 @@ function FareManagement() {
             }));
         }
     };
-    
+
     const handleOriginDestinationChange = (selected, field) => {
-      setNewFare({ ...newFare, [field]: selected });
-      setIsFlightRangeMode(false);
-      if (selected || newFare[field === 'origin' ? 'destination' : 'origin']) {
-        setNewFare(prev => ({
-          ...prev,
-          flightNumberFrom: '',
-          flightNumberTo: ''
-        }));
-      }
+        setNewFare({ ...newFare, [field]: selected });
+        setIsFlightRangeMode(false);
+        if (selected || newFare[field === 'origin' ? 'destination' : 'origin']) {
+            setNewFare(prev => ({
+                ...prev,
+                flightNumberFrom: '',
+                flightNumberTo: ''
+            }));
+        }
     };
-    
-    /**
-     * Add all the flights in range to the `selectedFlights` list
-     */
+
     const handleAddFlights = () => {
         if (isFlightRangeMode) {
             if (!newFare.flightNumberFrom || !newFare.flightNumberTo || !newFare.airline) return;
 
             const prefix = newFare.airline.iata;
+            console.log("Prefix:", prefix);
+
             const start = parseInt(newFare.flightNumberFrom);
             const end = parseInt(newFare.flightNumberTo);
 
-            const flights = [];
-            for (let i = start; i <= end; i++) {
-                flights.push(`${prefix}-${i.toString().padStart(3, '0')}`);
-            }
+            // flightnumber: "{prefix}-XXXXX"
+            let airlineFlights = flights.filter(flight => flight.flightNumber.startsWith(prefix));
+            console.log("Airline flights:", airlineFlights);
 
-            setSelectedFlights([...new Set([...selectedFlights, ...flights])]);
+            const affectedFlights = airlineFlights.filter(flight => {
+                const flightNumber = parseInt(flight.flightNumber.replace(prefix + "-", ''));
+                return flightNumber >= start && flightNumber <= end;
+            });
+
+            console.log("Affected flights:", affectedFlights);
+
+            // Use flight objects instead of strings
+            setSelectedFlights([...new Set([...selectedFlights, ...affectedFlights])]);
 
         } else {
             if (!newFare.origin || !newFare.destination || !newFare.airline) return;
 
-            const flight = `${newFare.airline.iata}-${Math.floor(Math.random() * 900 + 100)}`;
-            setSelectedFlights([...selectedFlights, flight]);
+            // Find flights that match origin and destination
+            const matchingFlights = flights.filter(flight => {
+                const departure = flight.departureDestination?.cityCode || flight.departureDestination?.airportCode;
+                const arrival = flight.arrivalDestination?.cityCode || flight.arrivalDestination?.airportCode;
+                return departure === newFare.origin && arrival === newFare.destination;
+            });
+
+            setSelectedFlights([...new Set([...selectedFlights, ...matchingFlights])]);
         }
 
         setIsFlightRangeMode(false);
@@ -466,74 +407,107 @@ function FareManagement() {
     };
 
     const handleAddFlight = () => {
-        // Check if not null or empty
-        if (!flightNumber) 
-            return;
+        if (!flightNumber) return;
 
-        const flight = `${newFare.airline.iata}-${flightNumber}`
+        var flightNumberWithPrefix = selectedAirline?.iata + '-' + flightNumber;
 
-        // Check if already in `selectedFlights`
-        if (selectedFlights.includes(flight))
-            return;
+        const existingFlight = flights.find(flight => flight.flightNumber === flightNumberWithPrefix);
+        const isInSelected = selectedFlights.find(flight => flight.flightNumber === flightNumberWithPrefix);
 
-        setSelectedFlights([...selectedFlights, flight]);
+        if (existingFlight && !isInSelected) {
+            setSelectedFlights([...new Set([...selectedFlights, existingFlight])]);
+        }
+
         setFlightNumber('');
     };
 
-    /**
-     * Removes a flight from `selectedFlights`
-     * @param {String} flight Flight number
-     */
     const handleRemoveFlight = (flight) => {
-        setSelectedFlights(selectedFlights.filter(f => f !== flight));
+        setSelectedFlights(selectedFlights.filter(f => {
+            if (typeof f === 'object' && typeof flight === 'object') {
+                return f.id !== flight.id;
+            }
+            return f !== flight;
+        }));
     };
-    
-    const handleEditFare = (fareId) => {
-        console.log("Set editing fare to true")
-        fetchFareToEdit(fareId);
-        setEditingFare(true); // Show the form for editing
-    };
-    
-    // TODO:
-    const handleUpdateFare = async () => {
-        if (!editingFare) {
-            alert("Please select a fare to edit.");
-            return;
+
+    const handleEditFare = async (id) => {
+        try {
+            // Poziv na API da dobijemo detalje o tarifi prema ID-u
+            const response = await fetch(`${apiURL}/Fares/${id}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch fare data.');
+            }
+
+            const fare = await response.json();
+
+            // Postavljamo vrednosti u stanje nakon što smo dobili podatke
+            setEditingFare(id);
+            setNewFare({
+                ...fare,
+                airline: airlines.find(a => a.label === fare.airline),
+                origin: airports.find(a => a.value === fare.origin),
+                destination: airports.find(a => a.value === fare.destination)
+            });
+            setSelectedFlights(fare.flights);
+            setIsAddingNew(true);
+        } catch (error) {
+            console.error('Error fetching fare data:', error);
+            alert('Failed to load fare data for editing.');
         }
-
-        // const updatedFareData = {
-        //     code: newFare.code,
-        //     validFrom: newFare.validFrom,
-        //     validTo: newFare.validTo,
-        //     firstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-        //     businessPrice: parseFloat(newFare.businessPrice) || 0,
-        //     economyPrice: parseFloat(newFare.economyPrice) || 0,
-        //     airline: newFare.airline?.label,
-        //     airlineId: newFare.airline?.value, // ako ti backend koristi ID
-        //     origin: newFare.origin?.value,
-        //     destination: newFare.destination?.value,
-        //     flightIds: selectedFlights.map(flight => flight.id)
-        // };
-
-        // const success = await updateFare(editingFare, updatedFareData);
-
-        // if (success) {
-        //     alert('Fare updated successfully');
-        //     setShowMessage(true);
-        //     setIsAddingNew(false);
-        //     resetForm(); // koristi novu reset funkciju
-        //     setEditingFare(null);
-        // } else {
-        //     alert('Failed to update fare');
-        //     setError('Failed to update fare');
-        //     setShowError(true);
-        // }
     };
+
+    const handleUpdateFare = async () => {
+        try {
+            const fareData = {
+                ...newFare, // Koristimo nove vrednosti koje je korisnik uneo
+                airline: newFare.airline.value, // Ako je "airline" objekat, pretvaramo ga u odgovarajući format
+                origin: newFare.origin.value,   // Isto za origin
+                destination: newFare.destination.value, // I za destination
+            };
+
+            const response = await fetch(`${apiURL}/Fares/${editingFare}`, {
+                method: 'PUT', // Metoda za ažuriranje resursa
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(fareData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update fare.');
+            }
+
+            const updatedFare = await response.json();
+
+            alert('Fare updated successfully.');
+            setIsAddingNew(false);
+            setEditingFare(null);
+            setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
+            await fetchFares(); // Ponovno učitaj sve tarife
+        } catch (error) {
+            console.error('Error updating fare:', error);
+            alert('Failed to update fare.');
+        }
+    };
+
 
     const resetForm = () => {
         setNewFare({
             fareCode: '',
             airline: null, // Must be null for Select
+            flightNumberFrom: '',
+            flightNumberTo: '',
+            origin: '',
+            destination: '',
+            validFrom: '',
+            validTo: '',
+            firstClassPrice: '',
+            businessClassPrice: '',
+            economyClassPrice: ''
+        });
+        setFormData({
+            code: '',
+            airline: '',
             flightNumberFrom: '',
             flightNumberTo: '',
             origin: '',
@@ -554,16 +528,17 @@ function FareManagement() {
     };
 
     // Handle form data change and tracking
-    // const handleInputChange = (key, value) => {
-    //     setEditingFare((prev) => ({
-    //         ...prev,
-    //         [key]: value,
-    //     }));
-    // };
+    const handleInputChange = (key, value) => {
+        setFormData(prev => ({
+            ...prev,
+            [key]: value
+        }));
 
-    // -------------------------------------------------------------------------
-    // Component render
-    // -------------------------------------------------------------------------
+        setEditingFare((prev) => ({
+            ...prev,
+            [key]: value,
+        }));
+    };
 
     return (
         <div className="container">
@@ -591,39 +566,67 @@ function FareManagement() {
                         <label className="form-label">Airline</label>
                         <Select
                             options={airlines}
-                            value={newFare.airline}
-                            onChange={(selected) => setNewFare({ ...newFare, airline: selected })}
-                            styles={selectStyles}
-                            placeholder="Select airline..."
                             isSearchable
-                            isDisabled={!!editingFare || fieldsLocked} //ZAKLJUCAJ SVE
+                            onChange={(selectedOption) => {
+                                setSelectedAirline(selectedOption);
+                                setNewFare({ ...newFare, airline: selectedOption });
+                            }}
+                            placeholder="Search airline..."
+                            value={newFare.airline}
+                            styles={selectStyles}
                         />
                     </div>
 
                     <div className="form-grid">
                         <div className="form-group">
                             <label className="form-label">Flight number from</label>
-                            <input
+                            {/* <input
                                 type="text"
                                 className="form-input"
                                 value={newFare.flightNumberFrom}
                                 onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
                                 placeholder="Start number"
-                                //disabled={!!(newFare.origin || newFare.destination)}
-                                disabled={fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
-                            />
+                                disabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                            /> */}
+                            <div className="flight-number-wrapper">
+                                <span className="flight-prefix">
+                                    {selectedAirline ? `${selectedAirline.iata}-` : ''}
+                                </span>
+                                <input
+                                    type="text"
+                                    className="flight-number-suffix"
+                                    value={newFare.flightNumberFrom} // Remove prefix for input
+                                    onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
+                                    disabled={!selectedAirline}
+                                    placeholder="e.g. 1234"
+                                />
+                            </div>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Flight number to</label>
+                            {/* <label className="form-label">Flight number to</label>
                             <input
-                                type="text"
-                                className="form-input"
+                            type="text"
+                            className="form-input"
                                 value={newFare.flightNumberTo}
                                 onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
                                 placeholder="End number"
                                 //disabled={!!(newFare.origin || newFare.destination)}
-                                disabled={fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
-                            />
+                                disabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                                /> */}
+                            <label className="form-label">Flight number from</label>
+                            <div className="flight-number-wrapper">
+                                <span className="flight-prefix">
+                                    {selectedAirline ? `${selectedAirline.iata}-` : ''}
+                                </span>
+                                <input
+                                    type="text"
+                                    className="flight-number-suffix"
+                                    value={newFare.flightNumberTo} // Remove prefix for input
+                                    onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
+                                    disabled={!selectedAirline}
+                                    placeholder="e.g. 1235"
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -640,8 +643,7 @@ function FareManagement() {
                                 placeholder="Select origin..."
                                 isSearchable
                                 isClearable
-                                //isDisabled={isFlightRangeMode}
-                                isDisabled={fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE
+                                isDisabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE
                             />
                         </div>
                         <div className="form-group">
@@ -656,8 +658,7 @@ function FareManagement() {
                                 placeholder="Select destination..."
                                 isSearchable
                                 isClearable
-                                //isDisabled={isFlightRangeMode}
-                                isDisabled={fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE 
+                                isDisabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE 
                             />
                         </div>
                     </div>
@@ -680,6 +681,7 @@ function FareManagement() {
                                 value={flightNumber}
                                 onChange={(e) => setFlightNumber(e.target.value)}
                                 placeholder="Enter flight number"
+                                disabled={selectedAirline === null}
                             />
                         </div>
                         <button className="btn btn-primary" onClick={handleAddFlight}>
@@ -688,20 +690,84 @@ function FareManagement() {
                     </div>
 
                     {selectedFlights.length > 0 && (
-                        <div className="selected-flights">
-                            <label className="form-label">Selected Flights</label>
-                            <div className="flight-chips">
-                                {selectedFlights.map((flight) => (
-                                    <div key={flight} className="flight-chip">
-                                        {flight}
-                                        <button
-                                            className="flight-chip-remove"
-                                            onClick={() => handleRemoveFlight(flight)}
+                        <div className="selected-flights-container" style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <h4 style={{ margin: 0, color: '#333', fontSize: '1.1rem' }}>Selected Flights ({selectedFlights.length})</h4>
+                            </div>
+                            <div className="flights-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                {selectedFlights.map((flight, index) => {
+                                    // Check if it's a flight object or a string
+                                    const isFlightObject = typeof flight === 'object';
+                                    const flightNumber = isFlightObject ? flight.flightNumber : flight;
+                                    const departureCode = isFlightObject ? flight.departureDestination?.airportCode : '';
+                                    const arrivalCode = isFlightObject ? flight.arrivalDestination?.airportCode : '';
+                                    const hasFare = isFlightObject && flight.fareId;
+
+                                    return (
+                                        <div
+                                            key={index}
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '0.75rem',
+                                                marginBottom: '0.5rem',
+                                                backgroundColor: 'white',
+                                                borderRadius: '6px',
+                                                border: '1px solid #e9ecef',
+                                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                                            }}
                                         >
-                                            ×
-                                        </button>
-                                    </div>
-                                ))}
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: '600', color: '#2c3e50', marginBottom: '0.25rem' }}>
+                                                    {flightNumber}
+                                                </div>
+                                                {isFlightObject && (
+                                                    <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                                                        {departureCode} → {arrivalCode}
+                                                        {hasFare && (
+                                                            <span style={{
+                                                                marginLeft: '0.5rem',
+                                                                padding: '0.25rem 0.5rem',
+                                                                backgroundColor: '#f8d7da',
+                                                                color: '#721c24',
+                                                                fontSize: '0.75rem',
+                                                                borderRadius: '4px',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                Fare Already Applied
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {!isFlightObject && (
+                                                    <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                                                        Manual entry - details unavailable
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemoveFlight(flight)}
+                                                style={{
+                                                    padding: '0.5rem',
+                                                    backgroundColor: '#dc3545',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    transition: 'background-color 0.2s'
+                                                }}
+                                                onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
+                                                onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
