@@ -1,4 +1,5 @@
 { 
+    "loyaltyPointsValue" : "loyalty points",
     "notAvailable" : "Not available",
     "noFlightsFound" : "No flights found.",
     "faresValidValue" : "Valid: {value}",

@@ -101,8 +101,8 @@ function Profile() {
         </div>
 
         <div className="profile-field">
-          <label>Loyalty Points</label>
-          <div className="field-value">{userData.loyaltyPoints} Loyalty Points</div>
+          <label>{t("loyaltyPoints")}</label>
+          <div className="field-value">{userData.loyaltyPoints} {t("loyaltyPointsValue")}</div>
         </div>
 
         <div className="profile-field">

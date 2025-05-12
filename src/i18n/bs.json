@@ -1,4 +1,5 @@
 {  
+    "loyaltyPointsValue" : "bodova vjernosti",
     "notAvailable" : "Nije dostupno",
     "noFlightsFound" : "Nije pronađen nijedan let.",
     "faresValidValue" : "Važi: {value}",
