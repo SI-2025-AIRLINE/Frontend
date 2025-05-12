@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Header from '../../components/Header/Header';
 import './UpdateDetails.css';
 import { useNavigate } from 'react-router-dom';
-
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const UpdateDetails = () => {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -25,7 +29,7 @@ const UpdateDetails = () => {
     if (storedToken) {
       setToken(storedToken);
     } else {
-      setErrorMessage('Authentication token not found.');
+      setErrorMessage(`${t("authTokenNotFound")}.`);
     }
   }, []);
 
@@ -40,7 +44,7 @@ const UpdateDetails = () => {
     if (formData.password.trim() !== '') payload.password = formData.password;
   
     if (Object.keys(payload).length === 0) {
-      setErrorMessage('Please fill in at least one field to update.');
+      setErrorMessage(`${t("fillAtleastOneFieldMsg")}.`);
       setSuccessMessage('');
       return;
     }
@@ -57,11 +61,11 @@ const UpdateDetails = () => {
   
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Something went wrong.');
+        throw new Error(errorData.message || `${t("smthWentWrong")}.`);
       }
   
       const result = await response.text();
-      setSuccessMessage(result || 'Profile updated successfully!');
+      setSuccessMessage(result || `${t("profileUpdatedSuccessfully")}`);
       setErrorMessage('');
       console.log('Server response:', result);
     } catch (error) {
@@ -84,7 +88,7 @@ const UpdateDetails = () => {
     <div className="update-details-container">
       
       <div className="update-form-container">
-        <h2>Update Profile</h2>
+        <h2>{t("updateProfile")}</h2>
         {successMessage && <p className="success-message">{successMessage}</p>}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
@@ -94,7 +98,7 @@ const UpdateDetails = () => {
               <input
                 type="text"
                 name="name"
-                placeholder="Name"
+                placeholder={t("firstName")}
                 value={formData.name}
                 onChange={handleChange}
               
@@ -104,7 +108,7 @@ const UpdateDetails = () => {
               <input
                 type="text"
                 name="surname"
-                placeholder="Surname"
+                placeholder={t("lastName")}
                 value={formData.surname}
                 onChange={handleChange}
                 
@@ -114,7 +118,7 @@ const UpdateDetails = () => {
               <input
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder={t("email")}
                 value={formData.email}
                 onChange={handleChange}
                 
@@ -124,17 +128,17 @@ const UpdateDetails = () => {
               <input
                 type="password"
                 name="password"
-                placeholder="New Password"
+                placeholder={t("newPassword")}
                 value={formData.password}
                 onChange={handleChange}
               />
             </div>
-            <button type="submit" className="update-button">Update Profile</button>
-            <button type="submit" className="update-button" onClick={() => navigate('/profile')}>Back to Profile</button>
-            <p className="info-note">Leave fields empty if you don't want to change them.</p>
+            <button type="submit" className="update-button">{t("updateProfile")}</button>
+            <button type="submit" className="update-button" onClick={() => navigate('/profile')}>{t("backToProfile")}</button>
+            <p className="info-note">{t("leaveFieldsEmptyMsg")}</p>
           </form>
         ) : (
-          <p className="not-logged-in">Please log in to access this page.</p>
+          <p className="not-logged-in">{t("pleaseLogIn")}</p>
         )}
       </div>
     </div>

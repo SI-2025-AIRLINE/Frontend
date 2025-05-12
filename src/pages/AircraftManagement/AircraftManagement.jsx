@@ -26,6 +26,9 @@ function AircraftManagement() {
 
     const [message, setMessage] = useState(null);
     const [showMessage, setShowMessage] = useState(false);
+
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
   
   // For pagination
   const [pageNumber, setPageNumber] = useState(1);
@@ -313,26 +316,32 @@ function AircraftManagement() {
     }
   };
 
-  const handleDeleteAircraft = async (id) => {
-    if (window.confirm('Are you sure you want to delete this aircraft?')) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/Aircraft/${id}`, {
-          method: 'DELETE'
-        });
 
-        if (!response.ok) {
-          throw new Error(`Failed to delete aircraft: ${response.statusText}`);
-        }
-        
-        // Refresh the aircraft list
-        fetchAircraft();
-        
-      } catch (err) {
-        setError(err.message);
-        console.error('Error deleting aircraft:', err);
-      }
+    function confirmModal(actionToRun) {
+        setConfirmAction(() => actionToRun);
+        setShowConfirm(true);
     }
+  const handleDeleteAircraft = async (id) => {
+      confirmModal(async () => {
+          try {
+              const response = await fetch(`${API_BASE_URL}/Aircraft/${id}`, {
+                  method: 'DELETE'
+              });
+
+              if (!response.ok) {
+                  throw new Error(`Failed to delete aircraft: ${response.statusText}`);
+              }
+
+              // Refresh the aircraft list
+              fetchAircraft();
+
+          } catch (err) {
+              setError(err.message);
+              console.error('Error deleting aircraft:', err);
+          }
+      });
   };
+
 
   // Reset the form when exiting add/edit mode
   const handleCancel = () => {
@@ -545,26 +554,51 @@ function AircraftManagement() {
           {/* Error States */}
 
           {error && showError && (
-              <div className="modal-overlay">
-                  <div className="error-modal">
+              <div className="modal-overlay-aircraft">
+                  <div className="error-modal-aircraft">
                       <p>{error}</p>
-                      <button onClick={() => setShowError(false)} className="modal-close-btn">
-                          OK!
+                      <button onClick={() => setShowError(false)} className="modal-close-btn-aircraft">
+                          OK
                       </button>
                   </div>
               </div>
           )}
 
           {message && showMessage && (
-              <div className="modal-overlay">
-                  <div className="message-modal">
+              <div className="modal-overlay-aircraft">
+                  <div className="message-moda-aircraftl">
                       <p>{message}</p>
-                      <button onClick={() => setShowMessage(false)} className="modal-close-btn">
-                          OK!
+                      <button onClick={() => setShowMessage(false)} className="modal-close-btn-aircraft">
+                          OK
                       </button>
                   </div>
               </div>
 
+          )}
+
+          {showConfirm && (
+              <div className="modal-overlay">
+                  <div className="confirm-modal">
+                      <p>Are you sure you want to delete this aircraft?</p>
+                      <div className="modal-buttons">
+                          <button
+                              className="modal-close-btn"
+                              onClick={() => {
+                                  confirmAction(); // Poziva funkciju ako user potvrdi
+                                  setShowConfirm(false);
+                              }}
+                          >
+                              Yes
+                          </button>
+                          <button
+                              className="modal-close-btn"
+                              onClick={() => setShowConfirm(false)}
+                          >
+                              Cancel
+                          </button>
+                      </div>
+                  </div>
+              </div>
           )}
 
     

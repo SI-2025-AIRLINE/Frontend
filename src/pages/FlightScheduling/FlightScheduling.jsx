@@ -506,11 +506,12 @@ function FlightScheduling() {
     const statusMap = {
         0: 'Scheduled',
         1: 'Departed',
-        2: 'InAir',
+        2: 'In Air',
         3: 'Landed',
         4: 'Delayed',
         5: 'Cancelled',
-        6: 'Diverted'
+        6: 'Diverted', 
+        7: 'Flown'
     };
     
     const [allDestinations, setAllDestinations] = useState([]);
@@ -979,22 +980,22 @@ function FlightScheduling() {
             {/* Error States */}
 
             {error && showError && (
-                <div className="modal-overlay">
-                    <div className="error-modal">
+                <div className="modal-overlay-flightScheduling">
+                    <div className="error-modal-flightScheduling">
                         <p>{error}</p>
-                        <button onClick={() => setShowError(false)} className="modal-close-btn">
-                            OK!
+                        <button onClick={() => setShowError(false)} className="modal-close-btn-flightScheduling">
+                            OK
                         </button>
                     </div>
                 </div>
             )}
 
             {message && showMessage && (
-                <div className="modal-overlay">
-                    <div className="message-modal">
+                <div className="modal-overlay-flightScheduling">
+                    <div className="message-modal-flightScheduling">
                         <p>{message}</p>
-                        <button onClick={() => setShowMessage(false)} className="modal-close-btn">
-                            OK!
+                        <button onClick={() => setShowMessage(false)} className="modal-close-btn-flightScheduling">
+                            OK
                         </button>
                     </div>
                 </div>

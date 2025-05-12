@@ -270,24 +270,34 @@ function FareManagement() {
 
     const handleAddFare = async () => {
         if (!selectedFlights || selectedFlights.length === 0) {
-            alert("Please select or add flights.");
+            //alert("Please select or add flights.");
+            setError("Please select or add flights.");
+            setShowError(true);
             return;
         }
 
         if( !newFare.validFrom || !newFare.validTo) {
-            alert("Please select valid dates.");
+            //alert("Please select valid dates.");
+            setError("Please select valid dates.");
+            setShowError(true);
             return;
         }
         if (!newFare.firstClassPrice && !newFare.businessClassPrice && !newFare.economyClassPrice) {
-            alert("Please enter at least one fare price.");
+            //alert("Please enter at least one fare price.");
+            setError("Please enter at least one fare price.");
+            setShowError(true);
             return;
         }
         if (newFare.validFrom > newFare.validTo) {
-            alert("Valid From date cannot be later than Valid To date.");
+            //alert("Valid From date cannot be later than Valid To date.");
+            setError("Valid From date cannot be later than Valid To date.");
+            setShowError(true);
             return;
         }
         if (newFare.validFrom < new Date().toISOString().split("T")[0]) {
-            alert("Valid From date cannot be in the past.");
+            //alert("Valid From date cannot be in the past.");
+            setError("Valid From date cannot be in the past.");
+            setShowError(true);
             return;
         }           
 
@@ -349,7 +359,8 @@ function FareManagement() {
             const result = await createFare(fareData);
 
             if (result) {
-                alert("Fare successfully added to flight(s).");
+                //alert("Fare successfully added to flight(s).");
+                setMessage("Fare successfully added to flight(s).");
                 setShowMessage(true);
                 setIsAddingNew(false);
                 setEditingFare(null);
@@ -359,7 +370,7 @@ function FareManagement() {
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to save fare.");
+            //alert("Failed to save fare.");
             setError(err.message);
             setShowError(true);
             resetForm();
@@ -392,18 +403,17 @@ function FareManagement() {
     };
 
     const handleAddFlights = () => {
+        const prefix = newFare.airline.iata;
+        console.log("Prefix:", prefix);
+        
+        let airlineFlights = flights.filter(flight => flight.flightNumber.startsWith(prefix));
+        console.log("Airline flights:", airlineFlights);
+        
         if (isFlightRangeMode) {
             if (!newFare.flightNumberFrom || !newFare.flightNumberTo || !newFare.airline) return;
 
-            const prefix = newFare.airline.iata;
-            console.log("Prefix:", prefix);
-
             const start = parseInt(newFare.flightNumberFrom);
             const end = parseInt(newFare.flightNumberTo);
-
-            // flightnumber: "{prefix}-XXXXX"
-            let airlineFlights = flights.filter(flight => flight.flightNumber.startsWith(prefix));
-            console.log("Airline flights:", airlineFlights);
 
             const affectedFlights = airlineFlights.filter(flight => {
                 const flightNumber = parseInt(flight.flightNumber.replace(prefix + "-", ''));
@@ -412,6 +422,13 @@ function FareManagement() {
 
             console.log("Affected flights:", affectedFlights);
 
+            if(affectedFlights.length === 0) {
+                //alert("No flights found in the specified range.");
+                setError("No flights found in the specified range.");
+                setShowError(true);
+                return;
+            }
+
             // Use flight objects instead of strings
             setSelectedFlights([...new Set([...selectedFlights, ...affectedFlights])]);
 
@@ -419,15 +436,22 @@ function FareManagement() {
             if (!newFare.origin || !newFare.destination || !newFare.airline) return;
 
             // Find flights that match origin and destination
-            const matchingFlights = flights.filter(flight => {
+            const matchingFlights = airlineFlights.filter(flight => {
                 const departure = flight.departureDestination?.cityCode || flight.departureDestination?.airportCode;
                 const arrival = flight.arrivalDestination?.cityCode || flight.arrivalDestination?.airportCode;
                 return departure === newFare.origin && arrival === newFare.destination;
             });
+            console.log("Matching flights:", matchingFlights);
+            if (matchingFlights.length === 0) {
+                //alert("No flights found for the selected origin and destination.");
+                setError("No flights found for the selected origin and destination.");
+                setShowError(true);
+                return;
+            }
 
             setSelectedFlights([...new Set([...selectedFlights, ...matchingFlights])]);
         }
-
+        
         setIsFlightRangeMode(false);
         setFieldsLocked(true); // ZAKLJUČAJ SVE
     };
@@ -476,7 +500,9 @@ function FareManagement() {
             setEditingFare(true);
         } catch (error) {
             console.error('Error fetching fare data:', error);
-            alert('Failed to load fare data for editing.');
+            //alert('Failed to load fare data for editing.');
+            setError('Failed to load fare data for editing.');
+            setShowError(true);
         }
     };
 
@@ -686,7 +712,8 @@ function FareManagement() {
                     </div>
 
                     {((newFare.flightNumberFrom && newFare.flightNumberTo) ||
-                        (newFare.origin && newFare.destination)) && !fieldsLocked && (
+                        (newFare.origin && newFare.destination)) && 
+                        (selectedFlights.length === 0 || !fieldsLocked) && (
                             <div className="form-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <button className="btn btn-primary" onClick={handleAddFlights}>
                                     Add Flights
@@ -793,6 +820,13 @@ function FareManagement() {
                             </div>
                         </div>
                     )}
+
+                    {selectedFlights.length == 0 && (
+                        <div className="no-flights-message" style={{ marginTop: '1.5rem', marginBottom: '1.5rem', color: 'rgb(220, 53, 69)' }}>
+                            No flights selected. Please add flights to proceed.
+                        </div>
+                    )}
+                    
 
                     <div className="form-grid">
                         <div className="form-group">
@@ -973,6 +1007,29 @@ function FareManagement() {
                   </div>
               </div>
           )}
+
+            {error && showError && (
+                <div className="modal-overlay-flightScheduling">
+                    <div className="error-modal-flightScheduling">
+                        <p>{error}</p>
+                        <button onClick={() => setShowError(false)} className="modal-close-btn-flightScheduling">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {message && showMessage && (
+                <div className="modal-overlay-flightScheduling">
+                    <div className="message-modal-flightScheduling">
+                        <p>{message}</p>
+                        <button onClick={() => setShowMessage(false)} className="modal-close-btn-flightScheduling">
+                            OK
+                        </button>
+                    </div>
+                </div>
+
+            )}
 
             <div className="table-container">
                 <table className="table">

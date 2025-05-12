@@ -1,0 +1,52 @@
+.language-selector-container {
+  position: relative;
+  display: inline-block;
+}
+
+.language-selector-button {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.language-selector-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.menu-items {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0); /* potpuno transparentna pozadina */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: max-content;
+  backdrop-filter: blur(4px); /* mutna pozadina – efekat stakla */
+}
+
+.menu-items button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background-color: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-items button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.checkmark {
+  margin-right: 6px;
+  color: #00ff99; /* Svijetlozelena kvaka */
+  font-weight: bold;
+}

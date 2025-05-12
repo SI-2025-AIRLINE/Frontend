@@ -227,3 +227,93 @@
   .flight-chip-remove:hover {
     color: var(--danger-color);
   }
+
+
+
+.modal-overlay-fare {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Tamna pozadina */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+
+
+.error-modal-fare {
+    background-color: #fff;
+    padding: 25px 35px;
+    border-radius: 12px;
+    border: 3px solid #c23c3c;
+    box-shadow: 0 0 20px rgba(255, 26, 26, 0.3), 0 0 35px rgba(255, 26, 26, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+    .error-modal-fare p {
+        color: #111827;
+        font-weight: 500;
+        margin-bottom: 20px;
+        font-style: italic;
+    }
+
+.message-modal-fare {
+    background-color: #fff;
+    padding: 25px 35px;
+    border-radius: 12px;
+    border: 3px solid #3cc260;
+    box-shadow: 0 0 20px rgba(0, 200, 0, 0.3), 0 0 35px rgba(0, 200, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+
+    .message-modal-fare p {
+        color: #111827;
+        font-weight: 500;
+        margin-bottom: 20px;
+        font-style: italic;
+    }
+
+.modal-close-btn-fare {
+    background-color: #cecece;
+    color: black;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+    .modal-close-btn-fare:hover {
+        background-color: #a1a1a1;
+    }
+
+.confirm-modal-fare {
+    background-color: #fff;
+    padding: 25px 35px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+    .confirm-modal-fare p {
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+.modal-buttons-fare {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

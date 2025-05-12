@@ -262,7 +262,7 @@
 /*messages*/
 
 
-.modal-overlay {
+.modal-overlay-flightScheduling {
     position: fixed;
     top: 0;
     left: 0;
@@ -275,39 +275,43 @@
     z-index: 9999;
 }
 
-.error-modal {
+.error-modal-flightScheduling {
     background-color: #fff;
     padding: 25px 35px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 3px solid #ff6161;
+    box-shadow: 0 0 20px rgba(177, 57, 57, 0.3), 0 0 35px rgba(255, 26, 26, 0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
 }
 
-    .error-modal p {
-        color: red;
-        font-weight: bold;
+    .error-modal-flightScheduling p {
+        color: #111827;
+        font-weight: 500;
         margin-bottom: 20px;
+        font-style: italic;
     }
 
-.message-modal {
+.message-modal-flightScheduling {
     background-color: #fff;
     padding: 25px 35px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 3px solid #539b67;
+    box-shadow: 0 0 20px rgba(97, 182, 141, 0.3), 0 0 35px rgba(0, 200, 0, 0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
 }
 
-    .message-modal p {
-        color: green;
-        font-weight: bold;
+    .message-modal-flightScheduling p {
+        color: #111827;
+        font-weight: 500;
         margin-bottom: 20px;
+        font-style: italic;
     }
 
-.modal-close-btn {
+.modal-close-btn-flightScheduling {
     background-color: #cecece;
     color: black;
     padding: 10px 18px;
@@ -318,7 +322,7 @@
     transition: background-color 0.3s ease;
 }
 
-    .modal-close-btn:hover {
+    .modal-close-btn-flightScheduling:hover {
         background-color: #a1a1a1;
     }
 
@@ -381,4 +385,9 @@
 .status-info.status-6 {
     color: #6f42c1; /*ljubicasta*/
 }
+
+.status-info.status-7 {
+    color: #6c757d; /*siva*/
+}
+
 

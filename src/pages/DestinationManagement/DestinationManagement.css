@@ -134,13 +134,13 @@ body {
         opacity: 0.9;
     }
 
-/* Loading & Error */
+/* Loading & Error 
 .loading-message, .error-message {
     margin: 1rem 0;
     font-style: italic;
     color: var(--danger-color);
 }
-
+    */
 /* Table-style list */
 .airports-list {
     background-color: white;
@@ -231,7 +231,7 @@ body {
         font-weight: bold;
         padding: 10px;
     }
-
+    /*
 
 .error-messages, .loading-message {
     background-color: #edecec;
@@ -239,7 +239,7 @@ body {
     font-size: 14px;
     margin-top: 10px;
     padding: 0.5rem;
-}
+}*/
 
 
 .inactive-row {
@@ -262,36 +262,44 @@ body {
     z-index: 9999;
 }
 
+
+
 .error-modal {
     background-color: #fff;
     padding: 25px 35px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 3px solid #c23c3c;
+    box-shadow: 0 0 20px rgba(255, 26, 26, 0.3), 0 0 35px rgba(255, 26, 26, 0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
+  
 }
 
     .error-modal p {
-        color: red;
-        font-weight: bold;
+        color: #111827;
+        font-weight: 500;
         margin-bottom: 20px;
+        font-style: italic;
     }
 
 .message-modal {
     background-color: #fff;
     padding: 25px 35px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 3px solid #3cc260;
+    box-shadow: 0 0 20px rgba(0, 200, 0, 0.3), 0 0 35px rgba(0, 200, 0, 0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
 }
 
+
     .message-modal p {
-        color: green;
-        font-weight: bold;
+        color: #111827;
+        font-weight: 500;
         margin-bottom: 20px;
+        font-style: italic;
     }
 
 .modal-close-btn {
