@@ -1,7 +1,12 @@
 import './VisualSeatSelection.css';
-import { useState } from 'react';
+import { useState, useContext} from 'react';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function VisualSeatSelection(props) {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const rawSeatsData = JSON.parse(sessionStorage.getItem('seats') || '[]');
   const classPriority = { 'First Class': 0, 'Business': 1, 'Economy': 2 };
 
@@ -23,7 +28,7 @@ export default function VisualSeatSelection(props) {
   const classIndex = classMap[classType];
 
   if (classIndex === undefined || classIndex >= seatsData.length) {
-    return <p style={{ color: 'red' }}>No seat map available for class "{classType}"</p>;
+    return <p style={{ color: 'red' }}>{`${t("noSeatMapAvailableForClass", {value: classType})}`}</p>;
   }
 
   const { rowCount, seatsPerRow } = seatsData[classIndex];
@@ -45,7 +50,7 @@ export default function VisualSeatSelection(props) {
 
   const handleSeatSelection = seatLabel => {
     if (takenSeats.includes(seatLabel)) {
-      alert('This seat is already taken. Please select another.');
+      alert(`${t("seatAlreadyTaken")}.`);
       return;
     }
     setSelectedSeat(seatLabel);
@@ -69,7 +74,8 @@ export default function VisualSeatSelection(props) {
     else if (isTakenByOthers) seatClass += ' taken';
     else if (isSelected) seatClass += ' selected';
     else seatClass += ' available';
-  
+
+    //vidjet da ovime nisam nesto zajebo
     return (
       <button
         key={seatLabel}
@@ -78,12 +84,12 @@ export default function VisualSeatSelection(props) {
         disabled={isBooked || isTakenByOthers}
         title={
           isBooked
-            ? 'Already booked'
+            ? `${t("alreadyBooked")}`
             : isTakenByOthers
-            ? 'Taken by another passenger'
+            ? `${t("takenByOthers")}`
             : isSelected
-            ? 'Your selected seat'
-            : 'Available'
+            ? `${t("yourSelectedSeat")}`
+            : `${t("available")}`
         }
       >
         {seatLabel}
@@ -96,10 +102,10 @@ export default function VisualSeatSelection(props) {
     <>
     <div className="visual-seat-selection">
           <div id="Header">
-        <h1 id="HeaderTitle">Choose your seat:</h1>
+        <h1 id="HeaderTitle">{`${t("chooseYourSeat")}:`}</h1>
         { selectedSeat && (
           <p style={{ color: '#333', textAlign: 'center' }}>
-            Selected Seat: <strong>{selectedSeat}</strong>
+           {`${t("selectedSeat")}:`} <strong>{selectedSeat}</strong>
           </p>
         )}
       </div>

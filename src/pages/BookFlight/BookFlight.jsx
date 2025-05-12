@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import './BookFlight.css';
 import VisualSeatSelection from './VisualSeatSelection.jsx';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function BookFlight() {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const [step, setStep] = useState('passengers');
   const [passengerCount, setPassengerCount] = useState({ adults: 1, children: 0 });
   const [currentPassenger, setCurrentPassenger] = useState(0);
@@ -164,7 +169,7 @@ export default function BookFlight() {
         setCurrentPassenger(0);
         setStep('details');
       } else {
-        alert(`Not enough seats available in ${value}.`);
+        alert(`${t("noSeatsAvailableInClass", {value: value})}`);
       }
       return;
     }
@@ -184,7 +189,7 @@ export default function BookFlight() {
           <h2>SI 2025 Airline</h2>
         </div>
         <div className="pass-labels">
-          <span className="boarding-label">Boarding pass</span>
+          <span className="boarding-label">{t("boardingPass")}</span>
           <span className="class-type">{passenger.class.replace('_', ' ')}</span>
         </div>
       </div>
@@ -193,42 +198,42 @@ export default function BookFlight() {
           <div className="barcode"></div>
           <div className="passenger-details">
             <div className="detail-group">
-              <span className="label">Passenger name</span>
+              <span className="label">{t("cardPassengerName")}</span>
               <span className="value">
                 {passenger.name.toUpperCase()} {passenger.surname.toUpperCase()}
               </span>
             </div>
             <div className="detail-group">
-              <span className="label">From</span>
+              <span className="label">{t("from")}</span>
               <span className="value">{flightData.from}</span>
             </div>
             <div className="detail-group">
-              <span className="label">To</span>
+              <span className="label">{t("to")}</span>
               <span className="value">{flightData.to}</span>
             </div>
           </div>
         </div>
         <div className="middle-section">
           <div className="detail-group">
-            <span className="label">Date</span>
+            <span className="label">{t("date")}</span>
             <span className="value">{flightData.date}</span>
           </div>
           <div className="detail-group">
-            <span className="label">Flight</span>
+            <span className="label">{t("flight")}</span>
             <span className="value">{flightData.flight}</span>
           </div>
         </div>
         <div className="right-section">
           <div className="detail-group">
-            <span className="label">Time</span>
+            <span className="label">{t("time")}</span>
             <span className="value">{flightData.time}</span>
           </div>
           <div className="detail-group">
-            <span className="label">Seat</span>
+            <span className="label">{t("seat")}</span>
             <span className="value">{passenger.seat}</span>
           </div>
           <div className="detail-group">
-            <span className="label">Board till</span>
+            <span className="label">{t("boardTill")}</span>
             <span className="value">{flightData.boardTill}</span>
           </div>
         </div>
@@ -252,7 +257,7 @@ export default function BookFlight() {
             className="submit-button"
             onClick={() => window.location.href = '/flight-search'}
           >
-            Finalize
+            {t("finalize")}
           </button>
         </div>
       </div>
@@ -264,10 +269,10 @@ export default function BookFlight() {
   if (step === 'passengers') {
     return (
       <div className="passenger-count-container">
-      <h2>How many passengers?</h2>
+      <h2>{t("howManyPassengers")}</h2>
       <div className="passenger-inputs">
         <div>
-          <label>Adults:</label>
+          <label>{`${t("adults")}:`}</label>
           <input
             type="number"
             min="1"
@@ -282,7 +287,7 @@ export default function BookFlight() {
           />
         </div>
         <div>
-          <label>Children:</label>
+          <label>{`${t("children")}:`}</label>
           <input
             type="number"
             min="0"
@@ -299,7 +304,7 @@ export default function BookFlight() {
       </div>
 
       {totalPassengerss > 5 && (
-        <p style={{ color: "red" }}>Maximum number of passengers is 5.</p>
+        <p style={{ color: "red" }}>{`${t("maxNoOfPassengersMsg")}.`}</p>
       )}
 
       <button
@@ -307,7 +312,7 @@ export default function BookFlight() {
         onClick={handlePassengerCountSubmit}
         disabled={totalPassengerss > 5}
       >
-        Continue
+        {t("continue")}
       </button>
     </div>
     );
@@ -356,13 +361,13 @@ export default function BookFlight() {
           <div className="flight-info">
             <div className="passenger-info">
               <h3>
-                Passenger {currentPassenger + 1} of {totalPassengers}
+                {`${t("passengerXofTotal", {X: (currentPassenger+1), total: totalPassengers})}`}
               </h3>
               <form
                 onSubmit={e => {
                   e.preventDefault();
                   if (!passenger.seat) {
-                    alert('Please select a seat before proceeding.');
+                    alert(`${t("pleaseSelectASeat")}.`);
                     return;
                   }
                   handlePassengerDetailsSubmit(passenger);
@@ -371,14 +376,14 @@ export default function BookFlight() {
                 <div className="form-group">
                   <input
                     type="text"
-                    placeholder="First Name"
+                    placeholder={t("firstName")}
                     required
                     value={passenger.name}
                     onChange={e => handlePassengerInputChange('name', e.target.value)}
                   />
                   <input
                     type="text"
-                    placeholder="Last Name"
+                    placeholder={t("lastName")}
                     required
                     value={passenger.surname}
                     onChange={e => handlePassengerInputChange('surname', e.target.value)}
@@ -412,9 +417,9 @@ export default function BookFlight() {
           value={passenger.gender}
           onChange={e => handlePassengerInputChange('gender', e.target.value)}
         >
-          <option value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
+          <option value="">{t("selectGender")}</option>
+          <option value="male">{t("male")}</option>
+          <option value="female">{t("female")}</option>
         </select>
       </>
     );
@@ -423,7 +428,7 @@ export default function BookFlight() {
                 <div className="form-group">
                   <input
                     type="email"
-                    placeholder="Email"
+                    placeholder={t("email")}
                     required
                     value={passenger.email}
                     onChange={e => handlePassengerInputChange('email', e.target.value)}
@@ -431,36 +436,36 @@ export default function BookFlight() {
                 </div>
                 <div className="flight-details">
                   <div>
-                    <p>From: {flightData.from}</p>
-                    <p>To: {flightData.to}</p>
+                    <p>{`${t("fromValue", {value: flightData.from})}`}</p>
+                    <p>{`${t("toValue", {value: flightData.to})}`}</p>
                   </div>
                   <div>
-                    <p>Date: {flightData.date}</p>
-                    <p>Time: {flightData.time}</p>
+                    <p>{`${t("dateValue", {value: flightData.date})}`}</p>
+                    <p>{`${t("timeValue", {value: flightData.time})}`}</p>
                   </div>
                   <div>
-                    <p>Flight: {flightData.flight}</p>
+                    <p>{`${t("flightValue", {value: flightData.flight})}`}</p>
                    
                   </div>
                   <div>
-  <p>Price: {localStorage.getItem('selectedPrice') ? `$${localStorage.getItem('selectedPrice')}` : 'Loading...'}</p>
+  <p>{`${t("priceValue", {value: localStorage.getItem('selectedPrice') ? `$${localStorage.getItem('selectedPrice')}` : `${t("loading")}...`})}`}</p>
 </div>
 
                   <div className="seat-group">
                     <button type="button" className="seat-button" onClick={handleSeatSelection}>
-                      Select Seat
+                      {t("selectSeat")}
                     </button>
                   </div>
                   {passenger.seat && (
                     <div>
                       <p className="seat-info">
-                        Selected seat: <strong>{passenger.seat}</strong>
+                        {`${t("selectedSeat")}:`} <strong>{passenger.seat}</strong>
                       </p>
                     </div>
                   )}
                 </div>
                 <button className="update-button">
-                  {currentPassenger < totalPassengers - 1 ? 'Next Passenger' : 'Complete Booking'}
+                  {currentPassenger < totalPassengers - 1 ? `${t("nextPassenger")}` : `${t("completeBooking")}`}
                 </button>
               </form>
             </div>
