@@ -16,7 +16,8 @@ function Profile() {
     lastName: '',
     email: '',
     username: '',
-    password: '********'
+    password: '********',
+    loyaltyPoints: '',
   });
   const navigate = useNavigate();
 
@@ -57,6 +58,7 @@ function Profile() {
         email: data.email,
         username: data.username,
         password: '********', // Hide password for security reasons
+        loyaltyPoints: data.loyaltyPoints || '0', // Default to 0 if not available
       });
     } catch (error) {
       console.error('Error fetching user data:', error.message);
@@ -99,9 +101,15 @@ function Profile() {
         </div>
 
         <div className="profile-field">
+          <label>Loyalty Points</label>
+          <div className="field-value">{userData.loyaltyPoints} Loyalty Points</div>
+        </div>
+
+        <div className="profile-field">
           <label>{t("password")}</label>
           <div className="field-value">{userData.password}</div>
         </div>
+        
 
         <button className="update-button" onClick={handleUpdateProfile}>
         
