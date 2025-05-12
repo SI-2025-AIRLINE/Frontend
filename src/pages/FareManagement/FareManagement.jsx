@@ -480,7 +480,9 @@ function FareManagement() {
             setIsAddingNew(true);
         } catch (error) {
             console.error('Error fetching fare data:', error);
-            alert('Failed to load fare data for editing.');
+            //alert('Failed to load fare data for editing.');
+            setError('Failed to load fare data for editing.');
+            setShowError(true);
         }
     };
 
