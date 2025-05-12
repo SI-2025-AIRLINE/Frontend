@@ -8,9 +8,17 @@ const translations = { en, bs };
 export const useTranslation = () => {
   const { language } = useContext(LanguageContext);
 
-  const t = (key) => {
-    return translations[language]?.[key] || key;
-  };
+  const t = (key, variables = {}) => {
+  let translation = translations[language]?.[key] || key;
+
+  // Zamjena {imeVarijable} sa vrijednostima
+  Object.keys(variables).forEach(varKey => {
+    const regex = new RegExp(`{${varKey}}`, 'g');
+    translation = translation.replace(regex, variables[varKey]);
+  });
+
+  return translation;
+};
 
   return { t, language };
 };

@@ -322,56 +322,58 @@ const [filteredDestinations, setFilteredDestinations] = useState([]);
         ********************************/}
      <div className="FlightSearchDiv">
       {/* From where? */}
-      <div className="input-wrapper" style={{ position: "relative", flex: 1 }}>
-        <input
-          type="text"
-          placeholder={t("searchFrom")}
-          onChange={handleOriginChange}
-          value={originAirport}
-        />
-        {filteredOrigins.length > 0 && (
-          <ul className="autocomplete-list" style={{ position: 'absolute', backgroundColor: 'white', zIndex: 10 }}>
-            {filteredOrigins.map((d, i) => (
-              <li
-                key={i}
-                onClick={() => {
-                  setOriginAirport(d.label);
-                  setFilteredOrigins([]);
-                }}
-                style={{ cursor: 'pointer', padding: '5px 10px' }}
-              >
-                {d.label}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+<div className="input-wrapper" style={{ position: "relative", flex: 1 }}>
+  <input
+    type="text"
+    placeholder={t("searchFrom")}
+    onChange={handleOriginChange}
+    value={originAirport}
+    onBlur={() => setTimeout(() => setFilteredOrigins([]), 100)}
+  />
+  {filteredOrigins.length > 0 && (
+    <ul className="autocomplete-list" style={{ position: 'absolute', backgroundColor: 'white', zIndex: 10 }}>
+      {filteredOrigins.map((d, i) => (
+        <li
+          key={i}
+          onClick={() => {
+            setOriginAirport(d.label);
+            setFilteredOrigins([]);
+          }}
+          style={{ cursor: 'pointer', padding: '5px 10px' }}
+        >
+          {d.label}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-      {/* To where? */}
-      <div className="input-wrapper" style={{ position: "relative", flex: 1 }}>
-        <input
-          type="text"
-          placeholder={t("searchTo")}
-          onChange={handleDestinationChange}
-          value={destinationAirport}
-        />
-        {filteredDestinations.length > 0 && (
-          <ul className="autocomplete-list" style={{ position: 'absolute', backgroundColor: 'white', zIndex: 10 }}>
-            {filteredDestinations.map((d, i) => (
-              <li
-                key={i}
-                onClick={() => {
-                  setDestinationAirport(d.label);
-                  setFilteredDestinations([]);
-                }}
-                style={{ cursor: 'pointer', padding: '5px 10px' }}
-              >
-                {d.label}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+{/* To where? */}
+<div className="input-wrapper" style={{ position: "relative", flex: 1 }}>
+  <input
+    type="text"
+    placeholder={t("searchTo")}
+    onChange={handleDestinationChange}
+    value={destinationAirport}
+    onBlur={() => setTimeout(() => setFilteredDestinations([]), 100)}
+  />
+  {filteredDestinations.length > 0 && (
+    <ul className="autocomplete-list" style={{ position: 'absolute', backgroundColor: 'white', zIndex: 10 }}>
+      {filteredDestinations.map((d, i) => (
+        <li
+          key={i}
+          onClick={() => {
+            setDestinationAirport(d.label);
+            setFilteredDestinations([]);
+          }}
+          style={{ cursor: 'pointer', padding: '5px 10px' }}
+        >
+          {d.label}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
   
 
 
@@ -526,43 +528,56 @@ const [filteredDestinations, setFilteredDestinations] = useState([]);
                 </div>
                 <div>
                   <p className="SmallLabel">{t("seats")}</p>
-                  <p>{t("seatsLeft", {value: flight.availableSeats})}</p>
+                  <p>{`${t("seatsLeft", {value: flight.availableSeats})}`}</p>
                 </div>
               </div>
 
               <div className="FlightPrices">
-  {flight.fares && (
-    <>
-      {(selectedClass === "all" || selectedClass === "economy") && (
-        <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
-          {t("economyPriceValue", {value: flight.fares.economyPrice !== null ? `€${flight.fares.economyPrice}` : `${t("notAvailable")}`})}
-        </p>
-      )}
+                {flight.fares && (
+                <>
+                  {(selectedClass === "all" || selectedClass === "economy") && (
+                    <p className="Price">
+                      {t("economyPriceValue", {
+                        value:
+                          flight.fares.economyPrice != null
+                            ? `€${flight.fares.economyPrice}`
+                            : t("notAvailable")
+                      })}
+                    </p>
+                  )}
 
-      {(selectedClass === "all" || selectedClass === "business") && (
-        <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
-          {t("businessPriceValue", {value: flight.fares.businessPrice !== null ? `€${flight.fares.businessPrice}` : `${t("notAvailable")}`})}
-        </p>
-      )}
+                  {(selectedClass === "all" || selectedClass === "business") && (
+                    <p className="Price">
+                      {t("businessPriceValue", {
+                        value:
+                          flight.fares.businessPrice != null
+                            ? `€${flight.fares.businessPrice}`
+                            : t("notAvailable")
+                      })}
+                    </p>
+                  )}
 
-      {(selectedClass === "all" || selectedClass === "firstClass") && (
-        <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
-          {t("firstClassPriceValue", {value: flight.fares.firstClassPrice !== null ? `€${flight.fares.firstClassPrice}` : `${t("notAvailable")}`})}
-        </p>
-      )}
+                  {(selectedClass === "all" || selectedClass === "firstClass") && (
+                    <p className="Price">
+                      {t("firstClassPriceValue", {
+                        value:
+                          flight.fares.firstClassPrice != null
+                            ? `€${flight.fares.firstClassPrice}`
+                            : t("notAvailable")
+                      })}
+                    </p>
+                  )}
 
-      {flight.fares.validFrom && flight.fares.validTo && (() => {
-      const dateRange = `${new Date(flight.fares.validFrom).toLocaleDateString()} – ${new Date(flight.fares.validTo).toLocaleDateString()}`;
-      return (
-        <p className="valid-period">
-        {t("faresValidValue", { value: dateRange })}
-        </p>
-      );
-})()}
-
-    </>
-  )}
-
+                  {flight.fares.validFrom && flight.fares.validTo && (() => {
+                    const dateRange = `${new Date(flight.fares.validFrom).toLocaleDateString()} – ${new Date(flight.fares.validTo).toLocaleDateString()}`;
+                    return (
+                      <p className="valid-period">
+                        {t("faresValidValue", { value: dateRange })}
+                      </p>
+                    );
+                  })()}
+                </>
+              )}
 
 
 

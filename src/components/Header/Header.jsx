@@ -36,7 +36,7 @@ const Header = () => {
 
       {token && fullName && (
         <div className="header-center">
-          <Button text="Flights" onClick={() => navigate('/flight-search')} />
+          <Button text={t("flights")} onClick={() => navigate('/flight-search')} />
         </div>
       )}
 
@@ -53,7 +53,7 @@ const Header = () => {
               className="profile-icon"
               onClick={() => navigate('/profile')}
             />
-            <Button text="Logout" onClick={handleLogout} />
+            <Button text={t("logout")} onClick={handleLogout} />
           </>
         ) : (
           <>
