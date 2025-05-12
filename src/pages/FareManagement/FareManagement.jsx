@@ -526,14 +526,18 @@ function FareManagement() {
                 throw new Error('Failed to update fare.');
             }
 
-            alert('Fare updated successfully.');
+            //alert('Fare updated successfully.');
+            setMessage('Fare updated successfully.');
+            setShowMessage(true);
             setIsAddingNew(false);
             setEditingFare(null);
             setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
             await fetchFares(); // Ponovno učitaj sve tarife
         } catch (error) {
             console.error('Error updating fare:', error);
-            alert('Failed to update fare.');
+            //alert('Failed to update fare.');
+            setError('Failed to update fare.');
+            setShowError(true);
         }
     };
 
