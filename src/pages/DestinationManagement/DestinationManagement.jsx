@@ -186,7 +186,7 @@ export default function DestinationManagement() {
             // Update existing airport
             success = await updateAirport(editingAirport.id, formData);
             if (success) {
-                setMessage('Airport updated successfully');
+                setMessage('Airport updated successfully!');
                 setShowMessage(true);
             } else {
                 setError('Failed to update airport, check IATA code.');
@@ -200,10 +200,10 @@ export default function DestinationManagement() {
             formData.Status = Number(formData.Status);
             success = await createAirport(formData);
             if (success) {
-                setMessage('Airport added successfully');
+                setMessage('Airport added successfully!');
                 setShowMessage(true);
             } else {
-                setError('Failed to add airport');
+                setError('Failed to add airport.');
                 setShowError(true);
                 return;
             }
@@ -227,10 +227,10 @@ export default function DestinationManagement() {
         confirmModal(async () => {
             const success = await deleteAirport(id);
             if (success) {
-                setMessage('Airport deleted successfully');
+                setMessage('Airport deleted successfully.');
                 setShowMessage(true);
             } else {
-                setError('Failed to delete airport');
+                setError('Failed to delete airpor.t');
                 setShowError(true);
             }
         });
@@ -361,7 +361,7 @@ export default function DestinationManagement() {
                         <div className="error-modal">
                             <p>{error}</p>
                             <button onClick={() => setShowError(false)} className="modal-close-btn">
-                                OK!
+                                OK
                             </button>
                         </div>
                     </div>
@@ -372,7 +372,7 @@ export default function DestinationManagement() {
                         <div className="message-modal">
                             <p>{message}</p>
                             <button onClick={() => setShowMessage(false)} className="modal-close-btn">
-                                OK!
+                                OK
                             </button>
                         </div>
                     </div>
