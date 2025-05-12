@@ -576,13 +576,13 @@ function FareManagement() {
         if (isFlightRangeMode) {
             if (!newFare.flightNumberFrom || !newFare.flightNumberTo || !newFare.airline) return;
 
-            const prefix = newFare.airline.value;
+            const prefix = newFare.airline.iata;
             const start = parseInt(newFare.flightNumberFrom);
             const end = parseInt(newFare.flightNumberTo);
 
             const flights = [];
             for (let i = start; i <= end; i++) {
-                flights.push(`${prefix}${i.toString().padStart(3, '0')}`);
+                flights.push(`${prefix}-${i.toString().padStart(3, '0')}`);
             }
 
             setSelectedFlights([...new Set([...selectedFlights, ...flights])]);
@@ -590,7 +590,7 @@ function FareManagement() {
         } else {
             if (!newFare.origin || !newFare.destination || !newFare.airline) return;
 
-            const flight = `${newFare.airline.value}${Math.floor(Math.random() * 900 + 100)}`;
+            const flight = `${newFare.airline.iata}-${Math.floor(Math.random() * 900 + 100)}`;
             setSelectedFlights([...selectedFlights, flight]);
         }
 
@@ -599,10 +599,20 @@ function FareManagement() {
     };
 
     const handleAddFlight = () => {
-        if (!flightNumber) return;
-        setSelectedFlights([...selectedFlights, flightNumber]);
+        // Check if not null or empty
+        if (!flightNumber) 
+            return;
+
+        const flight = `${newFare.airline.iata}-${flightNumber}`
+
+        // Check if already in `selectedFlights`
+        if (selectedFlights.includes(flight))
+            return;
+
+        setSelectedFlights([...selectedFlights, flight]);
         setFlightNumber('');
     };
+    
     /*
     const handleRemoveFlight = (flightToRemove) => {
         setFormData(prev => ({
@@ -618,6 +628,7 @@ function FareManagement() {
     const handleRemoveFlight = (flight) => {
         setSelectedFlights(selectedFlights.filter(f => f !== flight));
     };
+
     /*
     const handleAddFare = () => {
       if (!newFare.code || !newFare.airline || !selectedFlights.length) return;
