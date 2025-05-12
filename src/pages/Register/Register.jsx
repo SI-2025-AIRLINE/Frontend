@@ -119,7 +119,7 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              name={t("firstName")}
+              name="firstName"
               placeholder={t("firstName")}
               value={formData.firstName}
               onChange={handleChange}
@@ -128,7 +128,7 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              name={t("lastName")}
+              name="lastName"
               placeholder={t("lastName")}
               value={formData.lastName}
               onChange={handleChange}
@@ -137,7 +137,7 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              name={t("userName")}
+              name="username"
               placeholder={t("userName")}
               value={formData.username}
               onChange={handleChange}
@@ -146,7 +146,7 @@ const Register = () => {
           <div className="form-group">
             <input
               type="email"
-              name={t("email")}
+              name="email"
               placeholder={t("email")}
               value={formData.email}
               onChange={handleChange}
@@ -155,7 +155,7 @@ const Register = () => {
           <div className="form-group">
             <input
               type="password"
-              name={t("password")}
+              name="password"
               placeholder={t("password")}
               value={formData.password}
               onChange={handleChange}
@@ -164,7 +164,7 @@ const Register = () => {
           <div className="form-group">
             <input
               type="date"
-              name={t("dob")}
+              name="dob"
               placeholder={t("dob")}
               value={formData.dob}
               onChange={handleChange}
@@ -172,7 +172,7 @@ const Register = () => {
           </div>
           <div className="form-group">
             <select
-              name={t("gender")}
+              name="gender"
               value={formData.gender}
               onChange={handleChange}
             >

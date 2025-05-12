@@ -114,7 +114,7 @@ const Login = () => {
           <div className="form-group">
             <input
               type="text"
-              name={t("userName")}
+              name="username"
               placeholder={t("userName")}
               value={formData.username}
               onChange={handleChange}
@@ -123,7 +123,7 @@ const Login = () => {
           <div className="form-group">
             <input
               type="password"
-              name={t("password")}
+              name="password"
               placeholder={t("password")}
               value={formData.password}
               onChange={handleChange}
