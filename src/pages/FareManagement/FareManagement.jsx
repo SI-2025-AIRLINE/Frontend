@@ -16,7 +16,7 @@ function FareManagement() {
     const [allDestinations, setAllDestinations] = useState([]);
     const [airports, setAirports] = useState([]);
     const [airlines, setAirlines] = useState([]);
-    const [selectedAirline, setSelectedAirline] = useState(null);
+    // const [selectedAirline, setSelectedAirline] = useState(null);
     const [flights, setFlights] = useState([]);
     
     const [isAddingNew, setIsAddingNew] = useState(false);
@@ -39,8 +39,8 @@ function FareManagement() {
     const [message, setMessage] = useState(null);
     const [showMessage, setShowMessage] = useState(false);
 
-    const [showConfirm, setShowConfirm] = useState(false);
-    const [confirmAction, setConfirmAction] = useState(null);
+    // const [showConfirm, setShowConfirm] = useState(false);
+    // const [confirmAction, setConfirmAction] = useState(null);
 
     const [showForm, setShowForm] = useState(false);
 
@@ -195,7 +195,7 @@ function FareManagement() {
                 firstClassPrice: item.fare.firstClassPrice,
                 validFrom: item.fare.validFrom,
                 validTo: item.fare.validTo,
-                flightNumber: item.flightNumber
+                flightNumbers: item.flightNumbers
             }));
 
             setFares(mappedFares);
@@ -205,6 +205,47 @@ function FareManagement() {
         }
     };
 
+    // TODO:
+    const fetchFareToEdit = async (fareId) => {
+        try {
+            const response = await fetch(`${apiURL}/Fares/${fareId}`);
+            if (!response.ok) {
+                throw new Error(`Error fetching fare: ${response.statusText}`);
+            }
+
+            const fareData = await response.json();
+            console.log(fareData)
+            setSelectedFare(fareData);
+
+            // Pronađi sve povezane entitete
+            const airline = airlines.find(a => a.value === fareData.airlineId);
+            const origin = airports.find(a => a.value === fareData.origin);
+            const destination = airports.find(a => a.value === fareData.destination);
+            const relatedFlights = fareData.flightNumbers
+
+            // Popuni formu (newFare)
+            setNewFare({
+                code: fareData.code,
+                airline,
+                origin,
+                destination,
+                validFrom: fareData.validFrom?.split('T')[0],
+                validTo: fareData.validTo?.split('T')[0],
+                firstClassPrice: fareData.firstClassPrice,
+                businessPrice: fareData.businessPrice,
+                economyPrice: fareData.economyPrice,
+            });
+            
+            // Changing states
+            setSelectedFlights(relatedFlights);
+            setEditingFare(fareId);
+            setSelectedFare(fareId);
+            // setIsAddingNew(true);
+        } catch (err) {
+            console.error("Failed to fetch fare for edit:", err);
+        }
+    };
+    
     /**
      * Returns a destination ID based on its city code.
      * @param {Number} cityCode City code
@@ -253,185 +294,32 @@ function FareManagement() {
         }
     };
 
+    // TODO:
+    // const updateFare = async (fareId, updatedFareData) => {
+    //     try {
+    //         const res = await fetch(`${apiURL}/Fares/${fareId}`, {
+    //             method: 'PUT',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(updatedFareData),
+    //         });
+
+    //         if (!res.ok) {
+    //             throw new Error(`HTTP ${res.status}`);
+    //         }
+
+    //         await fetchFares(); // ponovno učitaj sve tarife
+    //         return true;
+    //     } catch (error) {
+    //         console.error('Failed to update fare:', error);
+    //         return false;
+    //     }
+    // };
+
     // -------------------------------------------------------------------------
     // Handlers
     // -------------------------------------------------------------------------
-
-    /*
-    const handleAddFare = async () => {
-        if (!selectedFlights) {
-            alert("Please select a flight.");
-            return;
-        }
-
-        let departureId = 0;
-        let arrivalId = 0;
-
-
-        // Ako nismo u flight range režimu i origin/destination su postavljeni, dohvatimo ID-jeve
-        if (!isFlightRangeMode) {
-            //console.log("ovdje pada");
-            try {
-                departureId = await getDestinationIdByCityCode(newFare.origin);
-                arrivalId = await getDestinationIdByCityCode(newFare.destination);
-            } catch (err) {
-                console.error("Destination error:", err);
-                alert("Invalid origin or destination.");
-                return;
-            }
-        }
-
-        const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
-        const rangeTo = parseInt(newFare.flightNumberTo) || 0;
-
-        const fareData = {
-            FareCode: newFare.fareCode,
-            AirlineId: newFare.airline.value,
-            EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
-            BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
-            FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-            ValidFrom: newFare.validFrom,
-            ValidTo: newFare.validTo,
-            SingleFlights: selectedFlights
-                .map(f => {
-                    const numberPart = f.split(/[^0-9]/g).pop(); // uzimamo broj iz stringa (npr. "XY123" -> "123")
-                    const parsed = parseInt(numberPart);
-                    return isNaN(parsed) ? null : parsed;
-                })
-                .filter(f => f !== null),
-            RangeFrom: rangeFrom,
-            RangeTo: rangeTo,
-            DestinationIdFrom: departureId,
-            DestinationIdTo: arrivalId
-        };
-
-        // Validacija: mora biti unesen flight range ILI destinacije
-        const hasValidRange = rangeFrom > 0 && rangeTo >= rangeFrom;
-        const hasValidDestinations = departureId && arrivalId;
-
-        if (!hasValidRange && !hasValidDestinations) {
-            alert("Please fill either origin/destination or flight number range.");
-            return;
-        }
-
-        try {
-            const result = await createFare(fareData);
-
-            if (result) {
-                alert("Fare successfully added to flight(s).");
-                setShowMessage(true);
-                setIsAddingNew(false);
-                setEditingFare(null);
-                resetForm();
-                //setFares(prev => [...prev, result.Fare]);
-            } else {
-                throw new Error("Failed to save fare.");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Failed to save fare.");
-            setError(err.message);
-            setShowError(true);
-        }
-    };
-
-    /*
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
-    */
-
-    // const handleAddFare_nevaljala = async () => {
-    //     if (!selectedFlights) {
-    //         alert("Please select a flight.");
-    //         return;
-    //     }
-
-    //     let departureId = 0;
-    //     let arrivalId= 0;
-
-    //     // Ako nismo u flight range režimu i origin/destination su postavljeni, dohvatimo ID-jeve
-    //     if (!isFlightRangeMode) {
-    //         try {
-    //             departureId = await getDestinationIdByCityCode(newFare.origin);
-    //             arrivalId = await getDestinationIdByCityCode(newFare.destination);
-    //         } catch (err) {
-    //             console.error("Destination error:", err);
-    //             alert("Invalid origin or destination.");
-    //             return;
-    //         }
-    //     }
-
-    //     // Ažuriranje za flight range
-    //     const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
-    //     const rangeTo = parseInt(newFare.flightNumberTo) || 0;
-
-    //     // Validacija: mora biti unesen flight range ILI destinacije
-    //     const hasValidRange = rangeFrom > 0 && rangeTo >= rangeFrom;
-    //     const hasValidDestinations = departureId && arrivalId;
-
-    //     // Ako nijedno nije ispunjeno, tražimo korisniku da popuni podatke
-    //     if (!hasValidRange && !hasValidDestinations) {
-    //         alert("Please fill either origin/destination or flight number range.");
-    //         return;
-    //     }
-
-    //     // Pozivanje handleFlightRangeInput ako je potrebno
-    //     handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
-    //     handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
-
-    //     // Pozivanje handleOriginDestinationChange ako je potrebno
-    //     if (!isFlightRangeMode) {
-    //         handleOriginDestinationChange(newFare.origin, 'origin');
-    //         handleOriginDestinationChange(newFare.destination, 'destination');
-    //     }
-
-    //     const fareData = {
-    //         FareCode: newFare.fareCode,
-    //         AirlineId: newFare.airline.value,
-    //         EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
-    //         BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
-    //         FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-    //         ValidFrom: newFare.validFrom,
-    //         ValidTo: newFare.validTo,
-    //         SingleFlights: selectedFlights
-    //             .map(f => {
-    //                 const numberPart = f.split(/[^0-9]/g).pop(); // uzimamo broj iz stringa (npr. "XY123" -> "123")
-    //                 const parsed = parseInt(numberPart);
-    //                 return isNaN(parsed) ? null : parsed;
-    //             })
-    //             .filter(f => f !== null),
-    //         RangeFrom: rangeFrom,
-    //         RangeTo: rangeTo,
-    //         DestinationIdFrom: departureId,
-    //         DestinationIdTo: arrivalId
-    //     };
-
-    //     resetForm();
-        
-    //     try {
-    //         const result = await createFare(fareData);
-
-    //         if (result) {
-    //             alert("Fare successfully added to flight(s).");
-    //             setShowMessage(true);
-    //             setIsAddingNew(false);
-    //             setEditingFare(null);
-    //         } else {
-    //             throw new Error("Failed to save fare.");
-    //         }
-    //     } catch (err) {
-    //         console.error(err);
-    //         alert("Failed to save fare.");
-    //         setError(err.message);
-    //         setShowError(true);
-    //     }
-    // };
 
     /**
      * Deletes a fare with ID `id` (DELETE: api/Fares/id)
@@ -612,14 +500,6 @@ function FareManagement() {
         setSelectedFlights([...selectedFlights, flight]);
         setFlightNumber('');
     };
-    
-    /*
-    const handleRemoveFlight = (flightToRemove) => {
-        setFormData(prev => ({
-            ...prev,
-            selectedFlights: prev.selectedFlights.filter(f => f !== flightToRemove)
-        }));
-    };*/
 
     /**
      * Removes a flight from `selectedFlights`
@@ -628,208 +508,48 @@ function FareManagement() {
     const handleRemoveFlight = (flight) => {
         setSelectedFlights(selectedFlights.filter(f => f !== flight));
     };
-
-    /*
-    const handleAddFare = () => {
-      if (!newFare.code || !newFare.airline || !selectedFlights.length) return;
-      
-      const fareData = {
-        ...newFare,
-        id: editingFare || Math.random().toString(36).substr(2, 9),
-        flights: selectedFlights,
-        airline: newFare.airline.label,
-        origin: newFare.origin?.value,
-        destination: newFare.destination?.value
-      };
-  
-      if (editingFare) {
-        setFares(fares.map(fare => fare.id === editingFare ? fareData : fare));
-        setEditingFare(null);
-      } else {
-        setFares([...fares, fareData]);
-      }
-  
-      setIsAddingNew(false);
-      resetForm();
-    };
-  
-    const handleEditFare = (fare) => {
-      setEditingFare(fare.id);
-      setNewFare({
-        ...fare,
-        airline: airlines.find(a => a.label === fare.airline),
-        origin: airports.find(a => a.value === fare.origin),
-        destination: airports.find(a => a.value === fare.destination)
-      });
-      setSelectedFlights(fare.flights);
-      setIsAddingNew(true);
-    };
-    
-    const handleDeleteFare = (id) => {
-      setFares(fares.filter(f => f.id !== id));
-    };*/
-    /*
-    const fetchFareToEdit = async (id) => {
-        try {
-            const response = await fetch(`${apiURL}/Fares/${id}`);
-            if (!response.ok) {
-                throw new Error(`Error fetching fare: ${response.statusText}`);
-            }
-
-            const fareData = await response.json();
-            setSelectedFare(fareData);
-
-            // Pronađi sve povezane entitete
-            const airline = airlines.find(a => a.value === fareData.airlineId);
-            const origin = airports.find(a => a.value === fareData.origin);
-            const destination = airports.find(a => a.value === fareData.destination);
-            const relatedFlights = flights.filter(f => fareData.flightIds?.includes(f.id));
-
-            // Popuni formu (newFare)
-            setNewFare({
-                code: fareData.code,
-                airline,
-                origin,
-                destination,
-                validFrom: fareData.validFrom?.split('T')[0],
-                validTo: fareData.validTo?.split('T')[0],
-                firstClassPrice: fareData.firstClassPrice,
-                businessPrice: fareData.businessPrice,
-                economyPrice: fareData.economyPrice,
-            });
-            /*
-            setSelectedFlights(relatedFlights);
-            setEditingFare(fareId);
-            setIsAddingNew(true);
-        } catch (err) {
-            console.error("Failed to fetch fare for edit:", err);
-        }
-    };
     
     const handleEditFare = (fareId) => {
+        console.log("Set editing fare to true")
         fetchFareToEdit(fareId);
         setEditingFare(true); // Show the form for editing
     };
-
-    const updateFare = async (fareId, updatedFareData) => {
-        try {
-            const res = await fetch(`${apiURL}/Fares/${fareId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedFareData),
-            });
-
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
-            }
-
-            await fetchFares(); // ponovno učitaj sve tarife
-            return true;
-        } catch (error) {
-            console.error('Failed to update fare:', error);
-            return false;
-        }
-    };
-
-
+    
+    // TODO:
     const handleUpdateFare = async () => {
         if (!editingFare) {
             alert("Please select a fare to edit.");
             return;
         }
 
-        const updatedFareData = {
-            code: newFare.code,
-            validFrom: newFare.validFrom,
-            validTo: newFare.validTo,
-            firstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-            businessPrice: parseFloat(newFare.businessPrice) || 0,
-            economyPrice: parseFloat(newFare.economyPrice) || 0,
-            airline: newFare.airline?.label,
-            airlineId: newFare.airline?.value, // ako ti backend koristi ID
-            origin: newFare.origin?.value,
-            destination: newFare.destination?.value,
-            flightIds: selectedFlights.map(flight => flight.id)
-        };
+        // const updatedFareData = {
+        //     code: newFare.code,
+        //     validFrom: newFare.validFrom,
+        //     validTo: newFare.validTo,
+        //     firstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
+        //     businessPrice: parseFloat(newFare.businessPrice) || 0,
+        //     economyPrice: parseFloat(newFare.economyPrice) || 0,
+        //     airline: newFare.airline?.label,
+        //     airlineId: newFare.airline?.value, // ako ti backend koristi ID
+        //     origin: newFare.origin?.value,
+        //     destination: newFare.destination?.value,
+        //     flightIds: selectedFlights.map(flight => flight.id)
+        // };
 
-        const success = await updateFare(editingFare, updatedFareData);
+        // const success = await updateFare(editingFare, updatedFareData);
 
-        if (success) {
-            alert('Fare updated successfully');
-            setShowMessage(true);
-            setIsAddingNew(false);
-            resetForm(); // koristi novu reset funkciju
-            setEditingFare(null);
-        } else {
-            alert('Failed to update fare');
-            setError('Failed to update fare');
-            setShowError(true);
-        }
-    };*/
-
-    const handleEditFare = async (id) => {
-        try {
-            // Poziv na API da dobijemo detalje o tarifi prema ID-u
-            const response = await fetch(`${apiURL}/Fares/${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch fare data.');
-            }
-
-            const fare = await response.json();
-
-            // Postavljamo vrednosti u stanje nakon što smo dobili podatke
-            setEditingFare(id);
-            setNewFare({
-                ...fare,
-                airline: airlines.find(a => a.label === fare.airline),
-                origin: airports.find(a => a.value === fare.origin),
-                destination: airports.find(a => a.value === fare.destination)
-            });
-            setSelectedFlights(fare.flights);
-            setIsAddingNew(true);
-        } catch (error) {
-            console.error('Error fetching fare data:', error);
-            alert('Failed to load fare data for editing.');
-        }
+        // if (success) {
+        //     alert('Fare updated successfully');
+        //     setShowMessage(true);
+        //     setIsAddingNew(false);
+        //     resetForm(); // koristi novu reset funkciju
+        //     setEditingFare(null);
+        // } else {
+        //     alert('Failed to update fare');
+        //     setError('Failed to update fare');
+        //     setShowError(true);
+        // }
     };
-
-    // TODO
-    // const handleUpdateFare = async () => {
-    //     try {
-    //         const fareData = {
-    //             ...newFare, // Koristimo nove vrednosti koje je korisnik uneo
-    //             airline: newFare.airline.value, // Ako je "airline" objekat, pretvaramo ga u odgovarajući format
-    //             origin: newFare.origin.value,   // Isto za origin
-    //             destination: newFare.destination.value, // I za destination
-    //         };
-
-    //         const response = await fetch(`${apiURL}/Fares/${editingFare}`, {
-    //             method: 'PUT', // Metoda za ažuriranje resursa
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(fareData),
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error('Failed to update fare.');
-    //         }
-
-    //         const updatedFare = await response.json();
-
-    //         alert('Fare updated successfully.');
-    //         setIsAddingNew(false);
-    //         setEditingFare(null);
-    //         setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
-    //         await fetchFares(); // Ponovno učitaj sve tarife
-    //     } catch (error) {
-    //         console.error('Error updating fare:', error);
-    //         alert('Failed to update fare.');
-    //     }
-    // };
-
 
     const resetForm = () => {
         setNewFare({
@@ -1112,6 +832,231 @@ function FareManagement() {
                             Cancel
                         </button>
                         <button className="btn btn-primary" onClick={handleAddFare}>
+                            <Save style={{ width: 16, height: 16, marginRight: 8 }} />
+                            {editingFare ? 'Update Fare' : 'Add Fare'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {editingFare && (
+                <div className="form-container">
+                    <div className="form-group">
+                        <label className="form-label">Code</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={selectedFare ? selectedFare.flightNumber : ''}
+                            disabled
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Airline</label>
+                        <Select
+                            options={airlines}
+                            value={newFare.airline}
+                            onChange={(selected) => setNewFare({ ...newFare, airline: selected })}
+                            styles={selectStyles}
+                            placeholder="Select airline..."
+                            isSearchable
+                            isDisabled={!!editingFare || fieldsLocked} //ZAKLJUCAJ SVE
+                        />
+                    </div>
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Flight number from</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={newFare.flightNumberFrom}
+                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
+                                placeholder="Start number"
+                                //disabled={!!(newFare.origin || newFare.destination)}
+                                disabled={fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Flight number to</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={newFare.flightNumberTo}
+                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
+                                placeholder="End number"
+                                //disabled={!!(newFare.origin || newFare.destination)}
+                                disabled={fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Origin</label>
+                            <Select
+                                options={allDestinations}
+                                value={allDestinations.find(option => option.value === newFare.origin) || null}
+                                onChange={(selectedOption) =>
+                                    setNewFare({ ...newFare, origin: selectedOption.value })
+                                }
+                                styles={selectStyles}
+                                placeholder="Select origin..."
+                                isSearchable
+                                isClearable
+                                //isDisabled={isFlightRangeMode}
+                                isDisabled={fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Destination</label>
+                            <Select
+                                options={allDestinations}
+                                value={allDestinations.find(option => option.value === newFare.destination) || null}
+                                onChange={(selectedOption) =>
+                                    setNewFare({ ...newFare, destination: selectedOption.value })
+                                }
+                                styles={selectStyles}
+                                placeholder="Select destination..."
+                                isSearchable
+                                isClearable
+                                //isDisabled={isFlightRangeMode}
+                                isDisabled={fieldsLocked || !!editingFare || !!(newFare.flightNumberFrom || newFare.flightNumberTo)} //ZAKLJUCAJ SVE 
+                            />
+                        </div>
+                    </div>
+
+                    {((newFare.flightNumberFrom && newFare.flightNumberTo) ||
+                        (newFare.origin && newFare.destination)) && !fieldsLocked && (
+                            <div className="form-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button className="btn btn-primary" onClick={handleAddFlights}>
+                                    Add Flights
+                                </button>
+                            </div>
+                        )}
+
+                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                        <div style={{ flex: 1 }}>
+                            <label className="form-label">Flight number</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={flightNumber}
+                                onChange={(e) => setFlightNumber(e.target.value)}
+                                placeholder="Enter flight number"
+                            />
+                        </div>
+                        <button className="btn btn-primary" onClick={handleAddFlight}>
+                            Add Flight
+                        </button>
+                    </div>
+
+                    {selectedFlights.length > 0 && (
+                        <div className="selected-flights">
+                            <label className="form-label">Selected Flights</label>
+                            <div className="flight-chips">
+                                {selectedFlights.map((flight) => (
+                                    <div key={flight} className="flight-chip">
+                                        {flight}
+                                        <button
+                                            className="flight-chip-remove"
+                                            onClick={() => handleRemoveFlight(flight)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Valid From</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={newFare.validFrom}
+                                onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
+                                min={new Date().toISOString().split("T")[0]} //OD DANASNJEG DATUMA
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Valid To</label>
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={newFare.validTo}
+                                onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
+                                min={newFare.validFrom || new Date().toISOString().split("T")[0]} //OD FROM DATUMA
+                            />
+                        </div>
+                    </div>
+
+                    <div className="fare-inputs">
+                        <div className="fare-input-group">
+                            <label className="fare-label">First Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.firstClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="fare-input-group">
+                            <label className="fare-label">Business Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.businessClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, businessClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="fare-input-group">
+                            <label className="fare-label">Economy Class Price</label>
+                            <div className="price-input-wrapper">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={newFare.economyClassPrice}
+                                    onChange={(e) => setNewFare({ ...newFare, economyClassPrice: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="actions">
+                        <button className="btn" onClick={() => {
+                            setIsAddingNew(false);
+                            setEditingFare(null);
+                            setNewFare({
+                                code: '',
+                                airline: '',
+                                flightNumberFrom: '',
+                                flightNumberTo: '',
+                                origin: '',
+                                destination: '',
+                                validFrom: '',
+                                validTo: '',
+                                firstClassPrice: '',
+                                businessClassPrice: '',
+                                economyClassPrice: '',
+                                selectedFlights: ''
+                            });
+                            //setSelectedFlight(null);
+                        }}>
+                            Cancel
+                        </button>
+                        <button className="btn btn-primary" onClick={handleUpdateFare}>
                             <Save style={{ width: 16, height: 16, marginRight: 8 }} />
                             {editingFare ? 'Update Fare' : 'Add Fare'}
                         </button>
