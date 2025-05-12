@@ -394,18 +394,17 @@ function FareManagement() {
     };
 
     const handleAddFlights = () => {
+        const prefix = newFare.airline.iata;
+        console.log("Prefix:", prefix);
+        
+        let airlineFlights = flights.filter(flight => flight.flightNumber.startsWith(prefix));
+        console.log("Airline flights:", airlineFlights);
+        
         if (isFlightRangeMode) {
             if (!newFare.flightNumberFrom || !newFare.flightNumberTo || !newFare.airline) return;
 
-            const prefix = newFare.airline.iata;
-            console.log("Prefix:", prefix);
-
             const start = parseInt(newFare.flightNumberFrom);
             const end = parseInt(newFare.flightNumberTo);
-
-            // flightnumber: "{prefix}-XXXXX"
-            let airlineFlights = flights.filter(flight => flight.flightNumber.startsWith(prefix));
-            console.log("Airline flights:", airlineFlights);
 
             const affectedFlights = airlineFlights.filter(flight => {
                 const flightNumber = parseInt(flight.flightNumber.replace(prefix + "-", ''));
@@ -414,6 +413,13 @@ function FareManagement() {
 
             console.log("Affected flights:", affectedFlights);
 
+            if(affectedFlights.length === 0) {
+                //alert("No flights found in the specified range.");
+                setError("No flights found in the specified range.");
+                setShowError(true);
+                return;
+            }
+
             // Use flight objects instead of strings
             setSelectedFlights([...new Set([...selectedFlights, ...affectedFlights])]);
 
@@ -421,11 +427,18 @@ function FareManagement() {
             if (!newFare.origin || !newFare.destination || !newFare.airline) return;
 
             // Find flights that match origin and destination
-            const matchingFlights = flights.filter(flight => {
+            const matchingFlights = airlineFlights.filter(flight => {
                 const departure = flight.departureDestination?.cityCode || flight.departureDestination?.airportCode;
                 const arrival = flight.arrivalDestination?.cityCode || flight.arrivalDestination?.airportCode;
                 return departure === newFare.origin && arrival === newFare.destination;
             });
+            console.log("Matching flights:", matchingFlights);
+            if (matchingFlights.length === 0) {
+                //alert("No flights found for the selected origin and destination.");
+                setError("No flights found for the selected origin and destination.");
+                setShowError(true);
+                return;
+            }
 
             setSelectedFlights([...new Set([...selectedFlights, ...matchingFlights])]);
         }
