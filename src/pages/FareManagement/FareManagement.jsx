@@ -429,7 +429,7 @@ function FareManagement() {
 
             setSelectedFlights([...new Set([...selectedFlights, ...matchingFlights])]);
         }
-
+        
         setIsFlightRangeMode(false);
         setFieldsLocked(true); // ZAKLJUČAJ SVE
     };
@@ -695,7 +695,8 @@ function FareManagement() {
                     </div>
 
                     {((newFare.flightNumberFrom && newFare.flightNumberTo) ||
-                        (newFare.origin && newFare.destination)) && !fieldsLocked && (
+                        (newFare.origin && newFare.destination)) && 
+                        (selectedFlights.length === 0 || !fieldsLocked) && (
                             <div className="form-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <button className="btn btn-primary" onClick={handleAddFlights}>
                                     Add Flights
@@ -802,6 +803,13 @@ function FareManagement() {
                             </div>
                         </div>
                     )}
+
+                    {selectedFlights.length == 0 && (
+                        <div className="no-flights-message" style={{ marginTop: '1.5rem', marginBottom: '1.5rem', color: 'rgb(220, 53, 69)' }}>
+                            No flights selected. Please add flights to proceed.
+                        </div>
+                    )}
+                    
 
                     <div className="form-grid">
                         <div className="form-group">
