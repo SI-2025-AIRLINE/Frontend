@@ -10,62 +10,42 @@ function FareManagement() {
     // State hooks
     // -------------------------------------------------------------------------
 
-    // Fares, flights, destinations, airports
+    // Fares, flights, destinations, airports (prepopulated)
     const [fares, setFares] = useState([]);
-    const [selectedFlights, setSelectedFlights] = useState([]);
     const [allDestinations, setAllDestinations] = useState([]);
     const [airports, setAirports] = useState([]);
     const [airlines, setAirlines] = useState([]);
-    // const [selectedAirline, setSelectedAirline] = useState(null);
     const [flights, setFlights] = useState([]);
     
-    const [isAddingNew, setIsAddingNew] = useState(false);
+    // Selected (highlighted)
+    const [selectedFlights, setSelectedFlights] = useState([]);
+    const [selectedFare, setSelectedFare] = useState(null);
+    const [flightNumber, setFlightNumber] = useState('');
     const [editingFare, setEditingFare] = useState(null);
+    // const [selectedAirline, setSelectedAirline] = useState(null);
+    
+    // Modes
+    const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
+    const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
+    const [isAddingNew, setIsAddingNew] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [showError, setShowError] = useState(false);
+    const [showMessage, setShowMessage] = useState(false);
+    // const [showConfirm, setShowConfirm] = useState(false);
+    // const [confirmAction, setConfirmAction] = useState(null);
+    const [showForm, setShowForm] = useState(false);
 
     // Page
     const [pageSize, setPageSize] = useState(10);
     const [pageNumber, setPageNumber] = useState(1);
 
-    const [flightNumber, setFlightNumber] = useState('');
-    const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
-
-    // Lock all fields
-    const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [showError, setShowError] = useState(false);
-
     const [message, setMessage] = useState(null);
-    const [showMessage, setShowMessage] = useState(false);
-
-    // const [showConfirm, setShowConfirm] = useState(false);
-    // const [confirmAction, setConfirmAction] = useState(null);
-
-    const [showForm, setShowForm] = useState(false);
-
-    const [selectedFare, setSelectedFare] = useState(null);
 
     // New fare object
     const [newFare, setNewFare] = useState({
         fareCode: '',
         airline: null,
-        flightNumberFrom: '',
-        flightNumberTo: '',
-        origin: '',
-        destination: '',
-        validFrom: '',
-        validTo: '',
-        firstClassPrice: '',
-        businessClassPrice: '',
-        economyClassPrice: '',
-        selectedFlights: []
-    });
-
-    // Form data object
-    const [formData, setFormData] = useState({
-        fareCode: '',
-        airline: '',
         flightNumberFrom: '',
         flightNumberTo: '',
         origin: '',
@@ -214,7 +194,6 @@ function FareManagement() {
             }
 
             const fareData = await response.json();
-            console.log(fareData)
             setSelectedFare(fareData);
 
             // Pronađi sve povezane entitete
@@ -226,9 +205,9 @@ function FareManagement() {
             // Popuni formu (newFare)
             setNewFare({
                 code: fareData.code,
-                airline,
-                origin,
-                destination,
+                airline: airline,
+                origin: origin,
+                destination:destination,
                 validFrom: fareData.validFrom?.split('T')[0],
                 validTo: fareData.validTo?.split('T')[0],
                 firstClassPrice: fareData.firstClassPrice,
@@ -240,7 +219,7 @@ function FareManagement() {
             setSelectedFlights(relatedFlights);
             setEditingFare(fareId);
             setSelectedFare(fareId);
-            // setIsAddingNew(true);
+            // setIsAddingNew(true); // ! Do we need this?
         } catch (err) {
             console.error("Failed to fetch fare for edit:", err);
         }
@@ -418,7 +397,7 @@ function FareManagement() {
                 alert("Fare successfully added to flight(s).");
                 setShowMessage(true);
                 setIsAddingNew(false);
-                setEditingFare(false);
+                setEditingFare(null);
                 resetForm();
             } else {
                 throw new Error("Failed to save fare.");
@@ -565,19 +544,6 @@ function FareManagement() {
             businessClassPrice: '',
             economyClassPrice: ''
         });
-        setFormData({
-            code: '',
-            airline: '',
-            flightNumberFrom: '',
-            flightNumberTo: '',
-            origin: '',
-            destination: '',
-            validFrom: '',
-            validTo: '',
-            firstClassPrice: '',
-            businessClassPrice: '',
-            economyClassPrice: ''
-        });
         setSelectedFlights([]); // Reset selected flights
         setShowForm(false);
         setSelectedFare(null);
@@ -588,17 +554,12 @@ function FareManagement() {
     };
 
     // Handle form data change and tracking
-    const handleInputChange = (key, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [key]: value
-        }));
-
-        setEditingFare((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
-    };
+    // const handleInputChange = (key, value) => {
+    //     setEditingFare((prev) => ({
+    //         ...prev,
+    //         [key]: value,
+    //     }));
+    // };
 
     // -------------------------------------------------------------------------
     // Component render
@@ -846,7 +807,7 @@ function FareManagement() {
                         <input
                             type="text"
                             className="form-input"
-                            value={selectedFare ? selectedFare.flightNumber : ''}
+                            value={newFare ? newFare.fareCode : ''}
                             disabled
                         />
                     </div>
