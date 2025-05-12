@@ -261,24 +261,34 @@ function FareManagement() {
 
     const handleAddFare = async () => {
         if (!selectedFlights || selectedFlights.length === 0) {
-            alert("Please select or add flights.");
+            //alert("Please select or add flights.");
+            setError("Please select or add flights.");
+            setShowError(true);
             return;
         }
 
         if( !newFare.validFrom || !newFare.validTo) {
-            alert("Please select valid dates.");
+            //alert("Please select valid dates.");
+            setError("Please select valid dates.");
+            setShowError(true);
             return;
         }
         if (!newFare.firstClassPrice && !newFare.businessClassPrice && !newFare.economyClassPrice) {
-            alert("Please enter at least one fare price.");
+            //alert("Please enter at least one fare price.");
+            setError("Please enter at least one fare price.");
+            setShowError(true);
             return;
         }
         if (newFare.validFrom > newFare.validTo) {
-            alert("Valid From date cannot be later than Valid To date.");
+            //alert("Valid From date cannot be later than Valid To date.");
+            setError("Valid From date cannot be later than Valid To date.");
+            setShowError(true);
             return;
         }
         if (newFare.validFrom < new Date().toISOString().split("T")[0]) {
-            alert("Valid From date cannot be in the past.");
+            //alert("Valid From date cannot be in the past.");
+            setError("Valid From date cannot be in the past.");
+            setShowError(true);
             return;
         }           
 
@@ -340,7 +350,8 @@ function FareManagement() {
             const result = await createFare(fareData);
 
             if (result) {
-                alert("Fare successfully added to flight(s).");
+                //alert("Fare successfully added to flight(s).");
+                setMessage("Fare successfully added to flight(s).");
                 setShowMessage(true);
                 setIsAddingNew(false);
                 setEditingFare(null);
@@ -350,7 +361,7 @@ function FareManagement() {
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to save fare.");
+            //alert("Failed to save fare.");
             setError(err.message);
             setShowError(true);
             resetForm();
@@ -1108,6 +1119,29 @@ function FareManagement() {
                         </button>
                     </div>
                 </div>
+            )}
+
+            {error && showError && (
+                <div className="modal-overlay-flightScheduling">
+                    <div className="error-modal-flightScheduling">
+                        <p>{error}</p>
+                        <button onClick={() => setShowError(false)} className="modal-close-btn-flightScheduling">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {message && showMessage && (
+                <div className="modal-overlay-flightScheduling">
+                    <div className="message-modal-flightScheduling">
+                        <p>{message}</p>
+                        <button onClick={() => setShowMessage(false)} className="modal-close-btn-flightScheduling">
+                            OK
+                        </button>
+                    </div>
+                </div>
+
             )}
 
             <div className="table-container">
