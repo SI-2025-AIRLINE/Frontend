@@ -265,6 +265,23 @@ function FareManagement() {
             return;
         }
 
+        if( !newFare.validFrom || !newFare.validTo) {
+            alert("Please select valid dates.");
+            return;
+        }
+        if (!newFare.firstClassPrice && !newFare.businessClassPrice && !newFare.economyClassPrice) {
+            alert("Please enter at least one fare price.");
+            return;
+        }
+        if (newFare.validFrom > newFare.validTo) {
+            alert("Valid From date cannot be later than Valid To date.");
+            return;
+        }
+        if (newFare.validFrom < new Date().toISOString().split("T")[0]) {
+            alert("Valid From date cannot be in the past.");
+            return;
+        }           
+
         console.log("Selected flights:", selectedFlights);
 
         // // Parse range values first
