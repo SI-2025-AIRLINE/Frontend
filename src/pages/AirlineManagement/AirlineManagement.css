@@ -17,7 +17,8 @@ body {
 }
 
 .airline-page .container {
-    max-height: 80vw;
+    /* Ovo ponekad pokvari scroll */
+    /* max-height: 80vw; */
     max-width: 100rem;
     margin: 0 auto;
     padding: 1.5rem;
