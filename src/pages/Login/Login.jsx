@@ -130,7 +130,7 @@ const Login = () => {
             />
           </div>
           <button type="submit" className="update-button" disabled={loading}>
-            {loading ? `${t("Logging In")}...` : `${t("login")}`}
+            {loading ? `${t("Logging in")}...` : `${t("login")}`}
           </button>
         </form>
 

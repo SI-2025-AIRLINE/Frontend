@@ -153,7 +153,7 @@ const MyBooking = () => {
           className={`booking-tab ${activeTab === 'canceled' ? 'active' : ''}`}
           onClick={() => setActiveTab('canceled')}
         >
-          {("canceled")}
+          {("Cancelled")}
         </button>
       </div>
 
