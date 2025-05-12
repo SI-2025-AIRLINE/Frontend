@@ -5,16 +5,31 @@ import './FareManagement.css'
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 function FareManagement() {
+
+    // -------------------------------------------------------------------------
+    // State hooks
+    // -------------------------------------------------------------------------
+
+    // Fares, flights, destinations, airports
     const [fares, setFares] = useState([]);
+    const [selectedFlights, setSelectedFlights] = useState([]);
+    const [allDestinations, setAllDestinations] = useState([]);
+    const [airports, setAirports] = useState([]);
+    const [airlines, setAirlines] = useState([]);
+    const [selectedAirline, setSelectedAirline] = useState(null);
+    const [flights, setFlights] = useState([]);
+    
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [editingFare, setEditingFare] = useState(null);
-    const [selectedFlights, setSelectedFlights] = useState([]);
 
+    // Page
     const [pageSize, setPageSize] = useState(10);
     const [pageNumber, setPageNumber] = useState(1);
 
     const [flightNumber, setFlightNumber] = useState('');
     const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
+
+    // Lock all fields
     const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
 
     const [loading, setLoading] = useState(true);
@@ -29,36 +44,9 @@ function FareManagement() {
 
     const [showForm, setShowForm] = useState(false);
 
-    const [allDestinations, setAllDestinations] = useState([]);
-    useEffect(() => {
-        fetch(`${apiURL}/Destination/all`)
-            .then(res => res.json())
-            .then(data => {
-                const mapped = data.map(dest => ({
-                    label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
-                    value: dest.cityCode
-                }));
-                setAllDestinations(mapped);
-                setLoading(false);
-            });
-    }, []);
+    const [selectedFare, setSelectedFare] = useState(null);
 
-    const [airports, setAirports] = useState([]);
-    useEffect(() => {
-        fetch(`${apiURL}/Aircraft`)
-            .then(res => res.json())
-            .then(data => {
-                const mapped = data.map(a => ({
-                    value: a.id,
-                    label: `${a.name} (${a.airportCode})`
-                }));
-                setAirports(mapped);
-            })
-            .catch(err => console.error("Failed to fetch airports:", err));
-    }, []);
-
-
-
+    // New fare object
     const [newFare, setNewFare] = useState({
         fareCode: '',
         airline: null,
@@ -73,20 +61,8 @@ function FareManagement() {
         economyClassPrice: '',
         selectedFlights: []
     });
-    /*
-    const airlines = [
-      { value: 'BA', label: 'British Airways' },
-      { value: 'LH', label: 'Lufthansa' },
-      { value: 'AF', label: 'Air France' }
-    ];
-  
-    const airports = [
-      { value: 'LHR', label: 'London Heathrow (LHR)' },
-      { value: 'CDG', label: 'Paris Charles de Gaulle (CDG)' },
-      { value: 'FRA', label: 'Frankfurt (FRA)' },
-      { value: 'JFK', label: 'New York JFK (JFK)' }
-    ];*/
 
+    // Form data object
     const [formData, setFormData] = useState({
         fareCode: '',
         airline: '',
@@ -102,6 +78,7 @@ function FareManagement() {
         selectedFlights: []
     });
 
+    // Style
     const selectStyles = {
         control: (base, state) => ({
             ...base,
@@ -121,11 +98,39 @@ function FareManagement() {
         })
     };
 
-    const [selectedFare, setSelectedFare] = useState(null);
-    const [flights, setFlights] = useState([]);
+    // -------------------------------------------------------------------------
+    // Effect hooks
+    // -------------------------------------------------------------------------
+    
+    // Get all destinations
+    useEffect(() => {
+        fetch(`${apiURL}/Destination/all`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(dest => ({
+                    label: `${dest.name} (${dest.cityCode} / ${dest.airportCode})`,
+                    value: dest.cityCode
+                }));
+                setAllDestinations(mapped);
+                setLoading(false);
+            });
+    }, []);
 
-    const [selectedAirline, setSelectedAirline] = useState(null);
-    const [airlines, setAirlines] = useState([]);
+    // Get all airports
+    useEffect(() => {
+        fetch(`${apiURL}/Aircraft`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map(a => ({
+                    value: a.id,
+                    label: `${a.name} (${a.airportCode})`
+                }));
+                setAirports(mapped);
+            })
+            .catch(err => console.error("Failed to fetch airports:", err));
+    }, []);
+
+    // Get all airlines
     useEffect(() => {
         fetch(`${apiURL}/Airline/all`)
             .then(res => res.json())
@@ -142,6 +147,7 @@ function FareManagement() {
             .catch(console.error);
     }, []);
 
+    // Get all flight instances
     useEffect(() => {
         fetch(`${apiURL}/Flight/instances`)
             .then(res => res.json())
@@ -160,7 +166,18 @@ function FareManagement() {
 
     }, []);
 
-    // GET: api/Fares
+    // Gets all fares
+    useEffect(() => {
+        fetchFares();
+    }, [pageNumber, pageSize]);
+    
+    // -------------------------------------------------------------------------
+    // API call functions
+    // -------------------------------------------------------------------------
+
+    /**
+    * Fetches all fares (GET: api/Fares)
+    */
     const fetchFares = async () => {
         try {
             const url = `${apiURL}/Fares?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -188,34 +205,11 @@ function FareManagement() {
         }
     };
 
-    useEffect(() => {
-        fetchFares();
-    }, [pageNumber, pageSize]);
-
-    //DELETE- api/Fares/id
-    const handleDeleteFare = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this fare?')) {
-            return;
-        }
-
-        setLoading(true);
-        resetForm();
-        setError(null);
-        try {
-            const res = await fetch(`${apiURL}/Fares/${id}`, {
-                method: 'DELETE',
-            });
-
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-            await fetchFares();
-            return true;
-        } catch (error) {
-            console.error('Failed to delete airport:', error);
-            return false;
-        }
-    };
-
+    /**
+     * Returns a destination ID based on its city code.
+     * @param {Number} cityCode City code
+     * @returns Destination's ID
+     */
     const getDestinationIdByCityCode = async (cityCode) => {
         const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
         if (response.ok) {
@@ -230,8 +224,12 @@ function FareManagement() {
         }
     };
 
-
-    //POST- /api/Fares
+    //
+    /**
+     * Creates a new fare (POST: /api/Fares)
+     * @param {*} fareData 
+     * @returns 
+     */
     const createFare = async (fareData) => {
         try {
             const res = await fetch(`${apiURL}/Fares/Form`, {
@@ -254,6 +252,11 @@ function FareManagement() {
             return false;
         }
     };
+
+    // -------------------------------------------------------------------------
+    // Handlers
+    // -------------------------------------------------------------------------
+
     /*
     const handleAddFare = async () => {
         if (!selectedFlights) {
@@ -343,94 +346,122 @@ function FareManagement() {
     };
     */
 
-    const handleAddFare_nevaljala = async () => {
-        if (!selectedFlights) {
-            alert("Please select a flight.");
-            return;
-        }
+    // const handleAddFare_nevaljala = async () => {
+    //     if (!selectedFlights) {
+    //         alert("Please select a flight.");
+    //         return;
+    //     }
 
-        let departureId = 0;
-        let arrivalId= 0;
+    //     let departureId = 0;
+    //     let arrivalId= 0;
 
-        // Ako nismo u flight range režimu i origin/destination su postavljeni, dohvatimo ID-jeve
-        if (!isFlightRangeMode) {
-            try {
-                departureId = await getDestinationIdByCityCode(newFare.origin);
-                arrivalId = await getDestinationIdByCityCode(newFare.destination);
-            } catch (err) {
-                console.error("Destination error:", err);
-                alert("Invalid origin or destination.");
-                return;
-            }
-        }
+    //     // Ako nismo u flight range režimu i origin/destination su postavljeni, dohvatimo ID-jeve
+    //     if (!isFlightRangeMode) {
+    //         try {
+    //             departureId = await getDestinationIdByCityCode(newFare.origin);
+    //             arrivalId = await getDestinationIdByCityCode(newFare.destination);
+    //         } catch (err) {
+    //             console.error("Destination error:", err);
+    //             alert("Invalid origin or destination.");
+    //             return;
+    //         }
+    //     }
 
-        // Ažuriranje za flight range
-        const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
-        const rangeTo = parseInt(newFare.flightNumberTo) || 0;
+    //     // Ažuriranje za flight range
+    //     const rangeFrom = parseInt(newFare.flightNumberFrom) || 0;
+    //     const rangeTo = parseInt(newFare.flightNumberTo) || 0;
 
-        // Validacija: mora biti unesen flight range ILI destinacije
-        const hasValidRange = rangeFrom > 0 && rangeTo >= rangeFrom;
-        const hasValidDestinations = departureId && arrivalId;
+    //     // Validacija: mora biti unesen flight range ILI destinacije
+    //     const hasValidRange = rangeFrom > 0 && rangeTo >= rangeFrom;
+    //     const hasValidDestinations = departureId && arrivalId;
 
-        // Ako nijedno nije ispunjeno, tražimo korisniku da popuni podatke
-        if (!hasValidRange && !hasValidDestinations) {
-            alert("Please fill either origin/destination or flight number range.");
-            return;
-        }
+    //     // Ako nijedno nije ispunjeno, tražimo korisniku da popuni podatke
+    //     if (!hasValidRange && !hasValidDestinations) {
+    //         alert("Please fill either origin/destination or flight number range.");
+    //         return;
+    //     }
 
-        // Pozivanje handleFlightRangeInput ako je potrebno
-        handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
-        handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
+    //     // Pozivanje handleFlightRangeInput ako je potrebno
+    //     handleFlightRangeInput({ target: { value: rangeFrom } }, 'flightNumberFrom');
+    //     handleFlightRangeInput({ target: { value: rangeTo } }, 'flightNumberTo');
 
-        // Pozivanje handleOriginDestinationChange ako je potrebno
-        if (!isFlightRangeMode) {
-            handleOriginDestinationChange(newFare.origin, 'origin');
-            handleOriginDestinationChange(newFare.destination, 'destination');
-        }
+    //     // Pozivanje handleOriginDestinationChange ako je potrebno
+    //     if (!isFlightRangeMode) {
+    //         handleOriginDestinationChange(newFare.origin, 'origin');
+    //         handleOriginDestinationChange(newFare.destination, 'destination');
+    //     }
 
-        const fareData = {
-            FareCode: newFare.fareCode,
-            AirlineId: newFare.airline.value,
-            EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
-            BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
-            FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-            ValidFrom: newFare.validFrom,
-            ValidTo: newFare.validTo,
-            SingleFlights: selectedFlights
-                .map(f => {
-                    const numberPart = f.split(/[^0-9]/g).pop(); // uzimamo broj iz stringa (npr. "XY123" -> "123")
-                    const parsed = parseInt(numberPart);
-                    return isNaN(parsed) ? null : parsed;
-                })
-                .filter(f => f !== null),
-            RangeFrom: rangeFrom,
-            RangeTo: rangeTo,
-            DestinationIdFrom: departureId,
-            DestinationIdTo: arrivalId
-        };
+    //     const fareData = {
+    //         FareCode: newFare.fareCode,
+    //         AirlineId: newFare.airline.value,
+    //         EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
+    //         BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
+    //         FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
+    //         ValidFrom: newFare.validFrom,
+    //         ValidTo: newFare.validTo,
+    //         SingleFlights: selectedFlights
+    //             .map(f => {
+    //                 const numberPart = f.split(/[^0-9]/g).pop(); // uzimamo broj iz stringa (npr. "XY123" -> "123")
+    //                 const parsed = parseInt(numberPart);
+    //                 return isNaN(parsed) ? null : parsed;
+    //             })
+    //             .filter(f => f !== null),
+    //         RangeFrom: rangeFrom,
+    //         RangeTo: rangeTo,
+    //         DestinationIdFrom: departureId,
+    //         DestinationIdTo: arrivalId
+    //     };
 
-        resetForm();
+    //     resetForm();
         
-        try {
-            const result = await createFare(fareData);
+    //     try {
+    //         const result = await createFare(fareData);
 
-            if (result) {
-                alert("Fare successfully added to flight(s).");
-                setShowMessage(true);
-                setIsAddingNew(false);
-                setEditingFare(null);
-            } else {
-                throw new Error("Failed to save fare.");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Failed to save fare.");
-            setError(err.message);
-            setShowError(true);
+    //         if (result) {
+    //             alert("Fare successfully added to flight(s).");
+    //             setShowMessage(true);
+    //             setIsAddingNew(false);
+    //             setEditingFare(null);
+    //         } else {
+    //             throw new Error("Failed to save fare.");
+    //         }
+    //     } catch (err) {
+    //         console.error(err);
+    //         alert("Failed to save fare.");
+    //         setError(err.message);
+    //         setShowError(true);
+    //     }
+    // };
+
+    /**
+     * Deletes a fare with ID `id` (DELETE: api/Fares/id)
+     * @param {Number} id Fare ID
+     * @returns 
+     */
+    const handleDeleteFare = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this fare?')) {
+            return;
+        }
+
+        setLoading(true);
+        resetForm();
+        setError(null);
+        try {
+            const res = await fetch(`${apiURL}/Fares/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            await fetchFares();
+            return true;
+        } catch (error) {
+            console.error('Failed to delete airport:', error);
+            return false;
         }
     };
 
-        const handleAddFare = async () => {
+    const handleAddFare = async () => {
         if (!selectedFlights) {
             alert("Please select a flight.");
             return;
@@ -538,6 +569,9 @@ function FareManagement() {
       }
     };
     
+    /**
+     * Add all the flights in range to the `selectedFlights` list
+     */
     const handleAddFlights = () => {
         if (isFlightRangeMode) {
             if (!newFare.flightNumberFrom || !newFare.flightNumberTo || !newFare.airline) return;
@@ -577,7 +611,10 @@ function FareManagement() {
         }));
     };*/
 
-
+    /**
+     * Removes a flight from `selectedFlights`
+     * @param {String} flight Flight number
+     */
     const handleRemoveFlight = (flight) => {
         setSelectedFlights(selectedFlights.filter(f => f !== flight));
     };
@@ -747,39 +784,40 @@ function FareManagement() {
         }
     };
 
-    const handleUpdateFare = async () => {
-        try {
-            const fareData = {
-                ...newFare, // Koristimo nove vrednosti koje je korisnik uneo
-                airline: newFare.airline.value, // Ako je "airline" objekat, pretvaramo ga u odgovarajući format
-                origin: newFare.origin.value,   // Isto za origin
-                destination: newFare.destination.value, // I za destination
-            };
+    // TODO
+    // const handleUpdateFare = async () => {
+    //     try {
+    //         const fareData = {
+    //             ...newFare, // Koristimo nove vrednosti koje je korisnik uneo
+    //             airline: newFare.airline.value, // Ako je "airline" objekat, pretvaramo ga u odgovarajući format
+    //             origin: newFare.origin.value,   // Isto za origin
+    //             destination: newFare.destination.value, // I za destination
+    //         };
 
-            const response = await fetch(`${apiURL}/Fares/${editingFare}`, {
-                method: 'PUT', // Metoda za ažuriranje resursa
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(fareData),
-            });
+    //         const response = await fetch(`${apiURL}/Fares/${editingFare}`, {
+    //             method: 'PUT', // Metoda za ažuriranje resursa
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(fareData),
+    //         });
 
-            if (!response.ok) {
-                throw new Error('Failed to update fare.');
-            }
+    //         if (!response.ok) {
+    //             throw new Error('Failed to update fare.');
+    //         }
 
-            const updatedFare = await response.json();
+    //         const updatedFare = await response.json();
 
-            alert('Fare updated successfully.');
-            setIsAddingNew(false);
-            setEditingFare(null);
-            setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
-            await fetchFares(); // Ponovno učitaj sve tarife
-        } catch (error) {
-            console.error('Error updating fare:', error);
-            alert('Failed to update fare.');
-        }
-    };
+    //         alert('Fare updated successfully.');
+    //         setIsAddingNew(false);
+    //         setEditingFare(null);
+    //         setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
+    //         await fetchFares(); // Ponovno učitaj sve tarife
+    //     } catch (error) {
+    //         console.error('Error updating fare:', error);
+    //         alert('Failed to update fare.');
+    //     }
+    // };
 
 
     const resetForm = () => {
@@ -830,6 +868,10 @@ function FareManagement() {
             [key]: value,
         }));
     };
+
+    // -------------------------------------------------------------------------
+    // Component render
+    // -------------------------------------------------------------------------
 
     return (
         <div className="container">
