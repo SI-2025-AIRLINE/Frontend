@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import Header from '../../components/Header/Header';
 import './ResetPassword.css';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const ResetPassword = () => {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -47,19 +52,19 @@ const ResetPassword = () => {
         const data = await response.json();
 
         if (data.exists !== false) {
-          setSuccessMessage('A reset link has been sent to your email address.');
+          setSuccessMessage(`${t("sendResetLinkMsg")}.`);
           setErrorMessage('');
         } else {
-          setErrorMessage('Email is not registered.');
+          setErrorMessage(`${t("emailNotRegisteredMsg")}.`);
         }
       // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        setErrorMessage('Server error. Please try again.');
+        setErrorMessage(`${t("serverErrorMsg")}.`);
       }
     } else {
       // Step 2: Reset password
       if (newPassword !== confirmPassword) {
-        setErrorMessage("Passwords do not match.");
+        setErrorMessage(`${t("passwordsDontMatchErrMsg")}.`);
         return;
       }
 
@@ -73,7 +78,7 @@ const ResetPassword = () => {
         const data = await response.json();
 
         if (data.success) {
-          alert('Password changed successfully!');
+          alert(`${t("passwordChangedMsg")}!`);
           setEmail('');
           setToken('');
           setNewPassword('');
@@ -81,11 +86,11 @@ const ResetPassword = () => {
           setErrorMessage('');
           setSuccessMessage('');
         } else {
-          setErrorMessage(data.message || 'Password reset failed.');
+          setErrorMessage(data.message || `${t("passwordResetFailed")}.`);
         }
       // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        setErrorMessage('Server error while resetting password.');
+        setErrorMessage(`${t("severErrorWhileResettingPw")}.`);
       }
     }
   };
@@ -93,11 +98,11 @@ const ResetPassword = () => {
   return (
     <div className="reset-password-container">
       <div className="reset-password-form-container">
-        <h2>Reset Password</h2>
+        <h2>{t("resetPassword")}</h2>
         <p>
           {!token
-            ? "Enter your email to receive a reset link."
-            : "Enter your new password."}
+            ? `${t("enterMailMsg")}.`
+            : `${t("enterPwMsg")}.`}
         </p>
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -109,7 +114,7 @@ const ResetPassword = () => {
               <div className="form-group">
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder={t("email")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -122,7 +127,7 @@ const ResetPassword = () => {
                 <div className="form-group">
                   <input
                     type="password"
-                    placeholder="New Password"
+                    placeholder={t("newPassword")}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
@@ -131,7 +136,7 @@ const ResetPassword = () => {
                 <div className="form-group">
                   <input
                     type="password"
-                    placeholder="Confirm New Password"
+                    placeholder={t("confirmNewPassword")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -141,7 +146,7 @@ const ResetPassword = () => {
             )}
 
             <button type="submit" className="update-button">
-              {!token ? 'Send Reset Link' : 'Change Password'}
+              {!token ? `${t("sendResetLink")}` : `${t("changePassword")}`}
             </button>
           </form>
         )}

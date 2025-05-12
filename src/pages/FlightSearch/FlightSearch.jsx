@@ -1,25 +1,65 @@
 import './FlightSearch.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useNavigate } from 'react-router-dom';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function FlightSearch() {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const today = new Date();
   const navigate = useNavigate();
   /********************************
    *     Search Bar Logic         *
    ********************************/
-  const [originAirport, setOriginAirport] = useState("");
-  const [destinationAirport, setDestinationAirport] = useState("");
+ const [originAirport, setOriginAirport] = useState('');
+const [destinationAirport, setDestinationAirport] = useState('');
   const [departDate, setDepartDate] = useState(null);
-  const handleOriginChange = (e) => {
-    setOriginAirport(e.target.value);
+  const handleOriginChange = async (e) => {
+    const input = e.target.value;
+    setOriginAirport(input);
+
+    if (input.length >= 2) {
+      try {
+        const response = await fetch(`${apiURL}/Destination/search?term=${input}`);
+        const data = await response.json();
+        const mapped = data.map(dest => ({
+          label: `${dest.name}`,
+          value: dest.cityCode
+        }));
+        setFilteredOrigins(mapped);
+      } catch (error) {
+        console.error('Greška prilikom dohvaćanja destinacija:', error);
+      }
+    } else {
+      setFilteredOrigins([]);
+    }
   };
-  const handleDestinationChange = (e) => {
-    setDestinationAirport(e.target.value);
+
+const handleDestinationChange = async (e) => {
+    const input = e.target.value;
+    setDestinationAirport(input);
+
+    if (input.length >= 2) {
+      try {
+        const response = await fetch(`${apiURL}/Destination/search?term=${input}`);
+        const data = await response.json();
+        const mapped = data.map(dest => ({
+          label: `${dest.name}`,
+          value: dest.cityCode
+        }));
+        setFilteredDestinations(mapped);
+      } catch (error) {
+        console.error('Greška prilikom dohvaćanja destinacija:', error);
+      }
+    } else {
+      setFilteredDestinations([]);
+    }
   };
   const handleDepartChange = (date) => {
     setDepartDate(date);
@@ -140,6 +180,14 @@ export default function FlightSearch() {
    *     Fetch Flights logic       *
    *********************************/
 
+  
+ 
+  const [filteredOrigins, setFilteredOrigins] = useState([]);
+const [filteredDestinations, setFilteredDestinations] = useState([]);
+
+
+
+
   const [showFlights, setShowFlights] = useState(false);
 
   const getFlights = () => {
@@ -191,7 +239,7 @@ export default function FlightSearch() {
       let selectedPrice = 0;
   
       if (classOption === 'All') {
-        // Ako je "All", uzmi bilo koju dostupnu cijenu
+        
         selectedPrice = fares.economyPrice || fares.businessPrice || fares.firstClassPrice || 0;
   
         if (selectedPrice === 0) {
@@ -201,7 +249,7 @@ export default function FlightSearch() {
         selectedPrice = fares[seatClassKey];
       }
   
-      // Spremi u localStorage ako postoji cijena
+      
       if (selectedPrice !== 0) {
         
         localStorage.setItem('selectedPrice', selectedPrice);
@@ -272,24 +320,69 @@ export default function FlightSearch() {
       {/********************************
         *          Search Bar          *
         ********************************/}
-      <div className="FlightSearchDiv">
-        <input
-          type="text"
-          placeholder="From where?"
-          onChange={handleOriginChange}
-          value={originAirport}
-        />
-        <input
-          type="text"
-          placeholder="To where?"
-          onChange={handleDestinationChange}
-          value={destinationAirport}
-        />
+     <div className="FlightSearchDiv">
+      {/* From where? */}
+<div className="input-wrapper" style={{ position: "relative", flex: 1 }}>
+  <input
+    type="text"
+    placeholder={t("searchFrom")}
+    onChange={handleOriginChange}
+    value={originAirport}
+    onBlur={() => setTimeout(() => setFilteredOrigins([]), 100)}
+  />
+  {filteredOrigins.length > 0 && (
+    <ul className="autocomplete-list" style={{ position: 'absolute', backgroundColor: 'white', zIndex: 10 }}>
+      {filteredOrigins.map((d, i) => (
+        <li
+          key={i}
+          onClick={() => {
+            setOriginAirport(d.label);
+            setFilteredOrigins([]);
+          }}
+          style={{ cursor: 'pointer', padding: '5px 10px' }}
+        >
+          {d.label}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+{/* To where? */}
+<div className="input-wrapper" style={{ position: "relative", flex: 1 }}>
+  <input
+    type="text"
+    placeholder={t("searchTo")}
+    onChange={handleDestinationChange}
+    value={destinationAirport}
+    onBlur={() => setTimeout(() => setFilteredDestinations([]), 100)}
+  />
+  {filteredDestinations.length > 0 && (
+    <ul className="autocomplete-list" style={{ position: 'absolute', backgroundColor: 'white', zIndex: 10 }}>
+      {filteredDestinations.map((d, i) => (
+        <li
+          key={i}
+          onClick={() => {
+            setDestinationAirport(d.label);
+            setFilteredDestinations([]);
+          }}
+          style={{ cursor: 'pointer', padding: '5px 10px' }}
+        >
+          {d.label}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+  
+
+
+
         <DatePicker
           selected={departDate}
           onChange={handleDepartChange}
           dateFormat="dd/MM/yyyy"
-          placeholderText="Select departure date"
+          placeholderText={t("selectDepartureDate")}
           minDate={today}
           className="fs-input"
           wrapperClassName="fs-wrapper"
@@ -301,10 +394,10 @@ export default function FlightSearch() {
   onChange={handleClassChange}  
   className="fs-input"
 >
-  <option value="all">All Classes</option>
-  <option value="economy">Economy</option>
-  <option value="business">Business</option>
-  <option value="firstClass">First Class</option>
+  <option value="all">{t("searchallClasses")}</option>
+  <option value="economy">{t("economy")}</option>
+  <option value="business">{t("business")}</option>
+  <option value="firstClass">{t("firstClass")}</option>
 </select>
 
         <button
@@ -312,7 +405,7 @@ export default function FlightSearch() {
           onClick={getFlights}
           disabled={!originAirport || !destinationAirport || !departDate}
         >
-          Search
+          {t("search")}
         </button>
       </div>
 
@@ -375,13 +468,13 @@ export default function FlightSearch() {
               value={priceOption}
               onChange={handlePriceOptionChange}
             >
-              <option value="" disabled hidden>Select Price Order</option>
-              <option value="Economy: Cheapest to Priciest">E: Cheapest to Priciest</option>
-              <option value="Economy: Priciest to Cheapest">E: Priciest to Cheapest</option>
-              <option value="Business: Cheapest to Priciest">B: Cheapest to Priciest</option>
-              <option value="Business: Priciest to Cheapest">B: Priciest to Cheapest</option>
-              <option value="First class: Cheapest to Priciest">F: Cheapest to Priciest</option>
-              <option value="First class: Priciest to Cheapest">F: Priciest to Cheapest</option>
+              <option value="" disabled hidden>{t("selectPriceOrder")}</option>
+              <option value="Economy: Cheapest to Priciest">{`E: ${t("cheapestToPriciest")}`}</option>
+              <option value="Economy: Priciest to Cheapest">{`E: ${t("priciestToCheapest")}`}</option>
+              <option value="Business: Cheapest to Priciest">{`B: ${t("cheapestToPriciest")}`}</option>
+              <option value="Business: Priciest to Cheapest">{`B: ${t("priciestToCheapest")}`}</option>
+              <option value="First class: Cheapest to Priciest">{`F: ${t("cheapestToPriciest")}`}</option>
+              <option value="First class: Priciest to Cheapest">{`F: ${t("priciestToCheapest")}`}</option>
             </select>
 
             <select
@@ -389,13 +482,13 @@ export default function FlightSearch() {
               value={durationOption}
               onChange={handleDurationOptionChange}
             >
-              <option value="" disabled hidden>Flight Duration Order</option>
-              <option value="Shortest to Longest">Shortest to Longest</option>
-              <option value="Longest to Shortest">Longest to Shortest</option>
+              <option value="" disabled hidden>{t("flightDurationOrder")}</option>
+              <option value="Shortest to Longest">{t("shortestToLongest")}</option>
+              <option value="Longest to Shortest">{t("longestToShortest")}</option>
             </select>
 
             <button className="ResetBtn" onClick={resetFilters}>
-            Reset Filters
+            {t("resetFilters")}
             </button>
           </div>
 
@@ -418,56 +511,73 @@ export default function FlightSearch() {
 
               <div className="FlightInfo">
                 <div>
-                  <p className="SmallLabel">Flight</p>
+                  <p className="SmallLabel">{t("flight")}</p>
                   <p>{flight.flightNumber}</p>
                 </div>
                 <div>
-                  <p className="SmallLabel">Departure</p>
+                  <p className="SmallLabel">{t("departure")}</p>
                   <p>
                     {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12:false })}
                   </p>
                 </div>
                 <div>
-                  <p className="SmallLabel">Arrival</p>
+                  <p className="SmallLabel">{t("arrival")}</p>
                   <p>
                     {new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12:false })}
                   </p>
                 </div>
                 <div>
-                  <p className="SmallLabel">Seats</p>
-                  <p>{flight.availableSeats} left</p>
+                  <p className="SmallLabel">{t("seats")}</p>
+                  <p>{`${t("seatsLeft", {value: flight.availableSeats})}`}</p>
                 </div>
               </div>
 
               <div className="FlightPrices">
-  {flight.fares && (
-    <>
-      {(selectedClass === "all" || selectedClass === "economy") && (
-        <p className={`Price ${priceOption.includes("Economy") ? "highlighted" : "normal"}`}>
-          Economy: {flight.fares.economyPrice !== null ? `€${flight.fares.economyPrice}` : "Not available"}
-        </p>
-      )}
+                {flight.fares && (
+                <>
+                  {(selectedClass === "all" || selectedClass === "economy") && (
+                    <p className="Price">
+                      {t("economyPriceValue", {
+                        value:
+                          flight.fares.economyPrice != null
+                            ? `€${flight.fares.economyPrice}`
+                            : t("notAvailable")
+                      })}
+                    </p>
+                  )}
 
-      {(selectedClass === "all" || selectedClass === "business") && (
-        <p className={`Price ${priceOption.includes("Business") ? "highlighted" : "normal"}`}>
-          Business: {flight.fares.businessPrice !== null ? `€${flight.fares.businessPrice}` : "Not available"}
-        </p>
-      )}
+                  {(selectedClass === "all" || selectedClass === "business") && (
+                    <p className="Price">
+                      {t("businessPriceValue", {
+                        value:
+                          flight.fares.businessPrice != null
+                            ? `€${flight.fares.businessPrice}`
+                            : t("notAvailable")
+                      })}
+                    </p>
+                  )}
 
-      {(selectedClass === "all" || selectedClass === "firstClass") && (
-        <p className={`Price ${priceOption.includes("First class") ? "highlighted" : "normal"}`}>
-          First Class: {flight.fares.firstClassPrice !== null ? `€${flight.fares.firstClassPrice}` : "Not available"}
-        </p>
-      )}
+                  {(selectedClass === "all" || selectedClass === "firstClass") && (
+                    <p className="Price">
+                      {t("firstClassPriceValue", {
+                        value:
+                          flight.fares.firstClassPrice != null
+                            ? `€${flight.fares.firstClassPrice}`
+                            : t("notAvailable")
+                      })}
+                    </p>
+                  )}
 
-      {flight.fares.validFrom && flight.fares.validTo && (
-        <p className="valid-period">
-          Valid: {new Date(flight.fares.validFrom).toLocaleDateString()} – {new Date(flight.fares.validTo).toLocaleDateString()}
-        </p>
-      )}
-    </>
-  )}
-
+                  {flight.fares.validFrom && flight.fares.validTo && (() => {
+                    const dateRange = `${new Date(flight.fares.validFrom).toLocaleDateString()} – ${new Date(flight.fares.validTo).toLocaleDateString()}`;
+                    return (
+                      <p className="valid-period">
+                        {t("faresValidValue", { value: dateRange })}
+                      </p>
+                    );
+                  })()}
+                </>
+              )}
 
 
 
@@ -493,12 +603,12 @@ export default function FlightSearch() {
     getSeatData(flight.aircraftId);
     navigate('/book-flight');
   }
-}>Book Now</button>
+}>{t("bookNow")}</button>
               </div>
             </div>
           ))
         ) : (
-          showFlights && <p>No flights found.</p>
+          showFlights && <p>{t("noFlightsFound")}</p>
         )}
       </div>
     </>

@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { X, Edit2, Calendar } from 'lucide-react';
 import './MyBooking.css';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const MyBooking = () => {
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const [activeTab, setActiveTab] = useState('upcoming');
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +32,7 @@ const MyBooking = () => {
     const fetchBookings = async () => {
       try {
         const response = await fetch(`${apiURL}/Customer/${customerId}/mybookings?customerId=${customerId}`);
-        if (!response.ok) throw new Error('Failed to fetch bookings');
+        if (!response.ok) throw new Error(`${t("failedToFetchBookings")}`);
         const data = await response.json();
 
         const formattedBookings = data.map(booking => ({
@@ -70,28 +75,28 @@ const MyBooking = () => {
       });
 
       if (response.status === 204) {
-        alert('Booking canceled successfully.');
+        alert(`${t("bookingCancelledSuccessfully")}`);
         setBookings(prevBookings =>
           prevBookings.map(b =>
             b.id === bookingId ? { ...b, status: 'Canceled', isCanceled: true } : b
           )
         );
       } else if (response.status === 404) {
-        alert('Booking not found.');
+        alert(`${t("bookingNotFound")}.`);
       } else if (response.status === 400) {
-        alert('Error canceling booking.');
+        alert(`${t("errCancelingBooking")}.`);
       } else {
-        alert('An unexpected error occurred.');
+        alert(`${t("unexpectedErr")}.`);
       }
     } catch (error) {
       console.error('Error canceling booking:', error);
-      alert('Failed to cancel booking.');
+      alert(`${t("failedCancelingBooking")}.`);
     }
   };
 
   const handleModify = async (bookingId) => {
     if (!newFlightId) {
-      alert('Please enter a new Flight ID.');
+      alert(`${t("pleaseEnterNewFlightId")}.`);
       return;
     }
   
@@ -105,50 +110,50 @@ const MyBooking = () => {
       });
   
       if (response.status === 204) {
-        alert('Booking successfully modified.');
+        alert(`${t("bookingSuccessfullyModified")}.`);
         setModifyingBookingId(null);
         setNewFlightId('');
       } else if (response.status === 400) {
         const errorText = await response.text();
-        alert(`Bad request: ${errorText}`);
+        alert(`${t("badRequest")}: ${errorText}`);
       } else if (response.status === 404) {
-        alert('Booking not found.');
+        alert(`${t("bookingNotFound")}.`);
       } else {
-        alert('An unexpected error occurred while modifying.');
+        alert(`${t("unexpectedModifyErr")}.`);
       }
     } catch (error) {
-      console.error('Error modifying booking:', error);
-      alert('Failed to modify booking.');
+      console.error(`${t("errorModifyingBooking")}:`, error);
+      alert(`${t("failedToModifyBooking")}`);
     }
   };
   
 
   if (loading) {
-    return <div className="booking-containera">Loading your bookings...</div>;
+    return <div className="booking-containera">{t("loadingYourBookings")}</div>;
   }
 
   return (
     <div className="booking-containera">
-      <h1 className="booking-title">Your Bookings</h1>
+      <h1 className="booking-title">{t("yourBookings")}</h1>
 
       <div className="booking-tabs">
         <button
           className={`booking-tab ${activeTab === 'upcoming' ? 'active' : ''}`}
           onClick={() => setActiveTab('upcoming')}
         >
-          Upcoming
+          {t("upcoming")}
         </button>
         <button
           className={`booking-tab ${activeTab === 'past' ? 'active' : ''}`}
           onClick={() => setActiveTab('past')}
         >
-          Past
+          {t("past")}
         </button>
         <button
           className={`booking-tab ${activeTab === 'canceled' ? 'active' : ''}`}
           onClick={() => setActiveTab('canceled')}
         >
-          Canceled
+          {("canceled")}
         </button>
       </div>
 
@@ -157,7 +162,7 @@ const MyBooking = () => {
           filteredBookings.map(booking => (
             <div
               key={booking.id}
-              className={`booking-item ${booking.isPast ? 'past' : ''} ${booking.isCanceled ? 'canceled' : ''}`}
+              className={`booking-item ${booking.isPast ? `${t("past")}` : ''} ${booking.isCanceled ? `${t("canceled")}` : ''}`}
             >
               <div className="booking-profile">
                 <img
@@ -176,19 +181,19 @@ const MyBooking = () => {
 
               <div className="booking-details">
                 <div className="booking-detail">
-                  <span className="booking-detail-label">Flight:</span>
+                  <span className="booking-detail-label">{`${t("Flight")}:`}</span>
                   <span className="booking-detail-value">{booking.flightNumber}</span>
                 </div>
                 <div className="booking-detail">
-                  <span className="booking-detail-label">Seat:</span>
+                  <span className="booking-detail-label">{`${t("seat")}:`}</span>
                   <span className="booking-detail-value">{booking.seat}</span>
                 </div>
                 <div className="booking-detail">
-                  <span className="booking-detail-label">Seat Class:</span>
+                  <span className="booking-detail-label">{`${t("seatClass")}:`}</span>
                   <span className="booking-detail-value">{booking.seatClass}</span>
                 </div>
                 <div className="booking-detail">
-                  <span className="booking-detail-label">Status:</span>
+                  <span className="booking-detail-label">{`${t("status")}:`}</span>
                   <span className="booking-detail-value">{booking.status}</span>
                 </div>
               </div>
@@ -206,14 +211,14 @@ const MyBooking = () => {
         }
       >
         <Edit2 size={16} />
-        <span>Modify</span>
+        <span>{t("modify")}</span>
       </button>
 
       {modifyingBookingId === booking.id && (
         <div className="modify-input-group">
           <input
             type="number"
-            placeholder="Enter new Flight ID"
+            placeholder={t("enterNewFlightId")}
             value={newFlightId}
             onChange={(e) => setNewFlightId(e.target.value)}
             className="modify-input"
@@ -222,7 +227,7 @@ const MyBooking = () => {
             className="booking-action-button confirm"
             onClick={() => handleModify(booking.id)}
           >
-            Confirm
+            {t("confirm")}
           </button>
         </div>
       )}
@@ -232,7 +237,7 @@ const MyBooking = () => {
         onClick={() => handleCancel(booking.id)}
       >
         <X size={16} />
-        <span>Cancel</span>
+        <span>{t("cancel")}</span>
       </button>
     </>
   )}
@@ -243,7 +248,7 @@ const MyBooking = () => {
           ))
         ) : (
           <div className="booking-empty">
-            <p>No {activeTab} bookings found.</p>
+            <p>{t("noBookingsFound", { tab: activeTab })}</p>
           </div>
         )}
       </div>
