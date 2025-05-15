@@ -14,7 +14,9 @@ const HeaderWrapper = () => {
 		"/admin/userManagement", 
 		"/admin/aircraftManagement", 
 		"/admin/flightScheduling",
-	    "/admin/fareManagement"];
+	    "/admin/fareManagement",
+		"/admin/analytics"
+	];
 
 	const isAdminPage = adminPaths.includes(location.pathname);
 

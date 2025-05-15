@@ -10,15 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.10",
     "axios": "^1.8.4",
     "font-awesome": "^4.7.0",
     "lucide-react": "^0.487.0",
+    "radix": "^0.0.0",
     "react": "^19.0.0",
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.4.1",
-    "react-select": "^5.10.1"
+    "react-select": "^5.10.1",
+    "recharts": "^2.15.3",
+    "vite": "^6.3.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -32,7 +36,6 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.2",
-    "vite": "^6.2.5"
+    "tailwindcss": "^4.1.2"
   }
 }
