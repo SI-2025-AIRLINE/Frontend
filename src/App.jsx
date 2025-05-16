@@ -20,6 +20,7 @@ import MyBooking from './pages/MyBooking/MyBooking';
 import AirlineManagement from './pages/AirlineManagement/AirlineManagement';
 import { FlightSearch } from './pages';
 import FareManagement from './pages/FareManagement/FareManagement';
+import SupportTickets from './pages/SupportTickets/SupportTickets';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="/my-booking" element={<MyBooking />} />
             <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
             <Route path="/admin/fareManagement" element={<FareManagement />} />
+            <Route path="/admin/supportTickets" element={<SupportTickets />} />
           </Routes>
         </div>
       </Router>
