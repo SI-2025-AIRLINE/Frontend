@@ -110,6 +110,7 @@
     "female" : "Žensko",
     "forgotYourPassword": "Zaboravili ste šifru?",
     "flights": "Letovi",
+    "Tickets": "Tiketi",
     "logout": "Odjavi se",
     "message1": "Dobrodošli na SI 2025 Airline",
     "message2": "Mozete pretraživati, rezervisati i upravljati avionskim kartama!",
@@ -160,5 +161,22 @@
     "past": "Prosli",
     "cancelled": "Otkazani",
     "modify": "Izmijeni",
-    "cancel": "Otkaži"
+    "cancel": "Otkaži",
+   
+    "Search tickets...": "Pretraži tikete...",
+    "allCategories": "Sve kategorije",
+    "All Statuses": "Svi statusi",
+    "backtotickets": "Povratak na Tikete",
+    "Create New Ticket": "Napravi Novi Tiket",
+    "Ticket Name": "Ime Tiketa",
+    "Enter a descriptive name for the ticket": "Unesite deskriptivno ime za tiket",
+    "Category": "Kategorija",
+    "Priority":"Prioritet",
+    "Select a category": "Izaberi kategoriju",
+    "Select priority level": "Izaberi nivo prioriteta",
+    "Description": "Opis",
+    "Please provide detailed information about the issue...": "Molimo Vas da detaljno opišete informacije u vezi tiketa...",
+    "Create Ticket": "Napravi Tiket",
+    "Open Chat": "Otvori Chat"
+
 }
