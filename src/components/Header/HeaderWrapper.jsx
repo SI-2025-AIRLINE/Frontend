@@ -14,7 +14,7 @@ const HeaderWrapper = () => {
 		"/admin/userManagement", 
 		"/admin/aircraftManagement", 
 		"/admin/flightScheduling",
-		"/admin/supportTickets"
+		"/admin/supportTickets",
 
 		"/admin/fareManagement",
 		"/admin/chatManagement"
