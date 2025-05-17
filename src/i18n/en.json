@@ -110,6 +110,7 @@
     "female" : "Female",
     "forgotYourPassword": "Forgot your password?",
     "flights": "Flights",
+    "Tickets": "Tickets",
     "logout": "Logout",
     "message1": "Welcome to SI 2025 Airline",
     "message2": "You can search, book, and manage flight tickets!",
@@ -159,5 +160,9 @@
     "past": "Past",
     "canceled": "Canceled",
     "modify": "Modify",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+
+    "Search tickets...": "Search tickets...",
+    "allCategories": "All Categories",
+    "All Statuses": "All Statuses"
 }

@@ -110,6 +110,7 @@
     "female" : "Žensko",
     "forgotYourPassword": "Zaboravili ste šifru?",
     "flights": "Letovi",
+    "Tickets": "Tiketi",
     "logout": "Odjavi se",
     "message1": "Dobrodošli na SI 2025 Airline",
     "message2": "Mozete pretraživati, rezervisati i upravljati avionskim kartama!",
@@ -160,5 +161,9 @@
     "past": "Prosli",
     "cancelled": "Otkazani",
     "modify": "Izmijeni",
-    "cancel": "Otkaži"
+    "cancel": "Otkaži",
+   
+    "Search tickets...": "Pretraži tikete...",
+    "allCategories": "Sve kategorije",
+    "All Statuses": "Svi statusi"
 }

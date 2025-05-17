@@ -21,6 +21,10 @@ import AirlineManagement from './pages/AirlineManagement/AirlineManagement';
 import { FlightSearch } from './pages';
 import FareManagement from './pages/FareManagement/FareManagement';
 import SupportTickets from './pages/SupportTickets/SupportTickets';
+import TicketsDashboard from './pages/TicketsDashboard/TicketsDashboard';
+import CreateTicket from './pages/CreateTicket/CreateTicket';
+import CustomerChat from './pages/CustomerChat/CustomerChat';
+import ChatManagement from './pages/ChatManagement/ChatManagement';
 
 function App() {
   return (
@@ -46,6 +50,10 @@ function App() {
             <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
             <Route path="/admin/fareManagement" element={<FareManagement />} />
             <Route path="/admin/supportTickets" element={<SupportTickets />} />
+            <Route path="/tickets-dashboard" element={<TicketsDashboard />} />
+            <Route path="/create-ticket" element={<CreateTicket />} />
+            <Route path="/customer-chat" element={<CustomerChat />} />
+            <Route path="/admin/chatManagement" element={<ChatManagement />} />
           </Routes>
         </div>
       </Router>
