@@ -21,6 +21,7 @@ import AirlineManagement from './pages/AirlineManagement/AirlineManagement';
 import { FlightSearch } from './pages';
 import FareManagement from './pages/FareManagement/FareManagement';
 import SupportTickets from './pages/SupportTickets/SupportTickets';
+import ChatManagement from './pages/ChatManagement/ChatManagement';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
             <Route path="/admin/fareManagement" element={<FareManagement />} />
             <Route path="/admin/supportTickets" element={<SupportTickets />} />
+            <Route path="/admin/chatManagement" element={<ChatManagement />} />
           </Routes>
         </div>
       </Router>
