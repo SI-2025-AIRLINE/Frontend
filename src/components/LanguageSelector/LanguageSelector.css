@@ -3,50 +3,45 @@
   display: inline-block;
 }
 
-.language-selector-button {
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
-  padding: 8px 12px;
-  border-radius: 4px;
+.language-selector-icon {
+  width: 30px;
+  height: 30px;
   cursor: pointer;
-}
-
-.language-selector-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  margin-left: 12px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .menu-items {
   position: absolute;
   right: 0;
-  margin-top: 8px;
+  top: 30px;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0); /* potpuno transparentna pozadina */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  min-width: max-content;
-  backdrop-filter: blur(4px); /* mutna pozadina – efekat stakla */
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 5px 0;
+  min-width: 140px;
 }
 
 .menu-items button {
-  display: block;
   width: 100%;
-  padding: 8px 12px;
-  text-align: left;
-  background-color: transparent;
-  color: white;
+  background: none;
   border: none;
+  text-align: left;
+  padding: 8px 12px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 14px;
 }
 
 .menu-items button:hover {
-  background-color: #007bff;
-  color: white;
+  background-color: #f0f0f0;
 }
 
 .checkmark {
   margin-right: 6px;
-  color: #00ff99; /* Svijetlozelena kvaka */
+  color: #00ff99;
   font-weight: bold;
 }
