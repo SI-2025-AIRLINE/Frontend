@@ -20,6 +20,7 @@ import MyBooking from './pages/MyBooking/MyBooking';
 import AirlineManagement from './pages/AirlineManagement/AirlineManagement';
 import { FlightSearch } from './pages';
 import FareManagement from './pages/FareManagement/FareManagement';
+import AirlineAdminAnalytics from './pages/Analytics/Analytics';
 import SupportTickets from './pages/SupportTickets/SupportTickets';
 import TicketsDashboard from './pages/TicketsDashboard/TicketsDashboard';
 import CreateTicket from './pages/CreateTicket/CreateTicket';
@@ -49,6 +50,7 @@ function App() {
             <Route path="/my-booking" element={<MyBooking />} />
             <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
             <Route path="/admin/fareManagement" element={<FareManagement />} />
+            <Route path="/admin/analytics" element={<AirlineAdminAnalytics />} />
             <Route path="/admin/supportTickets" element={<SupportTickets />} />
             <Route path="/tickets-dashboard" element={<TicketsDashboard />} />
             <Route path="/create-ticket" element={<CreateTicket />} />
