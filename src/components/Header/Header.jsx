@@ -6,7 +6,7 @@ import profileImage from '../../assets/profile.png';
 
 import { useTranslation } from '../../hooks/useTranslation';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
-import { LanguageContext } from '../../context/LanguageContext';  // Uvezi useContext
+import { LanguageContext } from '../../context/LanguageContext'; 
 
 const Header = () => {
   const navigate = useNavigate();
@@ -37,16 +37,14 @@ const Header = () => {
       {token && fullName && (
         <div className="header-center">
           <Button text={t("flights")} onClick={() => navigate('/flight-search')} />
+          <Button text={t("Tickets")} onClick={() => navigate('/tickets-dashboard')} />
+          <Button text={t("Feedback")} onClick={() => navigate('/feedback')} />
         </div>
       )}
 
       <div className="header-right">
         {token && fullName ? (
           <>
-            <LanguageSelector
-                currentLanguage={language} 
-                onChangeLanguage={(lang) => setLanguage(lang)}
-            />
             <img
               src={profileImage}  
               alt="Profile"
@@ -54,15 +52,19 @@ const Header = () => {
               onClick={() => navigate('/profile')}
             />
             <Button text={t("logout")} onClick={handleLogout} />
+            <LanguageSelector
+              currentLanguage={language} 
+              onChangeLanguage={(lang) => setLanguage(lang)}
+            />
           </>
         ) : (
           <>
+            <Button text={`${t("register")}`} onClick={() => navigate('/register')} />
+            <Button text={`${t("login")}`} onClick={() => navigate('/login')} />
             <LanguageSelector
               currentLanguage={language}
               onChangeLanguage={(lang) => setLanguage(lang)}
             />
-            <Button text={`${t("register")}`} onClick={() => navigate('/register')} />
-            <Button text={`${t("login")}`} onClick={() => navigate('/login')} />
           </>
         )}
       </div>

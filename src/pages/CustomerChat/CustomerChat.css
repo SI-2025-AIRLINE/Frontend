@@ -1,0 +1,198 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 600px; 
+  width: 500px;  
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+}
+
+.chat-header {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 16px;
+  border-bottom: 1px solid #d1d5db;
+  font-size: 1.1em;
+}
+
+.chat-user-info .chat-username {
+  font-weight: bold;
+}
+
+.chat-user-info .chat-fullname {
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+.chat-status {
+  font-size: 0.8em;
+  margin-top: 2px;
+  color: #d1fae5;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #f9fafb;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.message {
+  display: flex;
+  max-width: 75%;
+  transition: all 0.3s ease;
+}
+
+.message-theirs {
+  align-self: flex-start;
+  flex-direction: row;
+}
+
+.message-theirs .message-bubble {
+  background-color: #e5e7eb;
+  color: #1f2937;
+  border-radius: 18px 18px 18px 6px;
+}
+
+.message-mine {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-mine .message-bubble {
+  background-color: #2563eb;
+  color: white;
+  border-radius: 18px 18px 6px 18px;
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  word-wrap: break-word;
+  line-height: 1.5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  font-size: 0.95em;
+}
+
+.message-time {
+  font-size: 0.75em;
+  color: #6b7280;
+  align-self: flex-end;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.message-theirs .message-time {
+  margin-left: 10px;
+}
+
+.message-mine .message-time {
+  margin-right: 10px;
+}
+
+.message-sender-name {
+  font-size: 0.8em;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #374151;
+}
+
+.message-admin .message-sender-name {
+  color: #2563eb;
+}
+
+.message-customer .message-sender-name {
+  color: #16a34a;
+}
+
+.message-system {
+  align-self: center;
+  max-width: 90%;
+}
+
+.message-system .message-bubble {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: none;
+}
+
+.message-system .message-time {
+  text-align: center;
+  font-size: 0.7em;
+}
+
+.chat-input {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.chat-input input {
+  flex-grow: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  padding: 10px 14px;
+  margin-right: 10px;
+  font-size: 0.9em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-input input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.chat-input button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.chat-input button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.chat-input button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.empty-chat {
+  text-align: center;
+  padding: 20px;
+  color: #9ca3af;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: italic;
+  min-height: 100px;
+}
