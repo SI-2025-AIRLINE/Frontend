@@ -232,7 +232,7 @@ function AirlineAdminAnalytics() {
             <h2 className="analytics-card-title">Cancelled Flights %</h2>
             <CardMonthDropdown
               months={cancelledFlightsMonths}
-              renderContent={renderCancelledContent}
+              renderContent={(month) => renderCancelledContent(month)}
               onMonthChange={(month) => setSelectedCanceledFlightsMonth(month)}
               initialMonth={initialMonth}
             />
@@ -302,10 +302,10 @@ function AirlineAdminAnalytics() {
               sortedRouteRevenueStatistics.map((routeStat, idx) => (
                 <tr key={idx}>
                   <td className="analytics-table-cell">{routeStat.route}</td>
-                  <td className="analytics-table-cell">${routeStat.revenue}</td>
-                  <td className="analytics-table-cell">${routeStat.avg_ticket_price.economy}</td>
-                  <td className="analytics-table-cell">${routeStat.avg_ticket_price.business}</td>
-                  <td className="analytics-table-cell">${routeStat.avg_ticket_price.first_class}</td>
+                  <td className="analytics-table-cell">${Number(routeStat.revenue).toFixed(2)}</td>
+                  <td className="analytics-table-cell">${Number(routeStat.avg_ticket_price.economy).toFixed(2)}</td>
+                  <td className="analytics-table-cell">${Number(routeStat.avg_ticket_price.business).toFixed(2)}</td>
+                  <td className="analytics-table-cell">${Number(routeStat.avg_ticket_price.first_class).toFixed(2)}</td>
                 </tr>
               ))
             ) : (
