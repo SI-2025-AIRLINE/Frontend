@@ -1,0 +1,158 @@
+/* Card Base Styles */
+.card {
+  background-color: white;
+  border-radius: 1rem; /* Matching the rounded-2xl in the component */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem; /* Matching the p-6 in the component */
+  border: 1px solid #e5e7eb; /* Adding border to match the component */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header Styles */
+.card-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Card Title Styles */
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Card Content Styles */
+.card-content {
+  font-size: 0.875rem;
+  color: #4b5563; /* text-gray-700 equivalent */
+  line-height: 1.5;
+}
+
+/* Card Footer Styles */
+.card-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Card Button Styles */
+.card-button {
+  background-color: #3b82f6; /* bg-blue-500 equivalent */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.card-button:hover {
+  background-color: #2563eb; /* bg-blue-600 equivalent */
+}
+
+.card-button:focus {
+  outline: 2px solid #93c5fd; /* blue-300 */
+  outline-offset: 2px;
+}
+
+/* Variant styles */
+.card-primary {
+  border-left: 4px solid #3b82f6; /* blue-500 */
+}
+
+.card-secondary {
+  border-left: 4px solid #6b7280; /* gray-500 */
+}
+
+.card-success {
+  border-left: 4px solid #10b981; /* green-500 */
+}
+
+.card-danger {
+  border-left: 4px solid #ef4444; /* red-500 */
+}
+
+.card-warning {
+  border-left: 4px solid #f59e0b; /* amber-500 */
+}
+
+.card-dropdown-select {
+  position: relative;
+  display: inline-block;
+}
+
+.card-dropdown-select {
+  appearance: none; /* Remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 36px 8px 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  min-width: 120px;
+}
+
+/* Custom arrow with pseudo element */
+.card-dropdown-select {
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg fill='%23666' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px 20px;
+}
+
+/* Hover and focus states */
+.card-dropdown-select:hover {
+  border-color: #999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.card-dropdown-select:focus {
+  outline: none;
+  border-color: #0066ff;
+  box-shadow: 0 0 6px rgba(0,102,255,0.6);
+  background-color: #fff;
+}
+
+/* Disabled state */
+.card-dropdown-select:disabled {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .card {
+    padding: 1rem;
+  }
+  
+  .card-footer {
+    flex-direction: column;
+  }
+  
+  .card-button {
+    width: 100%;
+  }
+}
+

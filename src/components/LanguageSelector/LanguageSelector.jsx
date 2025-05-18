@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import './LanguageSelector.css';
 import { useTranslation } from '../../hooks/useTranslation';
+import globeIcon from '../../assets/languageIcon.png'; // ikonica jezika
 
 const LanguageSelector = () => {
   const { language, setLanguage } = useContext(LanguageContext);
@@ -27,9 +28,12 @@ const LanguageSelector = () => {
 
   return (
     <div className="language-selector-container">
-      <button className="language-selector-button" onClick={toggleMenu}>
-        {t("languages")}
-      </button>
+      <img
+        src={globeIcon}
+        alt="Language Selector"
+        className="language-selector-icon"
+        onClick={toggleMenu}
+      />
       {menuOpen && (
         <div className="menu-items">
           <button onClick={() => handleSelect('en')}>
