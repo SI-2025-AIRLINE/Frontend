@@ -25,6 +25,7 @@ import ChatManagement from './pages/ChatManagement/ChatManagement';
 import TicketsDashboard from './pages/TicketsDashboard/TicketsDashboard';
 import CreateTicket from './pages/CreateTicket/CreateTicket';
 import CustomerChat from './pages/CustomerChat/CustomerChat';
+import Feedback from './pages/Feedback/Feedback';
 
 function App() {
   return (
@@ -54,7 +55,7 @@ function App() {
             <Route path="/tickets-dashboard" element={<TicketsDashboard />} />
             <Route path="/create-ticket" element={<CreateTicket />} />
             <Route path="/customer-chat" element={<CustomerChat />} />
-            
+            <Route path="/feedback" element={<Feedback />} />
           </Routes>
         </div>
       </Router>

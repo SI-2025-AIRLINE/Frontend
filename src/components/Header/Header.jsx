@@ -38,6 +38,7 @@ const Header = () => {
         <div className="header-center">
           <Button text={t("flights")} onClick={() => navigate('/flight-search')} />
           <Button text={t("Tickets")} onClick={() => navigate('/tickets-dashboard')} />
+          <Button text={t("Feedback")} onClick={() => navigate('/feedback')} />
         </div>
       )}
 
