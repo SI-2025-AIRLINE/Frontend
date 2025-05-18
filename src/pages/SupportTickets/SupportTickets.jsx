@@ -5,21 +5,20 @@ import clsx from 'clsx';
 import './SupportTickets.css';
 
 const TICKET_CATEGORIES = [
-  'Reservation',
+  'General',
+  'Billing',
+  'Tehnical',
   'Baggage',
+  'FlightIssue',
   'Refund',
-  'Account Issues',
-  'Flight Change',
-  'Payment Problem'
+  'Other'
 ];
 
 const TICKET_STATUS = {
   OPEN: 'Open',
   IN_PROGRESS: 'In Progress',
-  ON_HOLD: 'On Hold',
   RESOLVED: 'Resolved',
   CLOSED: 'Closed',
-  CANCELLED: 'Cancelled',
   REOPENED: 'Reopened'
 };
 
@@ -32,7 +31,6 @@ const MOCK_TICKETS = [
     subject: 'Unable to book flight BA123',
     description: 'I’m experiencing a problem while trying to complete my purchase on your website. When I reach the checkout page and enter my payment details, the system processes the payment but then returns an error message saying, “Payment could not be completed at this time. Please try again later.” Despite this, my bank statement shows that the amount has been deducted twice.I have already checked my internet connection and tried using different browsers and devices, but the issue persists. This is quite urgent because I need to confirm my order for an upcoming event, and I am worried about being charged twice without receiving the order confirmation.',
     status: TICKET_STATUS.OPEN,
-    priority: 'High',
     createdAt: new Date('2024-03-10T10:30:00'),
     lastUpdated: new Date('2024-03-10T10:30:00')
   },
@@ -44,7 +42,6 @@ const MOCK_TICKETS = [
     subject: 'Lost luggage on flight AF456',
     description: 'My luggage didn\'t arrive at the destination. I\'ve been waiting at the baggage claim for over an hour.',
     status: TICKET_STATUS.IN_PROGRESS,
-    priority: 'Medium',
     createdAt: new Date('2024-03-09T15:45:00'),
     lastUpdated: new Date('2024-03-09T16:20:00')
   },
@@ -56,7 +53,6 @@ const MOCK_TICKETS = [
     subject: 'Refund for cancelled flight',
     description: 'My flight was cancelled due to weather conditions and I would like to request a refund.',
     status: TICKET_STATUS.RESOLVED,
-    priority: 'Low',
     createdAt: new Date('2024-03-08T09:15:00'),
     lastUpdated: new Date('2024-03-08T14:30:00')
   }
@@ -122,20 +118,6 @@ function SupportTickets() {
     setSelectedTicket(null);
     setReplyText('');
   };
-
-  const getPriorityColor = (priority) => {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return 'text-red-600 bg-red-50';
-      case 'medium':
-        return 'text-yellow-600 bg-yellow-50';
-      case 'low':
-        return 'text-green-600 bg-green-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
-  };
-
   return (
     <div className="support-container">
       {!selectedTicket ? (
@@ -186,18 +168,13 @@ function SupportTickets() {
                   <div className="ticket-main-info">
                     <span className="ticket-number">{ticket.ticketNumber}</span>
                     <span className="ticket-user">{ticket.userName}</span>
-                    <span className={`priority-badge ${getPriorityColor(ticket.priority)}`}>
-                      {ticket.priority}
-                    </span>
                     <span className={clsx(
                       'status-badge',
                       {
                         'status-open': ticket.status === TICKET_STATUS.OPEN,
                         'status-in-progress': ticket.status === TICKET_STATUS.IN_PROGRESS,
-                        'status-on-hold': ticket.status === TICKET_STATUS.ON_HOLD,
                         'status-resolved': ticket.status === TICKET_STATUS.RESOLVED,
                         'status-closed': ticket.status === TICKET_STATUS.CLOSED,
-                        'status-cancelled': ticket.status === TICKET_STATUS.CANCELLED,
                         'status-reopened': ticket.status === TICKET_STATUS.REOPENED
                       }
                     )}>
@@ -225,9 +202,6 @@ function SupportTickets() {
               <div className="detail-category">
                 <Tag size={16} />
                 <span>{selectedTicket.category}</span>
-              </div>
-              <div className={`priority-badge ${getPriorityColor(selectedTicket.priority)}`}>
-                {selectedTicket.priority}
               </div>
             </div>
             <h2 className="detail-subject">{selectedTicket.subject}</h2>
