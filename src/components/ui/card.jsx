@@ -1,7 +1,7 @@
 // This file needs to be updated to add the onYearChange and onMonthChange props to the CardYearMonthDropdown component
 
 import React from "react";
-import "./Card.css";
+import "./card.css";
 import { useState } from "react";
 
 // Main Card wrapper
