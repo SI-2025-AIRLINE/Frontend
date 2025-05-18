@@ -5,18 +5,30 @@ import './CreateTicket.css';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
 
+const apiURL = import.meta.env.VITE_API_BASE_URL;
+
+// Mapiranje imena kategorija na ID-jeve (prilagodi prema backendu)
+const categoryMap = {
+  Reservation: 1,
+  Baggage: 2,
+  Refund: 3,
+  Scheduling: 4,
+  "Customer Service": 5,
+  "Technical Issue": 6,
+  Other: 7,
+};
+
 const CreateTicket = () => {
-  // State for form fields
   const [ticketData, setTicketData] = useState({
     name: '',
     category: '',
-    priority: '',
     description: ''
   });
-   const { language, setLanguage } = useContext(LanguageContext);
-    const { t } = useTranslation();
 
-  // Handle input changes
+  const { language, setLanguage } = useContext(LanguageContext);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTicketData({
@@ -25,20 +37,51 @@ const CreateTicket = () => {
     });
   };
 
-  const navigate = useNavigate();
-
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the data to an API
-    console.log('Ticket data submitted:', ticketData);
-    // Placeholder for success message or redirect
-    alert('Ticket created successfully!');
+
+    // Validacija - provjeri da je korisnik prijavljen i da su potrebna polja popunjena
+    const customerId = localStorage.getItem('userId');
+    if (!customerId) {
+      alert(t("You must be logged in to create a ticket."));
+      return;
+    }
+    if (!ticketData.category || !ticketData.description || !ticketData.name) {
+      alert(t("Please fill all required fields."));
+      return;
+    }
+
+    // Pripremi payload za POST
+    const payload = {
+      category: categoryMap[ticketData.category] || 0, // ID kategorije
+      subject: ticketData.name,
+      customerId: parseInt(customerId, 10),
+      initialMessage: ticketData.description,
+    };
+
+    try {
+      const response = await fetch(`${apiURL}/Ticket`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create ticket');
+      }
+
+      // Opcionalno: možeš dobiti vraćeni ticket, ali ovdje samo ideš na dashboard
+      alert(t("Ticket created successfully!"));
+      navigate('/tickets-dashboard');
+    } catch (error) {
+      console.error(error);
+      alert(t("Error creating ticket. Please try again later."));
+    }
   };
 
-  // Return to tickets page - this would be implemented based on your routing system
   const handleReturn = () => {
-    // Navigation logic would go here, e.g., history.push('/tickets')
     navigate('/tickets-dashboard');
   };
 
@@ -99,23 +142,6 @@ const CreateTicket = () => {
             <option value="Customer Service">Customer Service</option>
             <option value="Technical Issue">Technical Issue</option>
             <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="ticket-priority">{t("Priority")}</label>
-          <select
-            id="ticket-priority"
-            name="priority"
-            className="form-control"
-            value={ticketData.priority}
-            onChange={handleChange}
-            required
-          >
-            <option value="" disabled>{t("Select priority level")}</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
           </select>
         </div>
 

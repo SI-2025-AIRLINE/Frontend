@@ -1,20 +1,13 @@
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useContext } from 'react';
-import { Search, Tag, Clock, MessageCircle, X, CheckCircle2, Send } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Search, Tag, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import './TicketsDashboard.css';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
 
-const TICKET_CATEGORIES = [
-  'Reservation',
-  'Baggage',
-  'Refund',
-  'Account Issues',
-  'Flight Change',
-  'Payment Problem'
-];
+const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 const TICKET_STATUS = {
   OPEN: 'Open',
@@ -23,45 +16,63 @@ const TICKET_STATUS = {
   RESOLVED: 'Resolved',
   CLOSED: 'Closed',
   CANCELLED: 'Cancelled',
-  REOPENED: 'Reopened'
+  REOPENED: 'Reopened',
 };
 
-const MOCK_TICKETS = [
-  {
-    id: '2',
-    ticketNumber: 'TKT-2024-002',
-    userName: 'Sarah Johnson',
-    category: 'Baggage',
-    subject: 'Lost luggage on flight AF456',
-    description: 'My luggage didn\'t arrive at the destination. I\'ve been waiting at the baggage claim for over an hour.',
-    status: TICKET_STATUS.IN_PROGRESS,
-    priority: 'Medium',
-    createdAt: new Date('2024-03-09T15:45:00'),
-    lastUpdated: new Date('2024-03-09T16:20:00')
-  },
-  {
-    id: '3',
-    ticketNumber: 'TKT-2024-003',
-    userName: 'Michael Brown',
-    category: 'Refund',
-    subject: 'Refund for cancelled flight',
-    description: 'My flight was cancelled due to weather conditions and I would like to request a refund.',
-    status: TICKET_STATUS.RESOLVED,
-    priority: 'Low',
-    createdAt: new Date('2024-03-08T09:15:00'),
-    lastUpdated: new Date('2024-03-08T14:30:00')
-  }
+const TICKET_CATEGORIES = [
+  'Technical',
+  'Billing',
+  'General',
+  'Feature Request',
+  'Other',
 ];
 
 function TicketsDashboard() {
-  const [tickets, setTickets] = useState(MOCK_TICKETS);
+  const [tickets, setTickets] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
-  const { language, setLanguage } = useContext(LanguageContext);
+  const { language } = useContext(LanguageContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+  if (!userId) return;
+
+  const fetchTickets = async () => {
+    try {
+      const response = await fetch(`${apiURL}/Customer/${userId}/mytickets`);
+      if (!response.ok) throw new Error('Failed to fetch tickets');
+
+      const data = await response.json();
+
+      const mappedTickets = data.map(ticket => ({
+        id: ticket.id,
+        ticketNumber: ticket.ticketNumber,
+        userName: '', // Nema `customer` objekta u odgovoru, pa ovo ostaje prazno ili koristi trenutno prijavljenog korisnika ako želiš
+        category: ticket.category || 'Other',
+        subject: ticket.subject || '',
+        description: ticket.description || ticket.subject || '',
+        status: ticket.status || TICKET_STATUS.OPEN,
+        priority: 'Medium', // Nema `priority` u odgovoru, default je 'Medium'
+        createdAt: new Date(ticket.dateCreated),
+        lastUpdated: new Date(ticket.dateCreated), // Nema `lastUpdated`, koristi `dateCreated`
+        hasChat: ticket.hasChat,
+        chatId: ticket.chatId
+      }));
+
+      setTickets(mappedTickets);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchTickets();
+}, [userId]);
+
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -76,24 +87,28 @@ function TicketsDashboard() {
   };
 
   const filteredTickets = tickets.filter(ticket => {
-    const matchesSearch = searchTerm === '' || 
-      ticket.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.ticketNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const search = searchTerm.toLowerCase();
+    const matchesSearch =
+      searchTerm === '' ||
+      ticket.userName.toLowerCase().includes(search) ||
+      ticket.ticketNumber.toLowerCase().includes(search) ||
+      ticket.subject.toLowerCase().includes(search);
+
     const matchesCategory = selectedCategory === '' || ticket.category === selectedCategory;
     const matchesStatus = selectedStatus === '' || ticket.status === selectedStatus;
-    
+
     return matchesSearch && matchesCategory && matchesStatus;
   }).sort((a, b) => b.lastUpdated - a.lastUpdated);
 
   const handleTicketClick = (ticket) => {
-    setSelectedTicket(ticket);
-  };
+  setSelectedTicket(ticket);
+  localStorage.setItem('ticketId', ticket.id);  // Dodano pamćenje u localStorage
+};
+
 
   const handleCloseTicket = () => {
-    setTickets(tickets.map(t => 
-      t.id === selectedTicket.id 
+    setTickets(tickets.map(t =>
+      t.id === selectedTicket.id
         ? { ...t, status: TICKET_STATUS.CLOSED, lastUpdated: new Date() }
         : t
     ));
@@ -101,8 +116,8 @@ function TicketsDashboard() {
   };
 
   const handleMarkSuccess = () => {
-    setTickets(tickets.map(t => 
-      t.id === selectedTicket.id 
+    setTickets(tickets.map(t =>
+      t.id === selectedTicket.id
         ? { ...t, status: TICKET_STATUS.RESOLVED, lastUpdated: new Date() }
         : t
     ));
@@ -187,7 +202,7 @@ function TicketsDashboard() {
                         'status-resolved': ticket.status === TICKET_STATUS.RESOLVED,
                         'status-closed': ticket.status === TICKET_STATUS.CLOSED,
                         'status-cancelled': ticket.status === TICKET_STATUS.CANCELLED,
-                        'status-reopened': ticket.status === TICKET_STATUS.REOPENED
+                        'status-reopened': ticket.status === TICKET_STATUS.REOPENED,
                       }
                     )}>
                       {ticket.status}
@@ -239,6 +254,7 @@ function TicketsDashboard() {
               </div>
             </div>
             <div className="chat-section">
+              {/* Ovdje možeš dodati chat komponentu ako postoji */}
             </div>
           </div>
 
@@ -248,6 +264,14 @@ function TicketsDashboard() {
               className="btn-success"
             >
               {t("Open Chat")}
+            </button>
+          </div>
+          <div style={{ marginTop: '1rem', textAlign: 'center', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+            <button
+              onClick={() => setSelectedTicket(null)}
+              className="btn-success"
+            >
+              {t("Back to Tickets")}
             </button>
           </div>
         </div>
