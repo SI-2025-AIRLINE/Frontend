@@ -1,9 +1,8 @@
-/* OSNOVNA STRUKTURA */
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 600px; /* Povećano sa 500px */
-  width: 500px;  /* Povećano sa 350px */
+  height: 600px; 
+  width: 500px;  
   border-radius: 12px;
   overflow: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,9 +10,8 @@
   background-color: #fff;
 }
 
-/* Zaglavlje chata */
 .chat-header {
-  background-color: #2563eb; /* Tailwind Blue-600 */
+  background-color: #2563eb;
   color: white;
   padding: 12px 16px;
   border-bottom: 1px solid #d1d5db;
@@ -35,7 +33,6 @@
   color: #d1fae5;
 }
 
-/* KONTEJNER ZA PORUKE */
 .chat-messages {
   flex-grow: 1;
   padding: 16px;
@@ -46,7 +43,6 @@
   background-color: #f9fafb;
 }
 
-/* Scrollbar stil */
 .chat-messages::-webkit-scrollbar {
   width: 6px;
 }
@@ -56,7 +52,6 @@
   border-radius: 4px;
 }
 
-/* PORUKE */
 .message {
   display: flex;
   max-width: 75%;
@@ -85,7 +80,6 @@
   border-radius: 18px 18px 6px 18px;
 }
 
-/* Bubble zajednički */
 .message-bubble {
   padding: 10px 14px;
   word-wrap: break-word;
@@ -94,7 +88,6 @@
   font-size: 0.95em;
 }
 
-/* Vrijeme poruke */
 .message-time {
   font-size: 0.75em;
   color: #6b7280;
@@ -111,7 +104,6 @@
   margin-right: 10px;
 }
 
-/* Ime pošiljatelja */
 .message-sender-name {
   font-size: 0.8em;
   font-weight: 600;
@@ -127,7 +119,6 @@
   color: #16a34a;
 }
 
-/* Sistemske poruke */
 .message-system {
   align-self: center;
   max-width: 90%;

@@ -11,14 +11,12 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
   const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Stanje za detalje korisnika koji je kreirao tiket
   const [customerDetails, setCustomerDetails] = useState({
     username: 'Korisnik',
     fullName: 'Učitavanje...'
   });
   const [isLoadingCustomerDetails, setIsLoadingCustomerDetails] = useState(true);
 
-  // Stanje za detalje prijavljenog korisnika (admin/zaposlenik ili customer)
   const [userDetails, setUserDetails] = useState({
     id: null,
     role: null,
@@ -28,15 +26,14 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
   const [isLoadingUserDetails, setIsLoadingUserDetails] = useState(true);
 
   const backendUrl = import.meta.env.VITE_API_BASE_URL;
-  const hubPath = '/supportchathub'; // Ili vaša stvarna putanja do huba
+  const hubPath = '/supportchathub'; 
 
-  // 1. Učitavanje detalja prijavljenog korisnika (admina/zaposlenika ili customera)
   useEffect(() => {
     const storedUserIdString = localStorage.getItem('userId');
     const storedUserRole = localStorage.getItem('role');
-    const storedUsername = localStorage.getItem('userName'); // Ovo je username prijavljenog
-    const storedFirstName = localStorage.getItem('name');   // Ime prijavljenog
-    const storedLastName = localStorage.getItem('surname'); // Prezime prijavljenog
+    const storedUsername = localStorage.getItem('userName'); 
+    const storedFirstName = localStorage.getItem('name');   
+    const storedLastName = localStorage.getItem('surname'); 
 
     let loadedId = null;
     let loadedRole = null;
@@ -64,7 +61,6 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
     setIsLoadingUserDetails(false);
   }, []);
 
-  // 2. Dohvaćanje detalja korisnika koji je vlasnik tiketa (customer)
   useEffect(() => {
     if (!ticketId || !backendUrl) {
       setIsLoadingCustomerDetails(false);
@@ -101,18 +97,13 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
     fetchTicketUserDetails();
   }, [ticketId, backendUrl]);
 
-  // Funkcija za određivanje je li poruka od trenutno prijavljenog korisnika
   const isMyMessage = useCallback((messageIsAdminReply) => {
     if (!userDetails.id || !userDetails.role) return false;
     const isPrijavljeniAdmin = userDetails.role.toLowerCase() === 'admin' || userDetails.role.toLowerCase() === 'employee';
-    // Poruka je 'moja' ako:
-    // 1. Prijavljeni korisnik je admin I poruka je adminov odgovor (messageIsAdminReply === true)
-    // 2. Prijavljeni korisnik NIJE admin (dakle, customer je) I poruka NIJE adminov odgovor (messageIsAdminReply === false)
     return isPrijavljeniAdmin ? messageIsAdminReply : !messageIsAdminReply;
   }, [userDetails.id, userDetails.role]);
 
 
-  // 3. SignalR konekcija i logika
   useEffect(() => {
     if (isLoadingUserDetails || isLoadingCustomerDetails || !userDetails.id || !userDetails.role || !backendUrl || !ticketId) {
       console.log("SignalR: Preduvjeti nisu ispunjeni.", { isLoadingUserDetails, isLoadingCustomerDetails, userDetailsExists: !!userDetails.id, backendUrlExists: !!backendUrl, ticketId });
@@ -122,7 +113,6 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
     const url = `${backendUrl}${hubPath}?userId=${userDetails.id}&userRole=${userDetails.role}`;
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(url, {
-        // accessTokenFactory: () => localStorage.getItem('token') // Ako koristite token za autorizaciju
       })
       .withAutomaticReconnect()
       .build();
@@ -134,7 +124,7 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
       setChatId(confirmedChatId);
     };
 
-    const onReceiveMessage = (msg) => { // msg bi trebao imati: message, timestamp, isAdminReply, senderFullName (opcionalno)
+    const onReceiveMessage = (msg) => { 
       console.log('SignalR: ReceiveMessage:', msg);
       const senderDisplayName = msg.senderFullName || (msg.isAdminReply ? 'Podrška' : customerDetails.fullName);
       
@@ -147,7 +137,7 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
       }]);
     };
 
-    const onReceiveHistoricalMessages = (msgs) => { // msgs je niz poruka
+    const onReceiveHistoricalMessages = (msgs) => { 
       console.log('SignalR: ReceiveHistoricalMessages:', msgs);
       if (Array.isArray(msgs)) {
         const formatted = msgs.map(msg => {
@@ -167,17 +157,15 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
       }
     };
 
-    const onChatClaimed = (claimData) => { // claimData: { chatId, adminId, adminName }
+    const onChatClaimed = (claimData) => {
         console.log('SignalR: ChatClaimed:', claimData);
-        if (claimData.chatId === chatId) { // Provjerite je li ovo chatId koji trenutno gledamo
-            // Možete prikazati obavijest da je chat preuzet
+        if (claimData.chatId === chatId) { 
             console.log(`Chat ${claimData.chatId} je preuzeo admin: ${claimData.adminName} (ID: ${claimData.adminId})`);
         }
     };
 
     const onReceiveError = (errorMessage) => {
         console.error("SignalR Greška:", errorMessage);
-        // Ovdje možete prikazati grešku korisniku
     };
 
     newConnection.start()
@@ -209,7 +197,6 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
     };
   }, [isLoadingUserDetails, isLoadingCustomerDetails, userDetails.id, userDetails.role, backendUrl, ticketId, isMyMessage, customerDetails.fullName, hubPath]);
 
-  // Automatsko skrolanje na dno
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -227,7 +214,7 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
 
   const formatTime = (date) => {
     if (!(date instanceof Date) || isNaN(date)) {
-        return ""; // Vrati prazan string za nevažeći datum
+        return ""; 
     }
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -267,7 +254,7 @@ const ChatWindow = ({ ticketId = 1 }) => { // POSTAVLJENO NA 1 ZBOG TESTIRANJA
         
         {messages.map(msg => (
           <div
-            key={msg.id} // Osigurajte jedinstveni ključ
+            key={msg.id} 
             className={`message ${msg.isMine ? 'message-mine' : 'message-theirs'}`}
           >
             <div className="message-bubble">

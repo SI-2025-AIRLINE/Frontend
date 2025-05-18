@@ -11,23 +11,21 @@ const ChatWindow = ({
 }) => {
   const [messages, setMessages] = useState(initialMessages);
   const [newMessage, setNewMessage] = useState('');
-  const connectionRef = useRef(null); // Za čuvanje SignalR konekcije
-  const [chatId, setChatId] = useState(null); // ID chata dobiven od servera
-  const [isConnected, setIsConnected] = useState(false); // Status konekcije
-  const messagesEndRef = useRef(null); // Za automatsko skrolanje
+  const connectionRef = useRef(null);
+  const [chatId, setChatId] = useState(null); 
+  const [isConnected, setIsConnected] = useState(false); 
+  const messagesEndRef = useRef(null); 
 
-  const HARDCODED_TICKET_ID = 1; // Hardkodirani ID tiketa za chat
+  const HARDCODED_TICKET_ID = 1; 
 
-  // Stanje za korisničke detalje učitane iz localStorage
   const [userDetails, setUserDetails] = useState({
     id: null,
     role: null,
     username: propCustomerUsername,
     fullName: propCustomerFullName
   });
-  const [isLoadingUserDetails, setIsLoadingUserDetails] = useState(true); // Status učitavanja korisničkih detalja
+  const [isLoadingUserDetails, setIsLoadingUserDetails] = useState(true); 
 
-  // 1. Efekt za učitavanje korisničkih podataka iz localStorage
   useEffect(() => {
     console.log("[ChatWindow Effect] Pokušavam učitati korisnika iz localStorage...");
     const storedUserIdString = localStorage.getItem('userId');
@@ -38,8 +36,8 @@ const ChatWindow = ({
 
     let loadedId = null;
     let loadedRole = null;
-    let loadedUsername = propCustomerUsername; // Koristi prop kao fallback
-    let loadedFullName = propCustomerFullName; // Koristi prop kao fallback
+    let loadedUsername = propCustomerUsername; 
+    let loadedFullName = propCustomerFullName; 
 
     if (storedUserIdString && storedUserRole) {
       const parsedUserId = parseInt(storedUserIdString, 10);
@@ -65,16 +63,13 @@ const ChatWindow = ({
       fullName: loadedFullName
     });
     setIsLoadingUserDetails(false);
-  }, [propCustomerUsername, propCustomerFullName]); // Ovisnosti su fallback props
+  }, [propCustomerUsername, propCustomerFullName]); 
 
-  // URL-ovi za SignalR konekciju
-  const backendUrl = import.meta.env.VITE_API_BASE_URL; // Npr. http://localhost:5165
-  const hubPath = '/supportchathub'; // Putanja do huba na backendu
+  const backendUrl = import.meta.env.VITE_API_BASE_URL; 
+  const hubPath = '/supportchathub';
 
-  // Pomoćna funkcija za određivanje da li je poruka od trenutnog korisnika
-  // Mora biti definirana ovdje kako bi bila dostupna u SignalR useEffectu
 const isMyMessage = useCallback((messageSenderType, messageIsAdminReply) => {
-  console.log('[isMyMessage Check] UserDetails:', userDetails, 'SenderType:', messageSenderType, 'IsAdminReply:', messageIsAdminReply); // << DODAJ OVAJ LOG
+  console.log('[isMyMessage Check] UserDetails:', userDetails, 'SenderType:', messageSenderType, 'IsAdminReply:', messageIsAdminReply);
   if (!userDetails.id || !userDetails.role) {
     console.log('[isMyMessage Check] UserDetails not fully loaded, returning false.');
     return false;
@@ -94,7 +89,6 @@ const isMyMessage = useCallback((messageSenderType, messageIsAdminReply) => {
   return result;
 }, [userDetails.id, userDetails.role]);
 
-  // 2. Glavni efekt za SignalR konekciju, registraciju handlera i cleanup
   useEffect(() => {
     if (isLoadingUserDetails || !userDetails.id || !userDetails.role || !backendUrl) {
       if (!isLoadingUserDetails && !backendUrl) console.error("[ChatWindow SignalR] VITE_API_BASE_URL nije postavljen!");
@@ -129,7 +123,7 @@ const isMyMessage = useCallback((messageSenderType, messageIsAdminReply) => {
             sender: receivedMessage.isAdminReply ? 'admin' : 'customer',
             senderName: receivedMessage.senderName,
             timestamp: new Date(receivedMessage.timestamp),
-            isMine: isMyMessage(receivedMessage.senderType, receivedMessage.isAdminReply), // Koristi pomoćnu funkciju
+            isMine: isMyMessage(receivedMessage.senderType, receivedMessage.isAdminReply), 
           },
         ]);
       } else {
@@ -151,7 +145,7 @@ const isMyMessage = useCallback((messageSenderType, messageIsAdminReply) => {
             text: `${claimData.adminName || 'Administrator'} je preuzeo ovaj chat.`,
             sender: 'system',
             timestamp: new Date(),
-            isMine: false, // Sistemske poruke nisu "moje" u smislu poravnanja
+            isMine: false, 
           },
         ]);
       }
@@ -166,7 +160,7 @@ const isMyMessage = useCallback((messageSenderType, messageIsAdminReply) => {
           sender: msg.senderType?.toLowerCase().includes('admin') || msg.senderType?.toLowerCase().includes('employee') ? 'admin' : 'customer',
           senderName: msg.senderName,
           timestamp: new Date(msg.timestamp),
-          isMine: isMyMessage(msg.senderType, msg.senderType?.toLowerCase().includes('admin') || msg.senderType?.toLowerCase().includes('employee')), // Koristi pomoćnu funkciju
+          isMine: isMyMessage(msg.senderType, msg.senderType?.toLowerCase().includes('admin') || msg.senderType?.toLowerCase().includes('employee')), 
         }));
         console.log(`[SignalR Handler] Formatirane povijesne poruke s 'isMine' flagom:`, formattedHistorical);
         setMessages([...formattedHistorical]);
@@ -215,14 +209,12 @@ const isMyMessage = useCallback((messageSenderType, messageIsAdminReply) => {
         connectionRef.current = null;
       }
     };
-  }, [userDetails.id, userDetails.role, isLoadingUserDetails, HARDCODED_TICKET_ID, backendUrl, hubPath, isMyMessage, chatId]); // Dodan isMyMessage i chatId kao ovisnosti
+  }, [userDetails.id, userDetails.role, isLoadingUserDetails, HARDCODED_TICKET_ID, backendUrl, hubPath, isMyMessage, chatId]); 
 
-  // 3. Efekt za automatsko skrolanje na dno kada se dodaju nove poruke
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 4. Callback funkcija za slanje nove poruke
   const handleSendMessage = useCallback(() => {
     if (newMessage.trim() === '') {
       console.warn("[Chat SendMessage] Poruka je prazna, ne šaljem.");

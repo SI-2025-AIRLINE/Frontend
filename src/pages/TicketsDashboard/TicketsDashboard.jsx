@@ -238,12 +238,10 @@ function TicketsDashboard() {
     }
   };
 
-  // Prikaz glavnog stanja učitavanja
   if (isLoading && tickets.length === 0 && !error) {
     return <div className="support-container" style={{ textAlign: 'center', padding: '20px' }}>{t("Loading tickets...")}</div>;
   }
 
-  // Prikaz opće greške ako nema odabranog tiketa i nije samo loading state
   if (error && !selectedTicket && !isLoading) { 
     return <div className="support-container" style={{ textAlign: 'center', padding: '20px', color: 'red' }}>{t("Error")}: {error}</div>;
   }
