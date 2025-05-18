@@ -1,125 +1,131 @@
-import React from "react";
-import * as Accordion from "@radix-ui/react-accordion";
-import { Card, CardContent, CardYearMonthDropdown } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardYearMonthDropdown, CardMonthDropdown } from "@/components/ui/card";
 import { BarChart, LineChart, PieChart, Pie, Cell, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar } from "recharts";
 import './Analytics.css';
 
+const apiURL = import.meta.env.VITE_API_BASE_URL;
+
 function AirlineAdminAnalytics() {
-  const punctualityData = [
-    { name: "On Time", value: 70 },
-    { name: "Delayed", value: 20 },
-    { name: "Cancelled", value: 10 },
-  ];
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const busiestRoutesData = [
-    { route: "NYC - LAX", flights: 180 },
-    { route: "ATL - ORD", flights: 150 },
-    { route: "DFW - DEN", flights: 130 },
-  ];
+  const [bookingTrendsData, setBookingTrendsData] = useState([]);
+  const [bookingTrendsLoading, setBookingTrendsLoading] = useState(false);
 
-  const bookingTrendsData = [
-    { week: "Week 1", bookings: 500 },
-    { week: "Week 2", bookings: 650 },
-    { week: "Week 3", bookings: 700 },
-    { week: "Week 4", bookings: 620 },
-  ];
-
-  // Dropdown options for years and months (reuse for booking trends)
-  const bookingTrendsYears = [
-    { value: 2021, label: "2021" },
-    { value: 2022, label: "2022" },
-    { value: 2023, label: "2023" },
-  ];
-  const bookingTrendsMonths = [
-    { value: "January", label: "January" },
-    { value: "February", label: "February" },
-    { value: "March", label: "March" },
-    { value: "April", label: "April" },
-    { value: "May", label: "May" },
-    { value: "June", label: "June" },
-  ];
-
-  // Mocked booking trends data by year and month, each with weeks 1-4
-  const bookingTrendsDataByYearMonth = {
-    "2021-January": [
-      { week: "Week 1", bookings: 320 },
-      { week: "Week 2", bookings: 410 },
-      { week: "Week 3", bookings: 390 },
-      { week: "Week 4", bookings: 370 },
-    ],
-    "2021-February": [
-      { week: "Week 1", bookings: 350 },
-      { week: "Week 2", bookings: 420 },
-      { week: "Week 3", bookings: 400 },
-      { week: "Week 4", bookings: 380 },
-    ],
-    "2022-January": [
-      { week: "Week 1", bookings: 500 },
-      { week: "Week 2", bookings: 650 },
-      { week: "Week 3", bookings: 700 },
-      { week: "Week 4", bookings: 620 },
-    ],
-    "2022-February": [
-      { week: "Week 1", bookings: 540 },
-      { week: "Week 2", bookings: 600 },
-      { week: "Week 3", bookings: 670 },
-      { week: "Week 4", bookings: 630 },
-    ],
-    "2023-January": [
-      { week: "Week 1", bookings: 700 },
-      { week: "Week 2", bookings: 800 },
-      { week: "Week 3", bookings: 850 },
-      { week: "Week 4", bookings: 790 },
-    ],
-    "2023-February": [
-      { week: "Week 1", bookings: 720 },
-      { week: "Week 2", bookings: 810 },
-      { week: "Week 3", bookings: 860 },
-      { week: "Week 4", bookings: 800 },
-    ],
-    // ...add more months as needed...
-    "2023-March": [
-      { week: "Week 1", bookings: 750 },
-      { week: "Week 2", bookings: 830 },
-      { week: "Week 3", bookings: 870 },
-      { week: "Week 4", bookings: 820 },
-    ],
-    "2023-April": [
-      { week: "Week 1", bookings: 730 },
-      { week: "Week 2", bookings: 820 },
-      { week: "Week 3", bookings: 860 },
-      { week: "Week 4", bookings: 810 },
-    ],
-    "2023-May": [
-      { week: "Week 1", bookings: 760 },
-      { week: "Week 2", bookings: 840 },
-      { week: "Week 3", bookings: 880 },
-      { week: "Week 4", bookings: 830 },
-    ],
-    "2023-June": [
-      { week: "Week 1", bookings: 780 },
-      { week: "Week 2", bookings: 850 },
-      { week: "Week 3", bookings: 890 },
-      { week: "Week 4", bookings: 850 },
-    ],
+  const getBookingTrendsYears = () => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 4 }, (_, i) => {
+      const year = currentYear - 3 + i;
+      return { value: year, label: year.toString() };
+    });
   };
 
-  // Booking trends dropdown content renderer
-  const renderBookingTrendsContent = (selectedYear, selectedMonth) => {
-    const key = `${selectedYear}-${selectedMonth}`;
-    const data = bookingTrendsDataByYearMonth[key] || [
-      { week: "Week 1", bookings: 0 },
-      { week: "Week 2", bookings: 0 },
-      { week: "Week 3", bookings: 0 },
-      { week: "Week 4", bookings: 0 },
+  const getBookingTrendsMonths = (selectedYear) => {
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
     ];
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const maxMonth = parseInt(selectedYear) === currentYear ? currentMonth : 11;
+    return months.slice(0, maxMonth + 1).map(m => ({ value: m, label: m }));
+  };
+
+  const bookingTrendsYears = getBookingTrendsYears();
+  const initialYear = bookingTrendsYears[bookingTrendsYears.length - 1].value;
+  const initialMonths = getBookingTrendsMonths(initialYear);
+  const initialMonth = initialMonths[initialMonths.length - 1].value;
+
+  const [selectedBookingYear, setSelectedBookingYear] = useState(initialYear);
+  const [availableBookingMonths, setAvailableBookingMonths] = useState(initialMonths);
+  const [selectedBookingMonth, setSelectedBookingMonth] = useState(initialMonth);
+
+  const [selectedCanceledFlightsYear, setSelectedCanceledFlightsYear] = useState(initialYear);
+  const [availableCanceledFlightsMonths, setAvailableCanceledFlightsMonths] = useState(initialMonths);
+  const [selectedCanceledFlightsMonth, setSelectedCanceledFlightsMonth] = useState(initialMonth);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${apiURL}/analytics`);
+        const data = await response.json();
+        setAnalyticsData(data);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const updatedMonths = getBookingTrendsMonths(selectedBookingYear);
+    setAvailableBookingMonths(updatedMonths);
+    setSelectedBookingMonth(updatedMonths[updatedMonths.length - 1].value);
+  }, [selectedBookingYear]);
+
+  function monthNameToNumber(monthName) {
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const index = months.findIndex(
+      m => m.toLowerCase() === monthName.toLowerCase()
+    );
+    return index === -1 ? null : index + 1;
+  }
+
+  useEffect(() => {
+    const fetchBookingTrends = async () => {
+      setBookingTrendsLoading(true);
+      try {
+        const response = await fetch(`${apiURL}/Analytics/booking-trends/${selectedBookingYear}/${monthNameToNumber(selectedBookingMonth)}`);
+        const data = await response.json();
+        const key = `${selectedBookingYear}-${selectedBookingMonth}`;
+        const trendsArray = data[key] || [];
+        setBookingTrendsData(trendsArray);
+      } catch (error) {
+        console.error("Error fetching booking trends:", error);
+        setBookingTrendsData([]);
+      } finally {
+        setBookingTrendsLoading(false);
+      }
+    };
+    fetchBookingTrends();
+  }, [selectedBookingYear, selectedBookingMonth]);
+
+  if (loading || !analyticsData) {
+    return <div className="analytics-loading">Loading analytics...</div>;
+  }
+
+  const punctualityData = [
+    { name: "On Time", value: analyticsData.flightStatistics.normal },
+    { name: "Delayed", value: analyticsData.flightStatistics.delayed },
+    { name: "Cancelled", value: analyticsData.flightStatistics.cancelled },
+  ];
+
+  const busiestRoutesData = analyticsData.busiestRoutes;
+  const occupancyData = analyticsData.averageOccupancy;
+
+  const renderBookingTrendsContent = () => {
+    if (bookingTrendsLoading) {
+      return <div className="loading-spinner" style={{ textAlign: "center", padding: "1rem" }}></div>;
+    }
+    if (!bookingTrendsLoading && bookingTrendsData.length === 0) {
+      return (
+      <div className="loading-spinner" style={{ textAlign: "center", padding: "1rem" }}></div>
+      );
+    }
     return (
-      <LineChart width={300} height={200} data={data}>
-        <XAxis dataKey="week" />
-        <YAxis />
-        <Tooltip />
-        <Line type="monotone" dataKey="bookings" stroke="#8884d8" strokeWidth={2} />
-      </LineChart>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={bookingTrendsData}>
+          <XAxis dataKey="week" />
+          <YAxis />
+          <Tooltip />
+          <Line type="monotone" dataKey="bookings" stroke="#8884d8" activeDot={{ r: 8 }} />
+        </LineChart>
+      </ResponsiveContainer>
     );
   };
 
@@ -128,50 +134,43 @@ function AirlineAdminAnalytics() {
     { program: "Miles Redeemed", value: 8000 },
   ];
 
-  // Mocked data for cancelled flights percentage per month
-  const cancelledFlightsData = [
-    { year: 2021, month: "January", percentage: 2.1 },
-    { year: 2021, month: "February", percentage: 1.7 },
-    { year: 2021, month: "March", percentage: 2.9 },
-    { year: 2021, month: "April", percentage: 2.2 },
-    { year: 2022, month: "January", percentage: 2.5 },
-    { year: 2022, month: "February", percentage: 1.8 },
-    { year: 2022, month: "March", percentage: 3.1 },
-    { year: 2022, month: "April", percentage: 2.0 },
-    { year: 2022, month: "May", percentage: 2.7 },
-    { year: 2022, month: "June", percentage: 1.9 },
-    { year: 2023, month: "January", percentage: 2.3 },
-    { year: 2023, month: "February", percentage: 1.6 },
-    { year: 2023, month: "March", percentage: 2.8 },
-    { year: 2023, month: "April", percentage: 2.1 },
-    { year: 2023, month: "May", percentage: 2.4 },
-    { year: 2023, month: "June", percentage: 1.5 },
-  ];
+  // Returns an array of the last 5 months as { value, label } objects, including the current month
+  function getLastFiveMonths() {
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const now = new Date();
+    const result = [];
+    for (let i = 4; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      result.push({
+        value: months[d.getMonth()],
+        label: months[d.getMonth()],
+        year: d.getFullYear()
+      });
+    }
+    return result;
+  }
 
-  // Dropdown options for years and months
-  const cancelledFlightsYears = [
-    { value: 2021, label: "2021" },
-    { value: 2022, label: "2022" },
-    { value: 2023, label: "2023" },
-  ];
-  const cancelledFlightsMonths = [
-    { value: "January", label: "January" },
-    { value: "February", label: "February" },
-    { value: "March", label: "March" },
-    { value: "April", label: "April" },
-    { value: "May", label: "May" },
-    { value: "June", label: "June" },
-  ];
+  const cancelledFlightsMonths = getLastFiveMonths().map(m => ({
+    value: m.value,
+    label: m.label
+  }));
 
-  // Render content for the dropdown
-  const renderCancelledContent = (selectedYear, selectedMonth) => {
+  // Prepare cancelledFlightsData for the last 5 months using analyticsData
+  const cancelledFlightsData = analyticsData.cancelledFlightPercentage;
+
+  const renderCancelledContent = (selectedMonth) => {
+    console.log("Selected Month:", selectedMonth);
     const data = cancelledFlightsData.find(
-      d => d.year === Number(selectedYear) && d.month === selectedMonth
+      d => d.month === selectedMonth
     );
+    console.log("Cancelled Data:", data);
     return (
       <div style={{ textAlign: "center", padding: "1rem" }}>
         <h3 style={{ margin: 0 }}>
-          {selectedMonth} {selectedYear}
+          {selectedMonth}
         </h3>
         <p style={{ fontSize: "2rem", fontWeight: "bold", color: "#ff8042" }}>
           {data ? data.percentage : "-"}%
@@ -180,6 +179,11 @@ function AirlineAdminAnalytics() {
       </div>
     );
   };
+
+  // Sort routeRevenueStatistics by revenue descending
+  const sortedRouteRevenueStatistics = analyticsData.routeRevenueStatistics
+    ? [...analyticsData.routeRevenueStatistics].sort((a, b) => b.revenue - a.revenue)
+    : [];
 
   return (
     <div className="analytics-container">
@@ -208,19 +212,14 @@ function AirlineAdminAnalytics() {
               <XAxis dataKey="route" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="flights" fill="#82ca9d" />
+              <Bar dataKey="count" fill="#82ca9d" />
             </BarChart>
           </CardContent>
         </Card>
         <Card className="analytics-card">
           <CardContent>
             <h2 className="analytics-card-title">Average Flight Occupancy</h2>
-            <BarChart width={300} height={200} data={[
-              { month: "Jan", occupancy: 78 },
-              { month: "Feb", occupancy: 82 },
-              { month: "Mar", occupancy: 85 },
-              { month: "Apr", occupancy: 80 },
-            ]}>
+            <BarChart width={300} height={200} data={occupancyData}>
               <XAxis dataKey="month" />
               <YAxis domain={[0, 100]} />
               <Tooltip />
@@ -230,11 +229,12 @@ function AirlineAdminAnalytics() {
         </Card>
         <Card className="analytics-card">
           <CardContent>
-            <h2 className="analytics-card-title">Cancelled Flights % Per Month</h2>
-            <CardYearMonthDropdown
-              years={cancelledFlightsYears}
+            <h2 className="analytics-card-title">Cancelled Flights %</h2>
+            <CardMonthDropdown
               months={cancelledFlightsMonths}
               renderContent={renderCancelledContent}
+              onMonthChange={(month) => setSelectedCanceledFlightsMonth(month)}
+              initialMonth={initialMonth}
             />
           </CardContent>
         </Card>
@@ -248,8 +248,12 @@ function AirlineAdminAnalytics() {
             <h2 className="analytics-card-title">Booking Trends</h2>
             <CardYearMonthDropdown
               years={bookingTrendsYears}
-              months={bookingTrendsMonths}
+              months={availableBookingMonths}
               renderContent={renderBookingTrendsContent}
+              onYearChange={(year) => setSelectedBookingYear(year)}
+              onMonthChange={(month) => setSelectedBookingMonth(month)} 
+              initialYear={initialYear}
+              initialMonth={initialMonth}
             />
           </CardContent>
         </Card>
@@ -267,15 +271,11 @@ function AirlineAdminAnalytics() {
         <Card className="analytics-card">
           <CardContent>
             <h2 className="analytics-card-title">Top Destinations</h2>
-            <BarChart width={300} height={200} data={[
-              { destination: "Los Angeles", passengers: 1200 },
-              { destination: "Chicago", passengers: 950 },
-              { destination: "Denver", passengers: 800 },
-            ]}>
+            <BarChart width={300} height={200} data={analyticsData.mostPopularDestinations}>
               <XAxis dataKey="destination" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="passengers" fill="#ffc658" />
+              <Bar dataKey="passengerCount" fill="#ffc658" />
             </BarChart>
           </CardContent>
         </Card>
@@ -287,27 +287,32 @@ function AirlineAdminAnalytics() {
         <table className="analytics-table">
           <thead>
             <tr>
-              <th className="analytics-table-header">Route</th>
-              <th className="analytics-table-header">Revenue</th>
-              <th className="analytics-table-header">Avg Ticket Price</th>
+              <th className="analytics-table-header" rowSpan={2}>Route</th>
+              <th className="analytics-table-header" rowSpan={2}>Revenue</th>
+              <th className="analytics-table-header" colSpan={3}>Average ticket price</th>
+            </tr>
+            <tr>
+              <th className="analytics-table-header">Economy</th>
+              <th className="analytics-table-header">Business</th>
+              <th className="analytics-table-header">First Class</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="analytics-table-cell">NYC - LAX</td>
-              <td className="analytics-table-cell">$350,000</td>
-              <td className="analytics-table-cell">$280</td>
-            </tr>
-            <tr>
-              <td className="analytics-table-cell">ATL - ORD</td>
-              <td className="analytics-table-cell">$270,000</td>
-              <td className="analytics-table-cell">$250</td>
-            </tr>
-            <tr>
-              <td className="analytics-table-cell">DFW - DEN</td>
-              <td className="analytics-table-cell">$190,000</td>
-              <td className="analytics-table-cell">$210</td>
-            </tr>
+            {sortedRouteRevenueStatistics && sortedRouteRevenueStatistics.length > 0 ? (
+              sortedRouteRevenueStatistics.map((routeStat, idx) => (
+                <tr key={idx}>
+                  <td className="analytics-table-cell">{routeStat.route}</td>
+                  <td className="analytics-table-cell">${routeStat.revenue}</td>
+                  <td className="analytics-table-cell">${routeStat.avg_ticket_price.economy}</td>
+                  <td className="analytics-table-cell">${routeStat.avg_ticket_price.business}</td>
+                  <td className="analytics-table-cell">${routeStat.avg_ticket_price.first_class}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="analytics-table-cell" colSpan={5}>No data available</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
