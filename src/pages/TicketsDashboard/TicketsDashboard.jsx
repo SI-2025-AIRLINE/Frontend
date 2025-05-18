@@ -101,8 +101,10 @@ function TicketsDashboard() {
   }).sort((a, b) => b.lastUpdated - a.lastUpdated);
 
   const handleTicketClick = (ticket) => {
-    setSelectedTicket(ticket);
-  };
+  setSelectedTicket(ticket);
+  localStorage.setItem('ticketId', ticket.id);  // Dodano pamćenje u localStorage
+};
+
 
   const handleCloseTicket = () => {
     setTickets(tickets.map(t =>

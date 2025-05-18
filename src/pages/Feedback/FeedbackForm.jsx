@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import FeedbackField from './FeedbackField';
 import './Feedback.css';
 
+const capitalize = (str) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+const apiURL = import.meta.env.VITE_API_BASE_URL;
 const FeedbackForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
+    firstName: capitalize(localStorage.getItem('name')),
+    lastName: capitalize(localStorage.getItem('surname')),
+    username: localStorage.getItem('userName') || '',
     subject: '',
     message: '',
     rating: 0
@@ -15,22 +20,13 @@ const FeedbackForm = ({ onSubmit }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subjectOptions = [
-    { value: 'general', label: 'General Feedback' },
-    { value: 'suggestion', label: 'Feature Suggestion' },
-    { value: 'bug', label: 'Bug Report' },
-    { value: 'compliment', label: 'Compliment' },
-    { value: 'other', label: 'Other' }
-  ];
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
-    
-    // Clear error when user starts typing
+
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -41,72 +37,59 @@ const FeedbackForm = ({ onSubmit }) => {
 
   const validateForm = () => {
     const newErrors = {};
+
     
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    }
-    
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    
-    if (!formData.subject) {
-      newErrors.subject = 'Please select a subject';
-    }
-    
-    if (!formData.message.trim()) {
-      newErrors.message = 'Please provide your feedback';
-    } else if (formData.message.length < 10) {
-      newErrors.message = 'Feedback must be at least 10 characters';
-    }
-    
-    if (formData.rating === 0) {
-      newErrors.rating = 'Please provide a rating';
-    }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      setIsSubmitting(true);
-      
-      try {
-        // Simulate API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        if (onSubmit) {
-          onSubmit(formData);
-        }
-        
-        // In a real app, you'd redirect here after successful submission
-        // For now, we'll just show an alert
-        alert('Thank you for your feedback!');
-        
-        // Reset form
-        setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          subject: '',
-          message: '',
-          rating: 0
-        });
-      } catch (error) {
-        console.error('Error submitting feedback:', error);
-        alert('There was an error submitting your feedback. Please try again.');
-      } finally {
-        setIsSubmitting(false);
-      }
+
+    if (!validateForm()) return;
+
+    const customerId = localStorage.getItem('userId');
+    if (!customerId) {
+      alert('User ID not found. Please log in again.');
+      return;
+    }
+
+    const payload = {
+      customerId: parseInt(customerId, 10),
+      text: formData.message
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${apiURL}/Feedbacks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('Failed to send feedback');
+
+      if (onSubmit) onSubmit(formData);
+
+      alert('Thank you for your feedback!');
+
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        subject: '',
+        message: '',
+        rating: 0
+      });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('There was an error submitting your feedback.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -117,56 +100,31 @@ const FeedbackForm = ({ onSubmit }) => {
           label="First Name"
           name="firstName"
           value={formData.firstName}
-          onChange={handleChange}
-          required
-          placeholder="John"
+          readOnly
+          placeholder=""
           error={errors.firstName}
         />
-        
+
         <FeedbackField
           label="Last Name"
           name="lastName"
           value={formData.lastName}
-          onChange={handleChange}
-          required
-          placeholder="Doe"
+          readOnly
+          placeholder=""
           error={errors.lastName}
         />
       </div>
-      
+
       <FeedbackField
-        label="Email Address"
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-        placeholder="john.doe@example.com"
-        error={errors.email}
+        label="Username"
+        type="text"
+        name="username"
+        value={formData.username}
+        readOnly
+        placeholder=""
+        error={errors.username}
       />
-      
-      <FeedbackField
-        label="Subject"
-        type="select"
-        name="subject"
-        value={formData.subject}
-        onChange={handleChange}
-        required
-        placeholder="Select a subject"
-        error={errors.subject}
-        options={subjectOptions}
-      />
-      
-      <FeedbackField
-        label="How would you rate your experience?"
-        type="rating"
-        name="rating"
-        value={formData.rating}
-        onChange={handleChange}
-        required
-        error={errors.rating}
-      />
-      
+
       <FeedbackField
         label="Your Feedback"
         type="textarea"
@@ -178,7 +136,7 @@ const FeedbackForm = ({ onSubmit }) => {
         error={errors.message}
         maxLength={500}
       />
-      
+
       <div className="feedback-actions">
         <button 
           type="submit" 

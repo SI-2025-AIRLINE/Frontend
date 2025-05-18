@@ -11,7 +11,8 @@ const FeedbackField = ({
   placeholder = '', 
   error = '',
   maxLength,
-  options = []
+  options = [],
+  ...rest // ⬅️ Dodaj ovo
 }) => {
   const renderInput = () => {
     if (type === 'textarea') {
@@ -24,6 +25,7 @@ const FeedbackField = ({
           placeholder={placeholder}
           className={`feedback-input feedback-textarea ${error ? 'feedback-input-error' : ''}`}
           maxLength={maxLength}
+          {...rest} 
         />
       );
     } else if (type === 'select') {
@@ -34,6 +36,7 @@ const FeedbackField = ({
           onChange={onChange}
           required={required}
           className={`feedback-input feedback-select ${error ? 'feedback-input-error' : ''}`}
+          {...rest} 
         >
           <option value="" disabled>{placeholder}</option>
           {options.map((option) => (
@@ -42,20 +45,6 @@ const FeedbackField = ({
             </option>
           ))}
         </select>
-      );
-    } else if (type === 'rating') {
-      return (
-        <div className="rating-container">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span
-              key={star}
-              className={`rating-star ${value >= star ? 'active' : ''}`}
-              onClick={() => onChange({ target: { name, value: star } })}
-            >
-              ★
-            </span>
-          ))}
-        </div>
       );
     } else {
       return (
@@ -68,6 +57,7 @@ const FeedbackField = ({
           placeholder={placeholder}
           className={`feedback-input ${error ? 'feedback-input-error' : ''}`}
           maxLength={maxLength}
+          {...rest} 
         />
       );
     }
