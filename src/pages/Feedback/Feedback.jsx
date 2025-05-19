@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useContext } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import FeedbackForm from './FeedbackForm';
 import './Feedback.css';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const Feedback = () => {
   const handleSubmit = (formData) => {
@@ -16,6 +18,9 @@ const Feedback = () => {
     }, 1000);
   };
 
+  const { language } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   /*const handleBackClick = () => {
     // Navigate back to home page
     window.location.href = '/';
@@ -26,8 +31,8 @@ const Feedback = () => {
       <div className="feedback-content">
         
         <div className="feedback-header">
-          <h1>We Value Your Feedback</h1>
-          <p>Your insights help us improve our product and services. Please take a moment to share your thoughts with us.</p>
+          <h1>{t("We Value Your Feedback")}</h1>
+          <p>{t("Please take a moment to share your thoughts with us.")}</p>
         </div>
         
         <div className="feedback-card">
