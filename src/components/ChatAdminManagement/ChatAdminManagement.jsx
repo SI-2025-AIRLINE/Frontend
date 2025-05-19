@@ -41,11 +41,14 @@ const Message = ({ message, isAdmin, senderName }) => (
             <p>{message.message}</p>
         </div>
     </div>
+); 
 
-); const ChatDetail = ({ chat, onClose, onSendMessage, connection }) => {
+const ChatDetail = ({ chat, onClose, onSendMessage, connection }) => {
     const [messageInput, setMessageInput] = useState('');
     const [messages, setMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const messagesEndRef = useRef(null);
+    const joinChatAttempted = useRef(false);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -55,62 +58,118 @@ const Message = ({ message, isAdmin, senderName }) => (
         scrollToBottom();
     }, [messages]);
 
+    // Reset state when chat changes
     useEffect(() => {
-        console.log("Chat prop u useEffect:", chat);
-
-        if (chat && connection.current && connection.current.state === signalR.HubConnectionState.Connected) {
-            console.log("Pokušavam JoinChat za chat ID:", chat.ticket.id);
-            connection.current.invoke("JoinChat", chat.ticket.id)
-                .catch(err => console.error("Error joining chat: ", err));
-
-            const handleReceiveHistoricalMessages = (historicalMessages) => {
-                console.log("Primljene povijesne poruke:", historicalMessages);
-                const formattedHistoricalMessages = historicalMessages.map(msg => ({
-                    message: msg.message, // Backend šalje 'Text' kao poruku (mapirano na 'message' u backendu)
-                    isAdmin: msg.isAdminReply, // Backend koristi boolean 'adminReply'
-                    timestamp: new Date(msg.timestamp).toISOString() // Backend šalje 'PostedAt'
-                }));
-
-                console.log("formattedHistoricalMessages:", formattedHistoricalMessages);
-                setMessages(formattedHistoricalMessages);
-                scrollToBottom(); // Osiguraj da se skrola na dno nakon učitavanja
-            };
-            connection.current.on("ReceiveHistoricalMessages", handleReceiveHistoricalMessages);
-
-            const handleNewMessage = (receivedChat) => {
-                
-                if (receivedChat.chatId === chat.id) {
-                    const formattedMessage = {
-                        message: receivedChat.message,
-                        isAdmin: receivedChat.senderType === 'admin',
-                        timestamp: receivedChat.timestamp
-                    };
-                    
-                    setMessages(prevMessages => {
-                         const newMessages = [...prevMessages, formattedMessage];
-                         return newMessages;
-                    });
-                    scrollToBottom();
-                }
-            };
-            connection.current.on("ReceiveMessage", handleNewMessage);
-
-            return () => {
-                connection.current.off("ReceiveHistoricalMessages", handleReceiveHistoricalMessages); // Važno je i ovdje očistiti listener
-                connection.current.off("ReceiveMessage", handleNewMessage);
-            };
-        } else if (connection.current) {
-            console.log("SignalR veza nije uspostavljena ili je prekinuta. Trenutno stanje:", connection.current.state);
+        if (chat) {
+            console.log("Chat changed to:", chat);
+            setMessages([]);
+            setIsLoading(true);
+            joinChatAttempted.current = false;
         }
-    }, [chat, connection]);
+    }, [chat?.id]); // Only run when chat ID changes
 
+    // Handle SignalR connection and message fetching
+    useEffect(() => {
+        if (!chat || !chat.ticket || !connection.current) return;
+        
+        console.log("Setting up chat connection for chat ID:", chat.id, "ticket ID:", chat.ticket.id);
+        
+        // Define event handlers
+        const handleReceiveHistoricalMessages = (historicalMessages) => {
+            console.log("Received historical messages:", historicalMessages);
+            if (!Array.isArray(historicalMessages)) {
+                console.error("Expected an array of messages but got:", historicalMessages);
+                setIsLoading(false);
+                return;
+            }
+            
+            const formattedMessages = historicalMessages.map(msg => ({
+                message: msg.message,
+                isAdmin: msg.isAdminReply,
+                timestamp: new Date(msg.timestamp).toISOString()
+            }));
+            
+            console.log("Formatted messages:", formattedMessages);
+            setMessages(formattedMessages);
+            setIsLoading(false);
+            scrollToBottom();
+        };
+        
+        const handleNewMessage = (receivedMessage) => {
+            console.log("Received new message:", receivedMessage);
+            if (receivedMessage.chatId === chat.id) {
+                const formattedMessage = {
+                    message: receivedMessage.message,
+                    isAdmin: receivedMessage.senderType === 'Admin',
+                    timestamp: receivedMessage.timestamp
+                };
+                
+                setMessages(prevMessages => [...prevMessages, formattedMessage]);
+                scrollToBottom();
+            }
+        };
+        
+        // Clean up existing handlers to prevent duplicates
+        connection.current.off("ReceiveHistoricalMessages");
+        connection.current.off("ReceiveMessage");
+        
+        // Set up event handlers
+        connection.current.on("ReceiveHistoricalMessages", handleReceiveHistoricalMessages);
+        connection.current.on("ReceiveMessage", handleNewMessage);
+        
+        // Function to join chat and get history
+        const joinChatAndGetHistory = () => {
+            if (joinChatAttempted.current) return;
+            
+            joinChatAttempted.current = true;
+            console.log("Joining chat with ticket ID:", chat.ticket.id);
+            
+            connection.current.invoke("JoinChat", chat.ticket.id)
+                .then(() => {
+                    console.log("Successfully joined chat");
+                })
+                .catch(err => {
+                    console.error("Error joining chat:", err);
+                    joinChatAttempted.current = false;
+                    setIsLoading(false);
+                });
+        };
+        
+        // Join chat based on connection state
+        if (connection.current.state === signalR.HubConnectionState.Connected) {
+            joinChatAndGetHistory();
+        }
+        
+        // Handle reconnection
+        const reconnectedHandler = () => {
+            console.log("Reconnected to SignalR hub");
+            joinChatAttempted.current = false;
+            joinChatAndGetHistory();
+        };
+        
+        connection.current.onreconnected(reconnectedHandler);
+        
+        // Set a fallback timer in case the server doesn't respond
+        const loadingTimeout = setTimeout(() => {
+            if (isLoading) {
+                console.log("Loading timeout - no response from server");
+                setIsLoading(false);
+            }
+        }, 10000); // 10 seconds timeout
+        
+        return () => {
+            // Clean up
+            connection.current.off("ReceiveHistoricalMessages", handleReceiveHistoricalMessages);
+            connection.current.off("ReceiveMessage", handleNewMessage);
+            clearTimeout(loadingTimeout);
+        };
+    }, [chat, connection.current]);
 
     const handleSendMessageLocal = (e) => {
         e.preventDefault();
         if (!messageInput.trim()) return;
-        console.log("Status veze prije slanja:", connection.current?.state);
+        
         onSendMessage(chat.id, messageInput);
-        console.log("Status veze poslije slanja:", connection.current?.state);
         setMessageInput('');
     };
 
@@ -120,8 +179,8 @@ const Message = ({ message, isAdmin, senderName }) => (
         <div className="chat-detail">
             <div className="chat-detail-header">
                 <div className="chat-detail-user">
-                    <h3>{chat.ticket?.customer.firstName}</h3>
-                    <span className="user-info">{chat.ticket?.customer.email}</span>
+                    <h3>{chat.ticket?.customer.firstName || 'Customer'}</h3>
+                    <span className="user-info">{chat.ticket?.customer.email || ''}</span>
                 </div>
                 <div className="chat-detail-actions">
                     <button className="close-chat-button" onClick={() => onClose(chat.id)}>
@@ -133,27 +192,37 @@ const Message = ({ message, isAdmin, senderName }) => (
 
             <div className="chat-messages">
                 <div className="timestamp-divider"><span>Today</span></div>
-                {messages.map((msg, index) => {
-                    const isAdminMessage = msg.isAdmin;
-                    let senderName = '';
+                {isLoading ? (
+                    <div className="empty-messages loading">
+                        <p>Loading chat history...</p>
+                    </div>
+                ) : messages.length > 0 ? (
+                    messages.map((msg, index) => {
+                        const isAdminMessage = msg.isAdmin;
+                        let senderName = '';
 
-                    if (isAdminMessage && chat.admin) {
-                        senderName = chat.admin.username;
-                    } else if (!isAdminMessage && chat.ticket && chat.ticket.customer) {
-                        senderName = chat.ticket.customer.firstName;
-                    } else {
-                        senderName = 'Nepoznato';
-                    }
+                        if (isAdminMessage && chat.admin) {
+                            senderName = chat.admin.username || 'Support';
+                        } else if (!isAdminMessage && chat.ticket && chat.ticket.customer) {
+                            senderName = chat.ticket.customer.firstName || 'Customer';
+                        } else {
+                            senderName = isAdminMessage ? 'Support' : 'Customer';
+                        }
 
-                    return (
-                        <Message
-                            key={index}
-                            message={{ message: msg.message, timestamp: msg.timestamp }}
-                            isAdmin={isAdminMessage}
-                            senderName={senderName}
-                        />
-                    );
-                })}
+                        return (
+                            <Message
+                                key={index}
+                                message={{ message: msg.message, timestamp: msg.timestamp }}
+                                isAdmin={isAdminMessage}
+                                senderName={senderName}
+                            />
+                        );
+                    })
+                ) : (
+                    <div className="empty-messages">
+                        <p>No messages in this conversation yet.</p>
+                    </div>
+                )}
                 <div ref={messagesEndRef} />
             </div>
 
@@ -172,19 +241,13 @@ const Message = ({ message, isAdmin, senderName }) => (
     );
 };
 
-
-
+// Here's a simplified implementation of the ChatWindow component
+// that correctly passes down the chat selection logic
 const ChatWindow = ({ isOpen, chats, activeChat, setActiveChat, onClose, onCloseChat, onSendMessage, connection }) => {
     if (!isOpen) return null;
 
-    /*console.log("ChatWindow chats: ", chats);
-    console.log("ChatWindow isOpen: ", isOpen);
-    console.log("ChatWindow activeChat: ", activeChat);
-    console.log("ChatWindow onClose,: ", onClose);
-    console.log("ChatWindow connection: ", connection);
-    console.log("ChatWindow onSendMessage: ", onSendMessage);*/
-
     const handleSelectChat = (chatId) => {
+        console.log("Selected chat ID:", chatId);
         setActiveChat(chatId);
     };
 
@@ -203,17 +266,14 @@ const ChatWindow = ({ isOpen, chats, activeChat, setActiveChat, onClose, onClose
                         <span className="chat-count">{chats.length} Active</span>
                     </div>
                     <div className="chat-list">
-                        {chats.map(chat => {
-                            console.log("Trenutni chat u listi ChatWindow:", chat);
-                            return (
-                                <ChatItem
-                                    key={chat.id}
-                                    chat={chat}
-                                    isActive={activeChat === chat.id}
-                                    onClick={handleSelectChat}
-                                />
-                            );
-                        })}
+                        {chats.map(chat => (
+                            <ChatItem
+                                key={chat.id}
+                                chat={chat}
+                                isActive={activeChat === chat.id}
+                                onClick={handleSelectChat}
+                            />
+                        ))}
                         {chats.length === 0 && (
                             <div className="empty-chat-list">
                                 <p>No active conversations</p>
@@ -222,12 +282,11 @@ const ChatWindow = ({ isOpen, chats, activeChat, setActiveChat, onClose, onClose
                     </div>
                 </div>
                 <div className="chat-main">
-                    {/*console.log("Svi chatovi u ChatWindow:", chats)*/}
                     {activeChat ? (
                         <ChatDetail
                             chat={chats.find(chat => chat.id === activeChat)}
                             onClose={onCloseChat}
-                            onSendMessage={onSendMessage} 
+                            onSendMessage={onSendMessage}
                             connection={connection}
                         />
                     ) : (
@@ -249,11 +308,9 @@ const ChatAdminManagement = () => {
     const [chats, setChats] = useState([]);
     const [activeChat, setActiveChat] = useState(null);
     const connectionRef = useRef(null);
-    const [messages, setMessages] = useState([]);
 
-
-    const userId = 1; // Simulisani ID administratora (treba doći iz konteksta aplikacije)
-    const userRole = 'Admin'; // Hardkodirana rola administratora (treba doći iz konteksta aplikacije)
+    const userId = 1; // Simulated admin ID
+    const userRole = 'Admin'; // Hardcoded admin role
 
     const backendUrl = import.meta.env.VITE_API_BASE_URL;
     const hubPath = '/supportchathub';
@@ -262,10 +319,10 @@ const ChatAdminManagement = () => {
         try {
             const response = await fetch(`${backendUrl}/Chat`);
             const data = await response.json();
+            console.log("Fetched chats:", data);
             setChats(data);
-            setMessages(data.contents);
         } catch (error) {
-            console.error("Greška pri dohvatanju chatova:", error);
+            console.error("Error fetching chats:", error);
         }
     };
 
@@ -275,46 +332,23 @@ const ChatAdminManagement = () => {
 
     useEffect(() => {
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl(`${backendUrl}${hubPath}?userId=${userId}&userRole=${userRole}`) // Dodaj userId i userRole
+            .withUrl(`${backendUrl}${hubPath}?userId=${userId}&userRole=${userRole}`)
             .withAutomaticReconnect()
             .build();
 
         connectionRef.current = connection;
 
-        connection.start()
-            .then(() => console.log("SignalR Connected"))
-            .catch(err => console.error("SignalR Connection Error: ", err));
+        const startConnection = async () => {
+            try {
+                await connection.start();
+                console.log("SignalR Connected");
+            } catch (err) {
+                console.error("SignalR Connection Error:", err);
+                setTimeout(startConnection, 5000);
+            }
+        };
 
-        connection.on("ReceiveMessage", (message) => {
-            //console.log("ID gdje je error: ", chatId);
-            //console.log("Message gdje je error: ", message);
-            setChats(prevChats => {
-                let chatExists = prevChats.find(chat => chat.id === message.chatId);
-
-                if (chatExists) {
-                    return prevChats.map(chat =>
-                        chat.id === message.chatId
-                            ? {
-                                ...chat,
-                                contents: [...chat.contents, message], 
-                                lastMessage: message.message, 
-                                unreadCount: activeChat === message.chatId ? 0 : (chat.unreadCount + 1)
-                            }
-                            : chat
-                    );
-                } else {
-                    // Ako chat ne postoji — dodaj novi chat (možda se dogodi ako se nova poruka primi prije fetchChats)
-                    const newChat = {
-                        id: message.chatId,
-                        ticket: { customer: { firstName: message} }, // Pokušaj rekonstruirati osnovne info
-                        contents: [message],
-                        lastMessage: message.message,
-                        unreadCount: 1
-                    };
-                    return [...prevChats, newChat];
-                }
-            });
-        });
+        startConnection();
 
         connection.on("ChatClaimed", (claimInfo) => {
             setChats(prevChats =>
@@ -325,51 +359,95 @@ const ChatAdminManagement = () => {
                 )
             );
         });
+        
+        connection.on("ReceiveMessage", (message) => {
+            setChats(prevChats => {
+                let chatExists = prevChats.find(chat => chat.id === message.chatId);
 
-        connection.on("ReceiveError", (errorMessage) => {
-            console.error("SignalR Error: ", errorMessage);
-            
+                if (chatExists) {
+                    return prevChats.map(chat =>
+                        chat.id === message.chatId
+                            ? {
+                                ...chat,
+                                contents: [...(chat.contents || []), message], 
+                                lastMessage: message.message, 
+                                unreadCount: activeChat === message.chatId ? 0 : (chat.unreadCount || 0) + 1
+                            }
+                            : chat
+                    );
+                } else {
+                    // If chat doesn't exist — add new chat
+                    const newChat = {
+                        id: message.chatId,
+                        ticket: { customer: { firstName: 'Customer' } },
+                        contents: [message],
+                        lastMessage: message.message,
+                        unreadCount: 1
+                    };
+                    return [...prevChats, newChat];
+                }
+            });
         });
 
-        connection.onclose(() => console.log('SignalR veza je zatvorena')); // Dodaj listener za zatvaranje veze
-        connection.onreconnecting(() => console.log('Pokušavam ponovno povezivanje...')); // Dodaj listener za ponovno povezivanje
-        connection.onreconnected(() => console.log('Ponovno povezano!')); // Dodaj listener za uspješno ponovno povezivanje
+        connection.on("ReceiveError", (errorMessage) => {
+            console.error("SignalR Error:", errorMessage);
+        });
 
         return () => {
-            connection.stop();
+            if (connection.state === signalR.HubConnectionState.Connected) {
+                connection.stop();
+            }
         };
-    }, [activeChat, userId, userRole]);
+    }, [userId, userRole]);
 
     const handleToggleChat = () => setIsOpen(!isOpen);
 
     const handleCloseChat = (chatId) => {
+        // Properly clean up when closing a chat
+        if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
+            connectionRef.current.invoke("LeaveChat", chatId)
+                .then(() => console.log("Left chat successfully"))
+                .catch(err => console.error("Error leaving chat:", err));
+        }
+        
         setChats(prev => prev.filter(chat => chat.id !== chatId));
         if (activeChat === chatId) setActiveChat(null);
     };
 
     const handleCloseWindow = () => {
         setIsOpen(false);
-        setActiveChat(null);
+    };
+
+    const handleSetActiveChat = (chatId) => {
+        setActiveChat(chatId);
+        
+        // Mark messages as read when selecting a chat
+        setChats(prevChats =>
+            prevChats.map(chat =>
+                chat.id === chatId
+                    ? { ...chat, unreadCount: 0 }
+                    : chat
+            )
+        );
     };
 
     const handleSendMessage = (chatId, text) => {
-
-        console.log(`Pokušavam poslati poruku "${text}" u chat ${chatId}. Status veze:`, connectionRef.current?.state);
         if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
-
-
             connectionRef.current.invoke("SendChatMessage", chatId, text)
-                .then(() => console.log("Poruka uspješno poslana."))
-                .catch(err => console.error("Greška prilikom slanja poruke: ", err));
+                .then(() => console.log("Message sent successfully"))
+                .catch(err => console.error("Error sending message:", err));
             
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Koristi ISO format za konzistentnost
+            const timestamp = new Date().toISOString();
             setChats(prevChats =>
                 prevChats.map(chat => {
-                    console.log("Provjeravam chat:", chat);
                     if (chat.id === chatId) {
                         return {
                             ...chat,
-                            contents: [...(chat.contents || []), { message: text, sender: 'admin', timestamp: timestamp, isAdminReply: true }],
+                            contents: [...(chat.contents || []), { 
+                                message: text, 
+                                isAdminReply: true,
+                                timestamp: timestamp 
+                            }],
                             lastMessage: text
                         };
                     } else {
@@ -378,24 +456,23 @@ const ChatAdminManagement = () => {
                 })
             );
         } else {
-            console.log("SignalR veza nije aktivna, poruka nije poslana.");
+            console.log("SignalR connection is not active, message not sent");
         }
-        
     };
 
     const totalUnread = Array.isArray(chats) ? chats.reduce((acc, chat) => acc + (chat.unreadCount || 0), 0) : 0;
-    console.log("TotalUnread: ", totalUnread);
+    
     return (
         <div className="chat-admin-container">
             <ChatWindow
                 isOpen={isOpen}
                 chats={chats}
                 activeChat={activeChat}
-                setActiveChat={setActiveChat}
+                setActiveChat={handleSetActiveChat}
                 onClose={handleCloseWindow}
                 onCloseChat={handleCloseChat}
                 onSendMessage={handleSendMessage}
-                connection={connectionRef} 
+                connection={connectionRef}
             />
             <ChatButton unreadCount={totalUnread} onClick={handleToggleChat} />
         </div>

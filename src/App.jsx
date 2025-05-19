@@ -29,6 +29,7 @@ import Feedback from './pages/Feedback/Feedback';
 import ChatAdminManagement from './components/ChatAdminManagement/ChatAdminManagement';
 
 function App() {
+  const isAdminRoute = location.pathname.startsWith('/admin');
   return (
     <LanguageProvider>
       <Router>
@@ -58,6 +59,7 @@ function App() {
             <Route path="/customer-chat" element={<CustomerChat />} />
             <Route path="/feedback" element={<Feedback />} />
           </Routes>
+          {isAdminRoute && <ChatAdminManagement />}
         </div>
       </Router>
     </LanguageProvider>
