@@ -1,4 +1,4 @@
-# ✈️ SI-2025-AIRLINE Frontend
+# ✈️ SIAirline Frontend
 
 This repository contains the frontend application for the SIAirline Information System, developed using **React** and **Vite**.  
 It serves as the user interface for the airline management system, providing features such as flight booking, check-in, and more.
