@@ -283,7 +283,7 @@
 
 .btn-close,
 .btn-close-send,
-.btn-success {
+.btn-success-admin {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -304,6 +304,18 @@
   background-color: #b91c1c;
 }
 
+.btn-close:disabled,
+.btn-close-send:disabled {
+  background-color: #fca5a5;
+  color: #fff;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-close:disabled:hover {
+  background-color: #fca5a5;
+}
+
 .btn-close-send {
   background-color: #dc2626;
   color: white;
@@ -313,11 +325,24 @@
   background-color: #b91c1c;
 }
 
-.btn-success {
+.btn-close-send:disabled:hover {
+  background-color: #fca5a5;
+}
+
+.btn-success-admin {
   background-color: #059669;
   color: white;
 }
 
-.btn-success:hover {
+.btn-success-admin:hover {
   background-color: #047857;
 }
+
+.btn-success-admin:disabled {
+  background-color: #bbf7d0;
+  color: #065f46;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+

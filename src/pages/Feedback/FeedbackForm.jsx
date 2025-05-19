@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import FeedbackField from './FeedbackField';
 import './Feedback.css';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const capitalize = (str) => {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 const apiURL = import.meta.env.VITE_API_BASE_URL;
+
 const FeedbackForm = ({ onSubmit }) => {
+  const { language } = useContext(LanguageContext);
+  const { t } = useTranslation();
+  
   const [formData, setFormData] = useState({
     firstName: capitalize(localStorage.getItem('name')),
     lastName: capitalize(localStorage.getItem('surname')),
@@ -37,9 +43,6 @@ const FeedbackForm = ({ onSubmit }) => {
 
   const validateForm = () => {
     const newErrors = {};
-
-    
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -51,7 +54,7 @@ const FeedbackForm = ({ onSubmit }) => {
 
     const customerId = localStorage.getItem('userId');
     if (!customerId) {
-      alert('User ID not found. Please log in again.');
+      alert(t('User ID not found. Please log in again.'));
       return;
     }
 
@@ -71,11 +74,11 @@ const FeedbackForm = ({ onSubmit }) => {
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok) throw new Error('Failed to send feedback');
+      if (!response.ok) throw new Error(t('Failed to send feedback'));
 
       if (onSubmit) onSubmit(formData);
 
-      alert('Thank you for your feedback!');
+      alert(t('Thank you for your feedback!'));
 
       setFormData({
         firstName: '',
@@ -87,7 +90,7 @@ const FeedbackForm = ({ onSubmit }) => {
       });
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      alert('There was an error submitting your feedback.');
+      alert(t('There was an error submitting your feedback.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -97,7 +100,7 @@ const FeedbackForm = ({ onSubmit }) => {
     <form className="feedback-form" onSubmit={handleSubmit}>
       <div className="form-row">
         <FeedbackField
-          label="First Name"
+          label={t('First Name')}
           name="firstName"
           value={formData.firstName}
           readOnly
@@ -106,7 +109,7 @@ const FeedbackForm = ({ onSubmit }) => {
         />
 
         <FeedbackField
-          label="Last Name"
+          label={t('Last Name')}
           name="lastName"
           value={formData.lastName}
           readOnly
@@ -116,7 +119,7 @@ const FeedbackForm = ({ onSubmit }) => {
       </div>
 
       <FeedbackField
-        label="Username"
+        label={t('Username')}
         type="text"
         name="username"
         value={formData.username}
@@ -126,13 +129,13 @@ const FeedbackForm = ({ onSubmit }) => {
       />
 
       <FeedbackField
-        label="Your Feedback"
+        label={t('Your Feedback')}
         type="textarea"
         name="message"
         value={formData.message}
         onChange={handleChange}
         required
-        placeholder="Please describe your feedback in detail..."
+        placeholder={t('Please describe your feedback in detail...')}
         error={errors.message}
         maxLength={500}
       />
@@ -143,7 +146,7 @@ const FeedbackForm = ({ onSubmit }) => {
           className="send-button"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Sending...' : 'Send Feedback'}
+          {isSubmitting ? t('Sending...') : t('Send Feedback')}
         </button>
       </div>
     </form>

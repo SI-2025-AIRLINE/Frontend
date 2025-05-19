@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './Feedback.css';
+import { LanguageContext } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const FeedbackField = ({ 
   label, 
@@ -12,8 +14,11 @@ const FeedbackField = ({
   error = '',
   maxLength,
   options = [],
-  ...rest // ⬅️ Dodaj ovo
+  ...rest
 }) => {
+  const { language } = useContext(LanguageContext);
+  const { t } = useTranslation();
+
   const renderInput = () => {
     if (type === 'textarea') {
       return (
@@ -22,7 +27,7 @@ const FeedbackField = ({
           value={value}
           onChange={onChange}
           required={required}
-          placeholder={placeholder}
+          placeholder={t(placeholder)}
           className={`feedback-input feedback-textarea ${error ? 'feedback-input-error' : ''}`}
           maxLength={maxLength}
           {...rest} 
@@ -38,10 +43,10 @@ const FeedbackField = ({
           className={`feedback-input feedback-select ${error ? 'feedback-input-error' : ''}`}
           {...rest} 
         >
-          <option value="" disabled>{placeholder}</option>
+          <option value="" disabled>{t(placeholder)}</option>
           {options.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
@@ -54,7 +59,7 @@ const FeedbackField = ({
           value={value}
           onChange={onChange}
           required={required}
-          placeholder={placeholder}
+          placeholder={t(placeholder)}
           className={`feedback-input ${error ? 'feedback-input-error' : ''}`}
           maxLength={maxLength}
           {...rest} 
@@ -66,11 +71,11 @@ const FeedbackField = ({
   return (
     <div className="feedback-field">
       <label className="feedback-label">
-        {label}
+        {t(label)}
         {required && <span className="required-indicator">*</span>}
       </label>
       {renderInput()}
-      {error && <p className="feedback-error">{error}</p>}
+      {error && <p className="feedback-error">{t(error)}</p>}
     </div>
   );
 };

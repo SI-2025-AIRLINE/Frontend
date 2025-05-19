@@ -177,5 +177,31 @@
     "Please provide detailed information about the issue...": "Please provide detailed information about the issue...",
     "Create Ticket": "Create Ticket",
     "Open Chat": "Open Chat",
-    "Feedback": "Feedback"
+    "Feedback": "Feedback",
+
+    "Technical":"Technical",
+    "Billing": "Billing",
+    "General": "General",
+    "Feature Request": "Feature Request",
+    "Other": "Other",
+
+    "Open": "Open",
+    "In Progress": "In Progress",
+    "On Hold": "On Hold",
+    "Resolved": "Resolved",
+    "Closed": "Closed",
+    "Cancelled": "Cancelled",
+    "Reopened": "Reopened",
+
+    "Medium": "Medium",
+
+    "Please take a moment to share your thoughts with us.": "Please take a moment to share your thoughts with us.",
+    "We Value Your Feedback": "We Value Your Feedback",
+
+    "First Name": "First Name",
+    "Last Name": "Last Name",
+    "Username": "Username",
+    "Your Feedback": "Your Feedback",
+    "Please describe your feedback in detail...": "Please describe your feedback in detail...",
+    "Send Feedback": "Send Feedback"
 }

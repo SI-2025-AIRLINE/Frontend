@@ -178,5 +178,31 @@
     "Please provide detailed information about the issue...": "Molimo Vas da detaljno opišete informacije u vezi tiketa...",
     "Create Ticket": "Napravi Tiket",
     "Open Chat": "Otvori Chat",
-    "Feedback": "Povratne informacije"
+    "Feedback": "Povratne informacije",
+
+    "Technical":"Tehnička",
+    "Billing": "Plaćanje",
+    "General": "Općenito",
+    "Feature Request": "Zahtjev za funkcionalnost",
+    "Other": "Ostalo",
+
+    "Open": "Otvoreno",
+    "In Progress": "U procesu",
+    "On Hold": "Na čekanju",
+    "Resolved": "Riješeno",
+    "Closed": "Zatvoreno",
+    "Cancelled": "Otkazano",
+    "Reopened": "Ponovo otvoreno",
+
+    "Medium": "Srednji",
+
+    "Please take a moment to share your thoughts with us.": "Molimo Vas da odvojite trenutak i podijelite sa nama svoje mišljenje.",
+    "We Value Your Feedback": "Mi cijenimo Vašu povratnu informaciju",
+
+    "First Name": "Ime",
+    "Last Name": "Prezime",
+    "Username": "Korisničko ime",
+    "Your Feedback": "Vaše mišljenje",
+    "Please describe your feedback in detail...": "Opišite svoje mišljenje...",
+    "Send Feedback": "Pošalji"
 }

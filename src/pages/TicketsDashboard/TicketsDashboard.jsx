@@ -160,7 +160,7 @@ function TicketsDashboard() {
               >
                 <option value="">{t("allCategories")}</option>
                 {TICKET_CATEGORIES.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category} value={category}>{t(category)}</option>
                 ))}
               </select>
               <select
@@ -170,7 +170,7 @@ function TicketsDashboard() {
               >
                 <option value="">{t("All Statuses")}</option>
                 {Object.values(TICKET_STATUS).map(status => (
-                  <option key={status} value={status}>{status}</option>
+                  <option key={status} value={status}>{t(status)}</option>
                 ))}
               </select>
               <button className="btn-create-ticket" onClick={() => navigate("/create-ticket")}>
@@ -191,7 +191,7 @@ function TicketsDashboard() {
                     <span className="ticket-number">{ticket.ticketNumber}</span>
                     <span className="ticket-user">{ticket.userName}</span>
                     <span className={`priority-badge ${getPriorityColor(ticket.priority)}`}>
-                      {ticket.priority}
+                      {t(ticket.priority)}
                     </span>
                     <span className={clsx(
                       'status-badge',
@@ -205,16 +205,16 @@ function TicketsDashboard() {
                         'status-reopened': ticket.status === TICKET_STATUS.REOPENED,
                       }
                     )}>
-                      {ticket.status}
+                      {t(ticket.status)}
                     </span>
                   </div>
                   <span className="ticket-time">
-                    {format(ticket.lastUpdated, 'MMM d, yyyy HH:mm')}
+                    {format(ticket.lastUpdated, 'dd.MM.yyyy HH:mm')}
                   </span>
                 </div>
                 <div className="ticket-category">
                   <Tag size={16} />
-                  <span>{ticket.category}</span>
+                  <span>{t(ticket.category)}</span>
                 </div>
                 <h3 className="ticket-subject">{ticket.subject}</h3>
                 <p className="ticket-preview">{ticket.description.substring(0, 100)}...</p>
@@ -232,7 +232,7 @@ function TicketsDashboard() {
                   <span>{selectedTicket.category}</span>
                 </div>
                 <div className={`priority-badge ${getPriorityColor(selectedTicket.priority)}`}>
-                  {selectedTicket.priority}
+                  {t(selectedTicket.priority)}
                 </div>
               </div>
               <h2 className="detail-subject">{selectedTicket.subject}</h2>
