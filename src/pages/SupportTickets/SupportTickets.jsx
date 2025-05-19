@@ -123,12 +123,13 @@ function SupportTickets() {
           t.id === updatedTicket.id ? updatedTicket : t 
       ));
 
-     
+      console.log("Updated ticket: status", updatedTicket.contents[updatedTicket.contents.length - 1].status);
+
       setSelectedTicket(null);
       setReplyText('');
-       
-      alert(`Ticket ${updatedTicket.ticketNumber} status updated to ${updatedTicket.lastStatus}${text ? ' and reply sent.' : '.'}`);
 
+      alert(`Ticket ${updatedTicket.ticketNumber} status updated to ${updatedTicket.contents[updatedTicket.contents.length - 1].status}${text ? ' and reply sent.' : '.'}`);
+      window.location.reload(); // Refresh the page to see updated tickets
     } catch (err) {
       console.error("Failed to post ticket reply:", err);
       setError(`Failed to update ticket status or send reply: ${err.message}`);
@@ -176,29 +177,27 @@ function SupportTickets() {
   };
 
 
-    const handleCloseTicket = (withReply = false) => {
-       
-      if (withReply && !replyText.trim()) {
-          alert('Please enter a reply before closing and sending.');
-          return;
-      }
-
-      if (!withReply) {
-          const confirmClose = window.confirm('Are you sure you want to close this ticket?');
-          if (!confirmClose) {
-              return; 
-          }
-      }
-
-      setIsPosting(false);
+  const handleCloseTicket = (withReply = false) => {
       
-      postTicketReply(selectedTicket.id, 3, replyText); //Na backendu CLOSED je 3
+    if (withReply && !replyText.trim()) {
+        alert('Please enter a reply before closing and sending.');
+        return;
+    }
+
+    if (!withReply) {
+        const confirmClose = window.confirm('Are you sure you want to close this ticket?');
+        if (!confirmClose) {
+            return; 
+        }
+    }
+
+    setIsPosting(false);
+    
+    postTicketReply(selectedTicket.id, 3, replyText); //Na backendu CLOSED je 3
   };
 
-    const handleMarkSuccess = () => {
-       
-      postTicketReply(selectedTicket.id, 2, replyText);  //Na backendu RESOLVED je 2
-      
+  const handleMarkSuccess = () => {
+    postTicketReply(selectedTicket.id, 2, replyText);  //Na backendu RESOLVED je 2
   };
 
 
@@ -387,9 +386,7 @@ function SupportTickets() {
                      : replyText
                 }
                  onChange={(e) => setReplyText(e.target.value)}
-                 disabled={
-                  isPosting 
-                } // Disable if posting or if there's a second message
+                 disabled={selectedTicket.contents[selectedTicket.contents.length - 1].status !== 'Open' ? true : false}
               />
             </div>
 
@@ -398,7 +395,7 @@ function SupportTickets() {
               <button
                 className="btn-close"
                  onClick={() => handleCloseTicket(false)} // Pass false for no reply
-                 disabled={isPosting}
+                 disabled={selectedTicket.contents[selectedTicket.contents.length - 1].status !== 'Open' ? true : false}
               >
                 <X size={18} />
                 Close
@@ -406,18 +403,18 @@ function SupportTickets() {
               <button
                 className="btn-close-send"
                  onClick={() => handleCloseTicket(true)} // Pass true to send reply
-                 disabled={isPosting} // Disable if no reply text
+                 disabled={selectedTicket.contents[selectedTicket.contents.length - 1].status !== "Open" ? true : false}
               >
                 <Send size={18} />
                 Close and Send
               </button>
               <button
-                className="btn-success"
+                className="btn-success-admin"
                  onClick={handleMarkSuccess} // Call the success handler
-                 disabled={isPosting}
+                 disabled={selectedTicket.contents[selectedTicket.contents.length - 1].status !== 'Open' ? true : false}
               >
                 <CheckCircle2 size={18} />
-                Success
+                Resolve
               </button>
             </div>
           </div>
