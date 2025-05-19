@@ -411,7 +411,7 @@ function SupportTickets() {
                  disabled={selectedTicket.contents[selectedTicket.contents.length - 1].status !== "Open" ? true : false}
               >
                 <Send size={18} />
-                Close and Send
+                Send and close
               </button>
               <button
                 className="btn-success-admin"
