@@ -40,6 +40,30 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background-color: white;
+    color: var(--gray-700);
+    transition: all 0.2s;
+  }
+
+    .btn:hover {
+        background-color: #1e3a8a;
+    }
+  
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
 .filters {
   display: flex;
   gap: 0.75rem;
