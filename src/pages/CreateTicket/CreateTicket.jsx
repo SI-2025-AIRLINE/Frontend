@@ -9,13 +9,13 @@ const apiURL = import.meta.env.VITE_API_BASE_URL;
 
 // Mapiranje imena kategorija na ID-jeve (prilagodi prema backendu)
 const categoryMap = {
-  Reservation: 1,
-  Baggage: 2,
-  Refund: 3,
-  Scheduling: 4,
-  "Customer Service": 5,
-  "Technical Issue": 6,
-  Other: 7,
+  "General": 0,
+  "Billing": 1,
+  "Technical": 2,
+  "Baggage": 3,
+  "FlightIssue": 4,
+  "Refund": 5,
+  "Other": 6
 };
 
 const CreateTicket = () => {
@@ -135,12 +135,12 @@ const CreateTicket = () => {
             required
           >
             <option value="" disabled>{t("Select a category")}</option>
-            <option value="Reservation">Reservation</option>
+            <option value="General">General</option>
+            <option value="Billing">Billing</option>
+            <option value="Technical">Technical</option>
             <option value="Baggage">Baggage</option>
+            <option value="FlightIssue">Flight Issue</option>
             <option value="Refund">Refund</option>
-            <option value="Scheduling">Scheduling</option>
-            <option value="Customer Service">Customer Service</option>
-            <option value="Technical Issue">Technical Issue</option>
             <option value="Other">Other</option>
           </select>
         </div>

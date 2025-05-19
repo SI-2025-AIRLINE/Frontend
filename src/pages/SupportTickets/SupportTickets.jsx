@@ -198,6 +198,10 @@ function SupportTickets() {
   };
 
   const handleMarkSuccess = () => {
+    if (!replyText.trim()) {
+        alert('Please enter a reply before marking as resolved.');
+        return;
+    }
     postTicketReply(selectedTicket.id, 2, replyText);  //Na backendu RESOLVED je 2
   };
 
