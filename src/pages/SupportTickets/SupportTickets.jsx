@@ -130,7 +130,7 @@ function SupportTickets() {
       setReplyText('');
 
       //alert(`Ticket ${updatedTicket.ticketNumber} status updated to ${updatedTicket.contents[updatedTicket.contents.length - 1].status}${text ? ' and reply sent.' : '.'}`);
-      window.location.reload(); // Refresh the page to see updated tickets
+      //window.location.reload(); // Refresh the page to see updated tickets
     } catch (err) {
       console.error("Failed to post ticket reply:", err);
       setError(`Failed to update ticket status or send reply: ${err.message}`);
