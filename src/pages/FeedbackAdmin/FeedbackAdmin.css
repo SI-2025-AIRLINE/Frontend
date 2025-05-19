@@ -1,4 +1,4 @@
-.feedback-container {
+.admin-feedback-container {
     max-width: 50%;
     margin: 0 auto;
     padding: 1rem;
@@ -7,7 +7,7 @@
     overflow-y: auto;
 }
 
-.feedback-list {
+.admin-feedback-list {
     background-color: white;
     max-width: 100%;
     border-radius: 0.75rem;
@@ -15,21 +15,21 @@
     overflow-y: auto;
 }
 
-.feedback-item {
+.admin-feedback-item {
     padding: 1.25rem;
     border-bottom: 1px solid #e5e7eb;
     transition: background-color 0.2s;
 }
 
-    .feedback-item:last-child {
+    .admin-feedback-item:last-child {
         border-bottom: none;
     }
 
-    .feedback-item:hover {
+    .admin-feedback-item:hover {
         background-color: #f9fafb;
     }
 
-.feedback-header {
+.admin-feedback-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -37,17 +37,17 @@
     text-align: center;
 }
 
-.feedback-user {
+.admin-feedback-user {
     font-weight: 500;
     color: #111827;
 }
 
-.feedback-timestamp {
+.admin-feedback-timestamp {
     color: #6b7280;
     font-size: 0.875rem;
 }
 
-.feedback-message {
+.admin-feedback-message {
     color: #374151;
     font-size: 0.95rem;
     line-height: 1.6;
@@ -59,7 +59,7 @@
 /*Messages*/
 
 
-.modal-overlay-feedback {
+.admin-modal-overlay-feedback {
     position: fixed;
     top: 0;
     left: 0;
@@ -74,7 +74,7 @@
 
 
 
-.error-modal-feedback {
+.admin-error-modal-feedback {
     background-color: #fff;
     padding: 25px 35px;
     border-radius: 12px;
@@ -84,7 +84,7 @@
     width: 90%;
     text-align: center;
 }
-.modal-close-btn-feedback {
+.admin-modal-close-btn-feedback {
     background-color: #cecece;
     color: black;
     padding: 10px 18px;
@@ -95,7 +95,6 @@
     transition: background-color 0.3s ease;
 }
 
-    .modal-close-btn-feedback:hover {
+    .admin-modal-close-btn-feedback:hover {
         background-color: #a1a1a1;
     }
-

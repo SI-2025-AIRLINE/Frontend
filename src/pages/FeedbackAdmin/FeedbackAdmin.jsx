@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import './FeedbackAdmin.css';
 import { useState, useEffect } from 'react';
+import { AlignCenter } from 'lucide-react';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -65,16 +66,16 @@ const FeedbackAdmin = () => {
     return (
 
 
-        <div className="feedback-container">
+        <div className="admin-feedback-container">
 
 
             {/*Messages*/ }
-            {loading && <p className="loading-message-feedback">Loading feedbacks...</p>}
+            {loading && <p className="admin-loading-message-feedback">Loading feedbacks...</p>}
             { error && showError && (
-                <div className="modal-overlay-feedback">
-                    <div className="error-modal-feedback">
+                <div className="admin-modal-overlay-feedback">
+                    <div className="admin-error-modal-feedback">
                         <p>{error}</p>
-                        <button onClick={() => setShowError(false)} className="modal-close-btn-feedback">
+                        <button onClick={() => setShowError(false)} className="adminmodal-close-btn-feedback">
                             OK
                         </button>
                     </div>
@@ -83,18 +84,18 @@ const FeedbackAdmin = () => {
              }
 
         
-            <div className="feedback-list">
+            <div className="admin-feedback-list">
                 {feedbacks.map((fb) => (
-                    <div key={fb.id} className="feedback-item">
-                        <div className="feedback-header">
-                            <div className="feedback-user">{fb.customerName}</div>
-                            <div className="feedback-timestamp">
+                    <div key={fb.id} className="admin-feedback-item">
+                        <div className="admin-feedback-header">
+                            <div className="admin-feedback-user">{fb.customerName}</div>
+                            <div className="admin-feedback-timestamp">
                                 {new Date(fb.dateSubmitted).toLocaleDateString('en-GB')}<br />
                                 {new Date(fb.dateSubmitted).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                             </div>
 
                         </div>
-                        <div className="feedback-message">{fb.text}</div>
+                        <div className="admin-feedback-message">{fb.text}</div>
                     </div>
                 ))}
             </div>
@@ -108,7 +109,7 @@ const FeedbackAdmin = () => {
                     Previous
                 </button>
 
-                <span>Page {pagination.pageNumber}</span>
+                <span style={{ paddingTop: '7px' }}>Page {pagination.pageNumber}</span>
 
                 <button
                     onClick={() => setPageNumber(p => p + 1)}
