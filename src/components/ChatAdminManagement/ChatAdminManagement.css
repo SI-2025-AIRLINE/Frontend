@@ -124,6 +124,7 @@
         font-size: 18px;
         font-weight: 600;
         margin: 0;
+        color: var(--gray-50);
     }
 
 .chat-admin-container .close-window-button {

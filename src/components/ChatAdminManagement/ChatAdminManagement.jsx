@@ -254,7 +254,7 @@ const ChatWindow = ({ isOpen, chats, activeChat, setActiveChat, onClose, onClose
     return (
         <div className="chat-window">
             <div className="chat-window-header">
-                <h2>Customer Support</h2>
+                <h2>Customer Support Chat</h2>
                 <button className="close-window-button" onClick={onClose}>
                     <X size={24} />
                 </button>
