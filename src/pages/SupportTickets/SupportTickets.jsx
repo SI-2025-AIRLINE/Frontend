@@ -122,13 +122,14 @@ function SupportTickets() {
       setTickets(prevTickets => prevTickets.map(t =>
           t.id === updatedTicket.id ? updatedTicket : t 
       ));
+      console.log("Updated ticket:", updatedTicket);
 
-      console.log("Updated ticket: status", updatedTicket.contents[updatedTicket.contents.length - 1].status);
+      console.log("Updated ticket: status", updatedTicket.lastStatus);
 
       setSelectedTicket(null);
       setReplyText('');
 
-      alert(`Ticket ${updatedTicket.ticketNumber} status updated to ${updatedTicket.contents[updatedTicket.contents.length - 1].status}${text ? ' and reply sent.' : '.'}`);
+      //alert(`Ticket ${updatedTicket.ticketNumber} status updated to ${updatedTicket.contents[updatedTicket.contents.length - 1].status}${text ? ' and reply sent.' : '.'}`);
       window.location.reload(); // Refresh the page to see updated tickets
     } catch (err) {
       console.error("Failed to post ticket reply:", err);
