@@ -52,6 +52,7 @@
     background-color: white;
     color: var(--gray-700);
     transition: all 0.2s;
+    margin-bottom: 15px;
   }
 
     .btn:hover {
