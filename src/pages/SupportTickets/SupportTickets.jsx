@@ -1,267 +1,3 @@
-/*import React, { useState } from 'react';
-import { Search, Tag, Clock, MessageCircle, X, CheckCircle2, Send, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
-import clsx from 'clsx';
-import './SupportTickets.css';
-
-const TICKET_CATEGORIES = [
-  'General',
-  'Billing',
-  'Tehnical',
-  'Baggage',
-  'FlightIssue',
-  'Refund',
-  'Other'
-];
-
-const TICKET_STATUS = {
-  OPEN: 'Open',
-  IN_PROGRESS: 'In Progress',
-  RESOLVED: 'Resolved',
-  CLOSED: 'Closed',
-  REOPENED: 'Reopened'
-};
-
-const MOCK_TICKETS = [
-  {
-    id: '1',
-    ticketNumber: 'TKT-2024-001',
-    userName: 'John Smith',
-    category: 'Reservation',
-    subject: 'Unable to book flight BA123',
-    description: 'I’m experiencing a problem while trying to complete my purchase on your website. When I reach the checkout page and enter my payment details, the system processes the payment but then returns an error message saying, “Payment could not be completed at this time. Please try again later.” Despite this, my bank statement shows that the amount has been deducted twice.I have already checked my internet connection and tried using different browsers and devices, but the issue persists. This is quite urgent because I need to confirm my order for an upcoming event, and I am worried about being charged twice without receiving the order confirmation.',
-    status: TICKET_STATUS.OPEN,
-    createdAt: new Date('2024-03-10T10:30:00')
-  },
-  {
-    id: '2',
-    ticketNumber: 'TKT-2024-002',
-    userName: 'Sarah Johnson',
-    category: 'Baggage',
-    subject: 'Lost luggage on flight AF456',
-    description: 'My luggage didn\'t arrive at the destination. I\'ve been waiting at the baggage claim for over an hour.',
-    status: TICKET_STATUS.IN_PROGRESS,
-    createdAt: new Date('2024-03-09T15:45:00')
-  },
-  {
-    id: '3',
-    ticketNumber: 'TKT-2024-003',
-    userName: 'Michael Brown',
-    category: 'Refund',
-    subject: 'Refund for cancelled flight',
-    description: 'My flight was cancelled due to weather conditions and I would like to request a refund.',
-    status: TICKET_STATUS.RESOLVED,
-    createdAt: new Date('2024-03-08T09:15:00')
-  }
-];
-
-function SupportTickets() {
-  const [tickets, setTickets] = useState(MOCK_TICKETS);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-  };
-
-  const handleStatusChange = (e) => {
-    setSelectedStatus(e.target.value);
-  };
-
-  const filteredTickets = tickets.filter(ticket => {
-    const matchesSearch = searchTerm === '' || 
-      ticket.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.ticketNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = selectedCategory === '' || ticket.category === selectedCategory;
-    const matchesStatus = selectedStatus === '' || ticket.status === selectedStatus;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  }).sort((a, b) => b.createdAt - a.createdAt);
-
-  const handleTicketClick = (ticket) => {
-    setSelectedTicket(ticket);
-  };
-
-  const handleCloseTicket = (withReply = false) => {
-    if (withReply && !replyText.trim()) {
-      alert('Please enter a reply before closing the ticket.');
-      return;
-    }
-
-    setTickets(tickets.map(t => 
-      t.id === selectedTicket.id 
-        ? { ...t, status: TICKET_STATUS.CLOSED }
-        : t
-    ));
-    setSelectedTicket(null);
-    setReplyText('');
-  };
-
-  const handleMarkSuccess = () => {
-    setTickets(tickets.map(t => 
-      t.id === selectedTicket.id 
-        ? { ...t, status: TICKET_STATUS.RESOLVED }
-        : t
-    ));
-    setSelectedTicket(null);
-    setReplyText('');
-  };
-
-
-  return (
-    <div className="support-container">
-      {!selectedTicket ? (
-        <div>
-          <div className="filters-container">
-            <div className="search-wrapper">
-              <Search className="search-icon" size={20} />
-              <input
-                type="text"
-                placeholder="Search tickets..."
-                className="search-input"
-                value={searchTerm}
-                onChange={handleSearch}
-              />
-            </div>
-            <div className="filters">
-              <select
-                className="filter-select"
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-              >
-                <option value="">All Categories</option>
-                {TICKET_CATEGORIES.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-              <select
-                className="filter-select"
-                value={selectedStatus}
-                onChange={handleStatusChange}
-              >
-                <option value="">All Statuses</option>
-                {Object.values(TICKET_STATUS).map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="tickets-list">
-            {filteredTickets.map(ticket => (
-              <div
-                key={ticket.id}
-                className="ticket-item"
-                onClick={() => handleTicketClick(ticket)}
-              >
-                <div className="ticket-header">
-                  <div className="ticket-main-info">
-                    <span className="ticket-number">{ticket.ticketNumber}</span>
-                    <span className="ticket-user">{ticket.userName}</span>
-                    <span className={clsx(
-                      'status-badge',
-                      {
-                        'status-open': ticket.status === TICKET_STATUS.OPEN,
-                        'status-in-progress': ticket.status === TICKET_STATUS.IN_PROGRESS,
-                        'status-resolved': ticket.status === TICKET_STATUS.RESOLVED,
-                        'status-closed': ticket.status === TICKET_STATUS.CLOSED,
-                        'status-reopened': ticket.status === TICKET_STATUS.REOPENED
-                      }
-                    )}>
-                      {ticket.status}
-                    </span>
-                  </div>
-                  <span className="ticket-time">
-                    {format(ticket.createdAt, 'MMM d, yyyy HH:mm')}
-                  </span>
-                </div>
-                <div className="ticket-category">
-                  <Tag size={16} />
-                  <span>{ticket.category}</span>
-                </div>
-                <h3 className="ticket-subject">{ticket.subject}</h3>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="ticket-detail">
-          <div className="detail-left">
-            <div className="detail-header">
-              <div className="detail-category">
-                <Tag size={16} />
-                <span>{selectedTicket.category}</span>
-              </div>
-            </div>
-            <h2 className="detail-subject">{selectedTicket.subject}</h2>
-            <div className="detail-meta">
-              <Clock size={16} />
-              <span>Created {format(selectedTicket.createdAt, 'MMM d, yyyy HH:mm')}</span>
-            </div>
-            <div className="customer-message">
-              <div className="customer-info">
-                <div className="customer-avatar">
-                  {selectedTicket.userName.charAt(0)}
-                </div>
-                <div>
-                  <div className="customer-name">{selectedTicket.userName}</div>
-                  <div className="customer-ticket">{selectedTicket.ticketNumber}</div>
-                </div>
-              </div>
-              <p className="message-content">{selectedTicket.description}</p>
-            </div>
-          </div>
-
-          <div className="detail-right">
-            <div className="reply-section">
-              <h3>Reply to Customer</h3>
-              <textarea
-                className="reply-textarea"
-                placeholder="Type your response here..."
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-              />
-            </div>
-            <div className="action-buttons">
-              <button
-                className="btn-close"
-                onClick={() => handleCloseTicket(false)}
-              >
-                <X size={18} />
-                Close
-              </button>
-              <button
-                className="btn-close-send"
-                onClick={() => handleCloseTicket(true)}
-              >
-                <Send size={18} />
-                Close and Send
-              </button>
-              <button
-                className="btn-success"
-                onClick={handleMarkSuccess}
-              >
-                <CheckCircle2 size={18} />
-                Success
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default SupportTickets;*/
 import React, { useState, useEffect } from 'react';
 import { Search, Tag, Clock, MessageCircle, X, CheckCircle2, Send, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -270,49 +6,40 @@ import './SupportTickets.css';
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
+//Ovo se koristi samo za filtriranje
 const TICKET_CATEGORIES = [
-  'General',
-  'Billing',
-  'Technical', // Corrected typo 'Tehnical' -> 'Technical'
-  'Baggage',
-  'FlightIssue',
-  'Refund',
-  'Other'
+    'General',
+    'Billing',
+    'Technical', 
+    'Baggage',
+    'FlightIssue',
+    'Refund',
+    'Other'
 ];
-
 const TICKET_STATUS = {
-  OPEN: 'Open',
-  IN_PROGRESS: 'In Progress',
-  RESOLVED: 'Resolved',
-  CLOSED: 'Closed',
-  REOPENED: 'Reopened'
+    OPEN: 'Open',
+    IN_PROGRESS: 'In Progress',
+    RESOLVED: 'Resolved',
+    CLOSED: 'Closed',
+    REOPENED: 'Reopened'
 };
-
-const STATUS_MAPPING = {
-    [TICKET_STATUS.OPEN]: 0,
-    [TICKET_STATUS.IN_PROGRESS]: 1,
-    [TICKET_STATUS.RESOLVED]: 2,
-    [TICKET_STATUS.CLOSED]: 3,
-    [TICKET_STATUS.REOPENED]: 4,
-};
-
 function SupportTickets() {
-  const [tickets, setTickets] = useState([]); // Start with empty array, fetch data
+  const [tickets, setTickets] = useState([]); 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedTicket, setSelectedTicket] = useState(null); // Store the FULL ticket details including contents
+  const [selectedTicket, setSelectedTicket] = useState(null); 
   const [replyText, setReplyText] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
-  const [isLoading, setIsLoading] = useState(true); // Loading state for initial fetch
-  const [isPosting, setIsPosting] = useState(false); // Loading state for replies/status updates
-  const [error, setError] = useState(null); // Error state
+  const [isLoading, setIsLoading] = useState(true); 
+  const [isPosting, setIsPosting] = useState(false); 
+  const [error, setError] = useState(null); 
 
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(10); // Fetch 10 tickets per page initially 
-  // --- API Call Functions ---
+  const [pageSize, setPageSize] = useState(10);  
+  
 
-  // Fetch list of tickets
+  // GET: /api/Ticket
   const fetchTickets = async () => {
     setIsLoading(true);
     setError(null);
@@ -321,15 +48,12 @@ function SupportTickets() {
       const response = await fetch(url);
 
       if (!response.ok) {
-        // Handle HTTP errors
-        const errorText = await response.text(); // Get more details if possible
+        const errorText = await response.text(); 
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
       const data = await response.json();
-      // The API returns an array directly: [ { ... }, { ... } ]
-      // Assuming the data structure matches the API example for the list view
-      setTickets(data);
+       setTickets(data);
     } catch (err) {
       console.error("Failed to fetch tickets:", err);
       setError("Failed to load tickets. Please try again.");
@@ -338,9 +62,9 @@ function SupportTickets() {
     }
   };
 
-  // Fetch details for a single ticket
+    // GET: api/Ticket/${ticketId}
   const fetchTicketDetails = async (ticketId) => {
-     setIsLoading(true); // Use main loading state, or add a separate one for details
+     setIsLoading(true);
      setError(null);
     try {
       const url = `${apiURL}/Ticket/${ticketId}`;
@@ -352,12 +76,12 @@ function SupportTickets() {
       }
 
       const data = await response.json();
-      setSelectedTicket(data); // Set the detailed ticket object
-      
+        setSelectedTicket(data); 
+             
     } catch (err) {
       console.error("Failed to fetch ticket details:", err);
       setError("Failed to load ticket details. Please try again.");
-      setSelectedTicket(null); // Clear selected ticket on error
+      setSelectedTicket(null); 
     } finally {
        setIsLoading(false);
     }
@@ -370,16 +94,15 @@ function SupportTickets() {
     try {
       const url = `${apiURL}/Ticket/${ticketId}/reply`;
 
-      // Find the integer status value based on the frontend status string
-      const statusInt = STATUS_MAPPING[status];
-      if (statusInt === undefined) {
+   
+      if (status === undefined) {
           throw new Error(`Unknown status: ${status}`);
       }
       const requestBody = {
-          userId: 1, // <<< REPLACE WITH ACTUAL ADMIN USER ID
+          userId: 1, ///////////////////////////HARDKODIRANO/////////////////////////
           isAdmin: true,
-          ticketStatus: statusInt,
-          text: text, // Send the reply text (can be empty if only changing status)
+          ticketStatus: status,
+          text: text, 
       };
 
        const response = await fetch(url, {
@@ -395,29 +118,28 @@ function SupportTickets() {
           throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
-      const updatedTicket = await response.json(); // API returns the updated ticket
-
-      // Update the list of tickets with the potentially changed status of this ticket
+      const updatedTicket = await response.json(); 
       setTickets(prevTickets => prevTickets.map(t =>
-          t.id === updatedTicket.id ? updatedTicket : t // Replace the old ticket with the updated one
+          t.id === updatedTicket.id ? updatedTicket : t 
       ));
 
-      // Clear selected ticket and reply text to return to list view as per original logic
+     
       setSelectedTicket(null);
       setReplyText('');
-
-       // Optionally, show a success message
+       
       alert(`Ticket ${updatedTicket.ticketNumber} status updated to ${updatedTicket.lastStatus}${text ? ' and reply sent.' : '.'}`);
 
     } catch (err) {
       console.error("Failed to post ticket reply:", err);
       setError(`Failed to update ticket status or send reply: ${err.message}`);
-       alert(`Error: Failed to update ticket status or send reply: ${err.message}`); // Show alert for immediate feedback
+       alert(`Error: Failed to update ticket status or send reply: ${err.message}`); 
     } finally {
-      setIsPosting(false);
+        if(isPosting!=true)
+            setIsPosting(true);
+     // setIsPosting(false);
     }
-  };
-
+    };
+   
 
   useEffect(() => {
     fetchTickets();
@@ -435,44 +157,48 @@ function SupportTickets() {
     setSelectedStatus(e.target.value);
   };
 
+
+  //Ovo provjeriti da li radi okej preko api ruta
   const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = searchTerm === '' ||
-      (ticket.customer?.firstName + ' ' + ticket.customer?.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || // Use API customer name
+      (ticket.customer?.firstName + ' ' + ticket.customer?.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
       ticket.ticketNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.subject.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory = selectedCategory === '' || ticket.category === selectedCategory;
-    const matchesStatus = selectedStatus === '' || ticket.lastStatus === selectedStatus; // Use API lastStatus
+    const matchesStatus = selectedStatus === '' || ticket.lastStatus === selectedStatus; 
 
     return matchesSearch && matchesCategory && matchesStatus;
-  }).sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated)); // Use API dateCreated and parse as Date
+  }).sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated)); 
 
   const handleTicketClick = (ticket) => {
       fetchTicketDetails(ticket.id);
   };
 
 
-  const handleCloseTicket = (withReply = false) => {
+    const handleCloseTicket = (withReply = false) => {
+       
       if (withReply && !replyText.trim()) {
           alert('Please enter a reply before closing and sending.');
           return;
       }
 
-      // Implement the confirmation for 'Close' only
       if (!withReply) {
           const confirmClose = window.confirm('Are you sure you want to close this ticket?');
           if (!confirmClose) {
-              return; // User cancelled
+              return; 
           }
       }
 
-      // Call API to post reply/update status
-      // If withReply is true, send the reply text. Otherwise, text will be empty string.
-      postTicketReply(selectedTicket.id, TICKET_STATUS.CLOSED, withReply ? replyText : '');
+      setIsPosting(false);
+      
+      postTicketReply(selectedTicket.id, 3, replyText); //Na backendu CLOSED je 3
   };
 
-  const handleMarkSuccess = () => {
-      postTicketReply(selectedTicket.id, TICKET_STATUS.RESOLVED, replyText); 
+    const handleMarkSuccess = () => {
+       
+      postTicketReply(selectedTicket.id, 2, replyText);  //Na backendu RESOLVED je 2
+      
   };
 
 
@@ -484,14 +210,13 @@ function SupportTickets() {
       return <div className="error">Error: {error}</div>;
   }
 
-  // Display loading indicator while posting reply/status update
-   if (isPosting) {
-       return <div className="loading">Updating ticket...</div>;
-   }
+    return (
+
+        <div className="support-container">
+
+           
 
 
-  return (
-    <div className="support-container">
       {!selectedTicket ? (
         // --- Tickets List View ---
         <div>
@@ -530,7 +255,7 @@ function SupportTickets() {
                </select>
              </div>
            </div>
-
+                  
           {/* ... (tickets list code) ... */}
            <div className="tickets-list">
              {filteredTickets.length > 0 ? (
@@ -555,7 +280,7 @@ function SupportTickets() {
                             'status-closed': ticket.lastStatus === TICKET_STATUS.CLOSED,
                             'status-reopened': ticket.lastStatus === TICKET_STATUS.REOPENED
                           }
-                        )}>
+                                )}>   {/*Ovo se koristi radi prikaza samo */}
                            {ticket.lastStatus} {/* Use API lastStatus */}
                         </span>
                       </div>
@@ -595,20 +320,21 @@ function SupportTickets() {
             <div className="detail-header">
               <div className="detail-category">
                 <Tag size={16} />
-                <span>{selectedTicket.category}</span>
+                                      <span>{selectedTicket.category}
+                                          {console.log("Selektovani ticket: ", selectedTicket)}                                      </span>
               </div>
                 {/* Display current status in detail view */}
                  <span className={clsx(
                           'status-badge', // Reuse status badge styling
                           {
-                            'status-open': selectedTicket.lastStatus === TICKET_STATUS.OPEN,
-                            'status-in-progress': selectedTicket.lastStatus === TICKET_STATUS.IN_PROGRESS,
-                            'status-resolved': selectedTicket.lastStatus === TICKET_STATUS.RESOLVED,
-                            'status-closed': selectedTicket.lastStatus === TICKET_STATUS.CLOSED,
-                            'status-reopened': selectedTicket.lastStatus === TICKET_STATUS.REOPENED
+                              'status-open': selectedTicket.contents[selectedTicket.contents.length - 1].status === TICKET_STATUS.OPEN,
+                              'status-in-progress': selectedTicket.contents[selectedTicket.contents.length - 1].status === TICKET_STATUS.IN_PROGRESS,
+                              'status-resolved': selectedTicket.contents[selectedTicket.contents.length - 1].status === TICKET_STATUS.RESOLVED,
+                              'status-closed': selectedTicket.contents[selectedTicket.contents.length - 1].status === TICKET_STATUS.CLOSED,
+                            'status-reopened': selectedTicket.contents[selectedTicket.contents.length - 1].status === TICKET_STATUS.REOPENED
                           }
-                        )}>
-                           {selectedTicket.lastStatus}
+                                  )}>
+                      {selectedTicket.contents[selectedTicket.contents.length - 1].status}
                         </span>
             </div>
             <h2 className="detail-subject">{selectedTicket.subject}</h2>
@@ -648,16 +374,7 @@ function SupportTickets() {
           </div>
 
           <div className="detail-right">
-            {/*<div className="reply-section">
-              <h3>Reply to Customer</h3>
-              <textarea
-                className="reply-textarea"
-                placeholder="Type your response here..."
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                 disabled={isPosting} // Disable textarea while posting
-              />
-            </div>*/}
+           
             <div className="reply-section">
               <h3>Reply to Customer</h3>
                <textarea
@@ -671,8 +388,7 @@ function SupportTickets() {
                 }
                  onChange={(e) => setReplyText(e.target.value)}
                  disabled={
-                  isPosting ||
-                  (selectedTicket.contents && selectedTicket.contents.length > 1)
+                  isPosting 
                 } // Disable if posting or if there's a second message
               />
             </div>
@@ -682,7 +398,7 @@ function SupportTickets() {
               <button
                 className="btn-close"
                  onClick={() => handleCloseTicket(false)} // Pass false for no reply
-                 disabled={isPosting }
+                 disabled={isPosting}
               >
                 <X size={18} />
                 Close
@@ -690,7 +406,7 @@ function SupportTickets() {
               <button
                 className="btn-close-send"
                  onClick={() => handleCloseTicket(true)} // Pass true to send reply
-                 disabled={isPosting || !replyText.trim()} // Disable if no reply text
+                 disabled={isPosting} // Disable if no reply text
               >
                 <Send size={18} />
                 Close and Send
@@ -707,7 +423,33 @@ function SupportTickets() {
           </div>
         </div>
         </>
-      )}
+          )}
+
+
+            {/* Pagination 
+                /////////////////////////NAPOMENA: Naslijedjeni css za sve iznad pa ovo ne prikazuje fino /////////////////////////
+            
+            <div className="pagination">
+                <button
+                    className="btn"
+                    disabled={pageNumber <= 1}
+                    onClick={() => setPageNumber(prev => Math.max(1, prev - 1))}
+                >
+                    Previous
+                </button>
+                <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
+                <button
+                    className="btn"
+                    onClick={() => setPageNumber(prev => prev + 1)}
+                    disabled={tickets.length < pageSize}
+                >
+                    Next
+                </button>
+            </div>
+
+        */}
+
+
     </div>
   );
 }
