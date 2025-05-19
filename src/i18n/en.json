@@ -110,6 +110,7 @@
     "female" : "Female",
     "forgotYourPassword": "Forgot your password?",
     "flights": "Flights",
+    "Tickets": "Tickets",
     "logout": "Logout",
     "message1": "Welcome to SI 2025 Airline",
     "message2": "You can search, book, and manage flight tickets!",
@@ -159,5 +160,48 @@
     "past": "Past",
     "canceled": "Canceled",
     "modify": "Modify",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+
+    "Search tickets...": "Search tickets...",
+    "allCategories": "All Categories",
+    "All Statuses": "All Statuses",
+    "backtotickets": "Back to Tickets",
+    "Create New Ticket": "Create New Ticket",
+    "Ticket Name": "Ticket Name",
+    "Enter a descriptive name for the ticket": "Enter a descriptive name for the ticket",
+    "Category": "Category",
+    "Priority": "Priority",
+    "Select a category": "Select a category",
+    "Select priority level": "Select priority level",
+    "Description": "Description",
+    "Please provide detailed information about the issue...": "Please provide detailed information about the issue...",
+    "Create Ticket": "Create Ticket",
+    "Open Chat": "Open Chat",
+    "Feedback": "Feedback",
+
+    "Technical":"Technical",
+    "Billing": "Billing",
+    "General": "General",
+    "Feature Request": "Feature Request",
+    "Other": "Other",
+
+    "Open": "Open",
+    "In Progress": "In Progress",
+    "On Hold": "On Hold",
+    "Resolved": "Resolved",
+    "Closed": "Closed",
+    "Cancelled": "Cancelled",
+    "Reopened": "Reopened",
+
+    "Medium": "Medium",
+
+    "Please take a moment to share your thoughts with us.": "Please take a moment to share your thoughts with us.",
+    "We Value Your Feedback": "We Value Your Feedback",
+
+    "First Name": "First Name",
+    "Last Name": "Last Name",
+    "Username": "Username",
+    "Your Feedback": "Your Feedback",
+    "Please describe your feedback in detail...": "Please describe your feedback in detail...",
+    "Send Feedback": "Send Feedback"
 }

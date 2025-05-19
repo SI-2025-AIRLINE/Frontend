@@ -61,12 +61,13 @@
   min-width: 160px;
 }
 
-/* Tickets List */
 .tickets-list {
   background-color: white;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 75vh; 
+  padding-right: 8px; 
 }
 
 .ticket-item {
@@ -156,29 +157,30 @@
   font-weight: 500;
 }
 
-/* Ticket Detail View */
-.ticket-detail {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+.td-ticket-detail {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
 }
 
-.detail-left,
-.detail-right {
+.td-detail-left {
+  max-width: 800px; 
+  margin: 0 auto; 
   background-color: white;
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.detail-header {
+
+.td-detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.detail-category {
+.td-detail-category {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -283,7 +285,7 @@
 
 .btn-close,
 .btn-close-send,
-.btn-success-admin {
+.btn-success {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -304,18 +306,6 @@
   background-color: #b91c1c;
 }
 
-.btn-close:disabled,
-.btn-close-send:disabled {
-  background-color: #fca5a5;
-  color: #fff;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-close:disabled:hover {
-  background-color: #fca5a5;
-}
-
 .btn-close-send {
   background-color: #dc2626;
   color: white;
@@ -325,24 +315,27 @@
   background-color: #b91c1c;
 }
 
-.btn-close-send:disabled:hover {
-  background-color: #fca5a5;
-}
-
-.btn-success-admin {
-  background-color: #059669;
+.btn-success {
+  background-color: #2563eb;
   color: white;
 }
 
-.btn-success-admin:hover {
-  background-color: #047857;
+.btn-success:hover {
+  background-color: #2563eb;
 }
 
-.btn-success-admin:disabled {
-  background-color: #bbf7d0;
-  color: #065f46;
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn-create-ticket {
+  padding: 0.625rem 1rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-
+.btn-create-ticket:hover {
+  background-color: #1d4ed8;
+}

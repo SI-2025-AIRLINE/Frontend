@@ -20,11 +20,17 @@ import MyBooking from './pages/MyBooking/MyBooking';
 import AirlineManagement from './pages/AirlineManagement/AirlineManagement';
 import { FlightSearch } from './pages';
 import FareManagement from './pages/FareManagement/FareManagement';
+import AirlineAdminAnalytics from './pages/Analytics/Analytics';
 import SupportTickets from './pages/SupportTickets/SupportTickets';
-import ChatManagement from './pages/ChatManagement/ChatManagement';
 import FeedbackAdmin from './pages/FeedbackAdmin/FeedbackAdmin';
+import TicketsDashboard from './pages/TicketsDashboard/TicketsDashboard';
+import CreateTicket from './pages/CreateTicket/CreateTicket';
+import CustomerChat from './pages/CustomerChat/CustomerChat';
+import Feedback from './pages/Feedback/Feedback';
+import ChatAdminManagement from './components/ChatAdminManagement/ChatAdminManagement';
 
 function App() {
+  const isAdminRoute = location.pathname.startsWith('/admin');
   return (
     <LanguageProvider>
       <Router>
@@ -47,10 +53,15 @@ function App() {
             <Route path="/my-booking" element={<MyBooking />} />
             <Route path="/admin/airlineManagement" element={<AirlineManagement />} />
             <Route path="/admin/fareManagement" element={<FareManagement />} />
+            <Route path="/admin/analytics" element={<AirlineAdminAnalytics />} />
             <Route path="/admin/supportTickets" element={<SupportTickets />} />
-             <Route path="/admin/chatManagement" element={<ChatManagement />} />
-                 <Route path="/admin/feedbackAdmin" element={<FeedbackAdmin />} />
+            <Route path="/admin/feedbackAdmin" element={<FeedbackAdmin />} />
+            <Route path="/tickets-dashboard" element={<TicketsDashboard />} />
+            <Route path="/create-ticket" element={<CreateTicket />} />
+            <Route path="/customer-chat" element={<CustomerChat />} />
+            <Route path="/feedback" element={<Feedback />} />
           </Routes>
+          {isAdminRoute && <ChatAdminManagement />}
         </div>
       </Router>
     </LanguageProvider>

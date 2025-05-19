@@ -14,6 +14,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f9fafb;
+    height: 100vh;
+    overflow: auto;
+    padding-bottom: 5rem;
 }
 
 .airline-page .container {

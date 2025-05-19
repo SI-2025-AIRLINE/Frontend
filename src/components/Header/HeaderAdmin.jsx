@@ -28,18 +28,13 @@ const HeaderAdmin = () => {
                 <nav>
 
                     <Button text="Users" onClick={() => navigate('/admin/userManagement')} />
+                    <Button text="Analytics" onClick={() => navigate('/admin/analytics')} />
                     <Button text="Aircrafts" onClick={() => navigate('/admin/aircraftManagement')} />
                     <Button text="Destinations" onClick={() => navigate('/admin/destinationManagement')} />
                     <Button text="Flights" onClick={() => navigate('/admin/flightScheduling')} />
                     <Button text="Airlines" onClick={() => navigate('/admin/airlineManagement')} />
                     <Button text="Fares" onClick={() => navigate('/admin/fareManagement')} />
-
                     <Button text="Tickets" onClick={() => navigate('/admin/supportTickets')} />
-                    <Button text="Chats" onClick={() => navigate('/admin/chatManagement')} />
-
-
-
-
                     <Button text="Feedbacks" onClick={() => navigate('/admin/feedbackAdmin')} />
 
                 </nav>
