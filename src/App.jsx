@@ -28,7 +28,6 @@ import CreateTicket from './pages/CreateTicket/CreateTicket';
 import CustomerChat from './pages/CustomerChat/CustomerChat';
 import Feedback from './pages/Feedback/Feedback';
 import ChatAdminManagement from './components/ChatAdminManagement/ChatAdminManagement';
-import ExportICS from './pages/ExportICSPage/ExportICS';
 
 function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -61,7 +60,6 @@ function App() {
             <Route path="/create-ticket" element={<CreateTicket />} />
             <Route path="/customer-chat" element={<CustomerChat />} />
             <Route path="/feedback" element={<Feedback />} />
-            <Route path="/export-ics" element={<ExportICS />} />
           </Routes>
           {isAdminRoute && <ChatAdminManagement />}
         </div>

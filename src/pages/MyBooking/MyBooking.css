@@ -265,5 +265,13 @@
   border-radius: 8px;
 }
 
+.download-ics {
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+
   
   
