@@ -3,6 +3,9 @@ import { X, Edit2, Calendar } from 'lucide-react';
 import './MyBooking.css';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
+import axios from 'axios';
+import downloadIcon from '../../assets/download.png';
+
 
 const apiURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -126,6 +129,25 @@ const MyBooking = () => {
       alert(`${t("failedToModifyBooking")}`);
     }
   };
+
+  const handleDownloadICS = async (bookingId) => {
+  try {
+    const response = await axios.get(`${apiURL}/Booking/${bookingId}/export-ics`, {
+      responseType: 'blob',
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/calendar' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'flight-booking.ics');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error('Download failed', error);
+    alert(t("failedToDownloadICS"));
+  }
+};
   
 
   if (loading) {
@@ -239,6 +261,15 @@ const MyBooking = () => {
         <X size={16} />
         <span>{t("cancel")}</span>
       </button>
+
+      <button
+  className="booking-action-button download"
+  onClick={() => handleDownloadICS(booking.id)}
+  title={t("downloadICS")}
+>
+  <img src={downloadIcon} alt="Download ICS" className="download-ics" />
+</button>
+
     </>
   )}
 </div>
