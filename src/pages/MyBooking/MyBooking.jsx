@@ -132,7 +132,7 @@ const MyBooking = () => {
 
   const handleDownloadICS = async (bookingId) => {
   try {
-    const response = await axios.get(`${apiURL}/Booking/export-ics/${bookingId}`, {
+    const response = await axios.get(`${apiURL}/Booking/${bookingId}/export-ics`, {
       responseType: 'blob',
     });
 
