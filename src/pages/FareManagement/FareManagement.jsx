@@ -344,11 +344,11 @@ function FareManagement() {
             EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
             BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
             FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
-            BronzeTierDiscount: parseFloat(newFare.bronzeTier) || 0,
-            SilverTierDiscount: parseFloat(newFare.silverTier) || 0,
-            GoldTierDiscount: parseFloat(newFare.goldTier) || 0,
-            PlatinumTierDiscount: parseFloat(newFare.platinumTier) || 0,
-            DiamondTierDiscount: parseFloat(newFare.diamondTier) || 0,
+            BronzeTierDiscount: parseFloat(newFare.bronzeTier) || '',
+            SilverTierDiscount: parseFloat(newFare.silverTier) || '',
+            GoldTierDiscount: parseFloat(newFare.goldTier) || '',
+            PlatinumTierDiscount: parseFloat(newFare.platinumTier) || '',
+            DiamondTierDiscount: parseFloat(newFare.diamondTier) || '',
             ValidFrom: newFare.validFrom,
             ValidTo: newFare.validTo,
             flightNumbers: selectedFlights.map(flight => {
@@ -486,7 +486,7 @@ function FareManagement() {
                 const key = `${tier}TierDiscount`;
                 const val = convertedFare[key];
                 if (val !== undefined && val !== null) {
-                    convertedFare[key] = Math.round(val * 100);
+                    convertedFare[key] = Math.round(val * 100) || '';
                 }
             });
 
