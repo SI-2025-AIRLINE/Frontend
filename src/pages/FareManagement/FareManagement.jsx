@@ -720,7 +720,7 @@ function FareManagement() {
                             </div>
                         )}
 
-                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                         <div style={{ flex: 1 }}>
                             <label className="form-label">Flight number</label>
                             <input
