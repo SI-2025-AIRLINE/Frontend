@@ -40,7 +40,7 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
-.btn {
+.btn-back {
     display: inline-flex;
     align-items: center;
     padding: 0.5rem 1rem;
@@ -52,10 +52,9 @@
     background-color: white;
     color: var(--gray-700);
     transition: all 0.2s;
-    margin-bottom: 15px;
   }
 
-    .btn:hover {
+    .btn-back:hover {
         background-color: #1e3a8a;
     }
   
@@ -186,6 +185,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  margin-top: 1.5rem;
 }
 
 .detail-left,

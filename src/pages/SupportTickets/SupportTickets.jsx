@@ -313,7 +313,7 @@ function SupportTickets() {
             {error && <div className="error-message">Error loading details: {error}</div>} {/* Optional: display error in detail view */}
 
            {/* Back button to return to list */}
-            <button className="btn btn-primary" onClick={() => {
+            <button className="btn-back btn-primary" onClick={() => {
                 setSelectedTicket(null); // Go back to list view
                  setReplyText(''); // Clear reply text
             }}>

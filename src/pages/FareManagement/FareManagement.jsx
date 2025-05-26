@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Save, Trash2, Edit, DollarSign, X } from 'lucide-react';
+import { PlusCircle, Save, Trash2, Edit, X, Info } from 'lucide-react';
 import Select from 'react-select';
 import './FareManagement.css'
 
@@ -17,7 +17,7 @@ function FareManagement() {
 
     const [flightNumber, setFlightNumber] = useState('');
     const [isFlightRangeMode, setIsFlightRangeMode] = useState(false);
-    const [fieldsLocked, setFieldsLocked] = useState(false); //ZAKLJUCAVANJE
+    const [fieldsLocked, setFieldsLocked] = useState(false); 
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,6 +30,11 @@ function FareManagement() {
     const [confirmAction, setConfirmAction] = useState(null);
 
     const [showForm, setShowForm] = useState(false);
+
+    const [expandedRow, setExpandedRow] = React.useState(null);
+    const toggleRow = (id) => {
+        setExpandedRow(expandedRow === id ? null : id);
+    };
 
     const [allDestinations, setAllDestinations] = useState([]);
     useEffect(() => {
@@ -59,7 +64,14 @@ function FareManagement() {
             .catch(err => console.error("Failed to fetch airports:", err));
     }, []);
 
-
+    const tiers = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+    const maxValues = {
+        bronze: 10,
+        silver: 20,
+        gold: 30,
+        platinum: 40,
+        diamond: 50,
+    };
 
     const [newFare, setNewFare] = useState({
         fareCode: '',
@@ -73,21 +85,13 @@ function FareManagement() {
         firstClassPrice: '',
         businessClassPrice: '',
         economyClassPrice: '',
+        bronzeTier: '',
+        silverTier: '',
+        goldTier: '',
+        platinumTier: '',
+        diamondTier: '',
         selectedFlights: []
     });
-    /*
-    const airlines = [
-      { value: 'BA', label: 'British Airways' },
-      { value: 'LH', label: 'Lufthansa' },
-      { value: 'AF', label: 'Air France' }
-    ];
-  
-    const airports = [
-      { value: 'LHR', label: 'London Heathrow (LHR)' },
-      { value: 'CDG', label: 'Paris Charles de Gaulle (CDG)' },
-      { value: 'FRA', label: 'Frankfurt (FRA)' },
-      { value: 'JFK', label: 'New York JFK (JFK)' }
-    ];*/
 
     const [formData, setFormData] = useState({
         fareCode: '',
@@ -101,6 +105,11 @@ function FareManagement() {
         firstClassPrice: '',
         businessClassPrice: '',
         economyClassPrice: '',
+        bronzeTier: '',
+        silverTier: '',
+        goldTier: '',
+        platinumTier: '',
+        diamondTier: '',
         selectedFlights: []
     });
 
@@ -189,6 +198,11 @@ function FareManagement() {
                 economyPrice: item.fare.economyPrice,
                 businessPrice: item.fare.businessPrice,
                 firstClassPrice: item.fare.firstClassPrice,
+                bronzeTier: item.fare.bronzeTierDiscount,
+                silverTier: item.fare.silverTierDiscount,
+                goldTier: item.fare.goldTierDiscount,
+                platinumTier: item.fare.platinumTierDiscount,
+                diamondTier: item.fare.diamondTierDiscount,
                 validFrom: item.fare.validFrom,
                 validTo: item.fare.validTo,
                 flightNumber: item.flightNumber
@@ -229,21 +243,6 @@ function FareManagement() {
         }
     };
 
-    const getDestinationIdByCityCode = async (cityCode) => {
-        const response = await fetch(`${apiURL}/Destination/byCity/${cityCode}`);
-        if (response.ok) {
-            const destinations = await response.json();
-            if (destinations.length > 0) {
-                return destinations[0].id;
-            } else {
-                throw new Error("Destination can't be found.");
-            }
-        } else {
-            throw new Error("Error finding a destination.");
-        }
-    };
-
-
     //POST- /api/Fares
     const createFare = async (fareData) => {
         try {
@@ -257,8 +256,6 @@ function FareManagement() {
 
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-            //const result = await res.json(); 
-
             await fetchFares();
 
             return true;
@@ -270,32 +267,27 @@ function FareManagement() {
 
     const handleAddFare = async () => {
         if (!selectedFlights || selectedFlights.length === 0) {
-            //alert("Please select or add flights.");
             setError("Please select or add flights.");
             setShowError(true);
             return;
         }
 
         if( !newFare.validFrom || !newFare.validTo) {
-            //alert("Please select valid dates.");
             setError("Please select valid dates.");
             setShowError(true);
             return;
         }
         if (!newFare.firstClassPrice && !newFare.businessClassPrice && !newFare.economyClassPrice) {
-            //alert("Please enter at least one fare price.");
             setError("Please enter at least one fare price.");
             setShowError(true);
             return;
         }
         if (newFare.validFrom > newFare.validTo) {
-            //alert("Valid From date cannot be later than Valid To date.");
             setError("Valid From date cannot be later than Valid To date.");
             setShowError(true);
             return;
         }
         if (newFare.validFrom < new Date().toISOString().split("T")[0]) {
-            //alert("Valid From date cannot be in the past.");
             setError("Valid From date cannot be in the past.");
             setShowError(true);
             return;
@@ -338,11 +330,25 @@ function FareManagement() {
         //     return;
         // }
 
+        for (const tier of tiers) {
+            const discount = parseFloat(newFare[`${tier}Tier`]);
+            if (discount > maxValues[tier]) {
+                setError(`${tier} discount exceeds max of ${maxValues[tier]}%`);
+                setShowError(true);
+                return;
+            }
+        }
+
         const fareData = {
             FareCode: newFare.fareCode,
             EconomyPrice: parseFloat(newFare.economyClassPrice) || 0,
             BusinessPrice: parseFloat(newFare.businessClassPrice) || 0,
             FirstClassPrice: parseFloat(newFare.firstClassPrice) || 0,
+            BronzeTierDiscount: parseFloat(newFare.bronzeTier) || '',
+            SilverTierDiscount: parseFloat(newFare.silverTier) || '',
+            GoldTierDiscount: parseFloat(newFare.goldTier) || '',
+            PlatinumTierDiscount: parseFloat(newFare.platinumTier) || '',
+            DiamondTierDiscount: parseFloat(newFare.diamondTier) || '',
             ValidFrom: newFare.validFrom,
             ValidTo: newFare.validTo,
             flightNumbers: selectedFlights.map(flight => {
@@ -359,7 +365,6 @@ function FareManagement() {
             const result = await createFare(fareData);
 
             if (result) {
-                //alert("Fare successfully added to flight(s).");
                 setMessage("Fare successfully added to flight(s).");
                 setShowMessage(true);
                 setIsAddingNew(false);
@@ -370,7 +375,6 @@ function FareManagement() {
             }
         } catch (err) {
             console.error(err);
-            //alert("Failed to save fare.");
             setError(err.message);
             setShowError(true);
             resetForm();
@@ -386,18 +390,6 @@ function FareManagement() {
                 ...prev,
                 origin: '',
                 destination: ''
-            }));
-        }
-    };
-
-    const handleOriginDestinationChange = (selected, field) => {
-        setNewFare({ ...newFare, [field]: selected });
-        setIsFlightRangeMode(false);
-        if (selected || newFare[field === 'origin' ? 'destination' : 'origin']) {
-            setNewFare(prev => ({
-                ...prev,
-                flightNumberFrom: '',
-                flightNumberTo: ''
             }));
         }
     };
@@ -423,7 +415,6 @@ function FareManagement() {
             console.log("Affected flights:", affectedFlights);
 
             if(affectedFlights.length === 0) {
-                //alert("No flights found in the specified range.");
                 setError("No flights found in the specified range.");
                 setShowError(true);
                 return;
@@ -443,7 +434,6 @@ function FareManagement() {
             });
             console.log("Matching flights:", matchingFlights);
             if (matchingFlights.length === 0) {
-                //alert("No flights found for the selected origin and destination.");
                 setError("No flights found for the selected origin and destination.");
                 setShowError(true);
                 return;
@@ -453,7 +443,7 @@ function FareManagement() {
         }
         
         setIsFlightRangeMode(false);
-        setFieldsLocked(true); // ZAKLJUČAJ SVE
+        setFieldsLocked(true); 
     };
 
     const handleAddFlight = () => {
@@ -482,7 +472,6 @@ function FareManagement() {
 
     const handleEditFare = async (id) => {
         try {
-            // Poziv na API da dobijemo detalje o tarifi prema ID-u
             const response = await fetch(`${apiURL}/Fares/${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch fare data.');
@@ -492,30 +481,45 @@ function FareManagement() {
             const fare = fareData.fare;
             console.log("Fare data:", fare);
 
-            // Postavljamo vrednosti u stanje nakon što smo dobili podatke
+            const convertedFare = { ...fare };
+            tiers.forEach(tier => {
+                const key = `${tier}TierDiscount`;
+                const val = convertedFare[key];
+                if (val !== undefined && val !== null) {
+                    convertedFare[key] = Math.round(val * 100) || '';
+                }
+            });
+
             setUpdateFare({
-                ...fare
+                ...convertedFare
             });
             setIsAddingNew(false);
             setEditingFare(true);
         } catch (error) {
             console.error('Error fetching fare data:', error);
-            //alert('Failed to load fare data for editing.');
             setError('Failed to load fare data for editing.');
             setShowError(true);
         }
     };
 
     const handleUpdateFare = async () => {
+        for (const tier of tiers) {
+            const discount = parseFloat(updateFare[`${tier}TierDiscount`]);
+            if (discount > maxValues[tier]) {
+                setError(`${tier.charAt(0).toUpperCase() + tier.slice(1)} discount exceeds max of ${maxValues[tier]}%`);
+                setShowError(true);
+                return; // prekini ako je validacija neuspešna
+            }
+        }
         try {
             const fareData = {
                 ...updateFare
             };
 
-            console.log("Update fare data:", updateFare);
+            console.log("Update fare data:", fareData);
 
             const response = await fetch(`${apiURL}/Fares/${updateFare.id}`, {
-                method: 'PUT', // Metoda za ažuriranje resursa
+                method: 'PUT', 
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -526,21 +530,18 @@ function FareManagement() {
                 throw new Error('Failed to update fare.');
             }
 
-            //alert('Fare updated successfully.');
             setMessage('Fare updated successfully.');
             setShowMessage(true);
             setIsAddingNew(false);
             setEditingFare(null);
-            setNewFare({}); // Resetujemo formu nakon uspešnog ažuriranja
-            await fetchFares(); // Ponovno učitaj sve tarife
+            setNewFare({});
+            await fetchFares(); 
         } catch (error) {
             console.error('Error updating fare:', error);
-            //alert('Failed to update fare.');
             setError('Failed to update fare.');
             setShowError(true);
         }
     };
-
 
     const resetForm = () => {
         setNewFare({
@@ -555,6 +556,11 @@ function FareManagement() {
             firstClassPrice: '',
             businessClassPrice: '',
             economyClassPrice: '',
+            bronzeTier: '',
+            silverTier: '',
+            goldTier: '',
+            platinumTier: '',
+            diamondTier: ''
         });
         setFormData({
             code: '',
@@ -567,7 +573,12 @@ function FareManagement() {
             validTo: '',
             firstClassPrice: '',
             businessClassPrice: '',
-            economyClassPrice: ''
+            economyClassPrice: '',
+            bronzeTier: '',
+            silverTier: '',
+            goldTier: '',
+            platinumTier: '',
+            diamondTier: ''
         });
         setSelectedFlights([]); // Reset selected flights
         setShowForm(false);
@@ -581,15 +592,17 @@ function FareManagement() {
 
     // Handle form data change and tracking
     const handleInputChange = (key, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [key]: value
-        }));
-
-        setUpdateFare((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
+        const intValue = value === '' ? '' : parseInt(value, 10);
+        if (intValue === '' || (!isNaN(intValue) && intValue >= 0)) {
+            setFormData(prev => ({
+                ...prev,
+                [key]: intValue
+            }));
+            setUpdateFare(prev => ({
+                ...prev,
+                [key]: intValue,
+            }));
+        }
     };
 
     return (
@@ -632,14 +645,6 @@ function FareManagement() {
                     <div className="form-grid">
                         <div className="form-group">
                             <label className="form-label">Flight number from</label>
-                            {/* <input
-                                type="text"
-                                className="form-input"
-                                value={newFare.flightNumberFrom}
-                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberFrom')}
-                                placeholder="Start number"
-                                disabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
-                            /> */}
                             <div className="flight-number-wrapper">
                                 <span className="flight-prefix">
                                     {selectedAirline ? `${selectedAirline.iata}-` : ''}
@@ -655,16 +660,6 @@ function FareManagement() {
                             </div>
                         </div>
                         <div className="form-group">
-                            {/* <label className="form-label">Flight number to</label>
-                            <input
-                            type="text"
-                            className="form-input"
-                                value={newFare.flightNumberTo}
-                                onChange={(e) => handleFlightRangeInput(e, 'flightNumberTo')}
-                                placeholder="End number"
-                                //disabled={!!(newFare.origin || newFare.destination)}
-                                disabled={selectedAirline === null || fieldsLocked || !!editingFare || !!(newFare.origin || newFare.destination)} //ZAKLJUCAJ SVE
-                                /> */}
                             <label className="form-label">Flight number from</label>
                             <div className="flight-number-wrapper">
                                 <span className="flight-prefix">
@@ -725,7 +720,7 @@ function FareManagement() {
                             </div>
                         )}
 
-                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                    <div className="form-group" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                         <div style={{ flex: 1 }}>
                             <label className="form-label">Flight number</label>
                             <input
@@ -749,7 +744,6 @@ function FareManagement() {
                             </div>
                             <div className="flights-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                 {selectedFlights.map((flight, index) => {
-                                    // Check if it's a flight object or a string
                                     const isFlightObject = typeof flight === 'object';
                                     const flightNumber = isFlightObject ? flight.flightNumber : flight;
                                     const departureCode = isFlightObject ? flight.departureDestination?.airportCode : '';
@@ -840,7 +834,7 @@ function FareManagement() {
                                 className="form-input"
                                 value={newFare.validFrom}
                                 onChange={(e) => setNewFare({ ...newFare, validFrom: e.target.value })}
-                                min={new Date().toISOString().split("T")[0]} //OD DANASNJEG DATUMA
+                                min={new Date().toISOString().split("T")[0]} 
                             />
                         </div>
                         <div className="form-group">
@@ -850,48 +844,74 @@ function FareManagement() {
                                 className="form-input"
                                 value={newFare.validTo}
                                 onChange={(e) => setNewFare({ ...newFare, validTo: e.target.value })}
-                                min={newFare.validFrom || new Date().toISOString().split("T")[0]} //OD FROM DATUMA
+                                min={newFare.validFrom || new Date().toISOString().split("T")[0]} 
                             />
                         </div>
                     </div>
 
-                    <div className="fare-inputs">
-                        <div className="fare-input-group">
-                            <label className="fare-label">First Class Price</label>
-                            <div className="price-input-wrapper">
-                                <input
-                                    type="number"
-                                    className="form-input"
-                                    value={newFare.firstClassPrice}
-                                    onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
-                                    placeholder="0.00"
-                                />
-                            </div>
+                    {/* dodano za loyalty */ }
+                    <label className="form-label">Discounts per Tier (%)</label>
+                    <div className="fare-section">
+                        <div className="fare-discounts">
+                            {tiers.map((tier) => (
+                                <div key={tier} className="discount-input-row">
+                                    <span className={`tier-badge ${tier}`}>
+                                        {tier.charAt(0).toUpperCase() + tier.slice(1)}
+                                    </span>
+                                    <input
+                                        type="number"
+                                        className="discount-input"
+                                        name={tier}
+                                        value={newFare[`${tier}Tier`]}
+                                        max={maxValues[tier]}
+                                        onChange={e => setNewFare({
+                                            ...newFare,
+                                            [`${tier}Tier`]: e.target.value
+                                        })}
+                                        placeholder={`0 - ${maxValues[tier]}%`}
+                                    />
+                                </div>
+                            ))}
                         </div>
 
-                        <div className="fare-input-group">
-                            <label className="fare-label">Business Class Price</label>
-                            <div className="price-input-wrapper">
-                                <input
-                                    type="number"
-                                    className="form-input"
-                                    value={newFare.businessClassPrice}
-                                    onChange={(e) => setNewFare({ ...newFare, businessClassPrice: e.target.value })}
-                                    placeholder="0.00"
-                                />
+                        <div className="fare-inputs">
+                            <div className="fare-input-group">
+                                <label className="fare-label">First Class Price</label>
+                                <div className="price-input-wrapper">
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={newFare.firstClassPrice}
+                                        onChange={(e) => setNewFare({ ...newFare, firstClassPrice: e.target.value })}
+                                        placeholder="0.00"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="fare-input-group">
-                            <label className="fare-label">Economy Class Price</label>
-                            <div className="price-input-wrapper">
-                                <input
-                                    type="number"
-                                    className="form-input"
-                                    value={newFare.economyClassPrice}
-                                    onChange={(e) => setNewFare({ ...newFare, economyClassPrice: e.target.value })}
-                                    placeholder="0.00"
-                                />
+                            <div className="fare-input-group">
+                                <label className="fare-label">Business Class Price</label>
+                                <div className="price-input-wrapper">
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={newFare.businessClassPrice}
+                                        onChange={(e) => setNewFare({ ...newFare, businessClassPrice: e.target.value })}
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="fare-input-group">
+                                <label className="fare-label">Economy Class Price</label>
+                                <div className="price-input-wrapper">
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={newFare.economyClassPrice}
+                                        onChange={(e) => setNewFare({ ...newFare, economyClassPrice: e.target.value })}
+                                        placeholder="0.00"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -912,6 +932,11 @@ function FareManagement() {
                                 firstClassPrice: '',
                                 businessClassPrice: '',
                                 economyClassPrice: '',
+                                bronzeTier: '',
+                                silverTier: '',
+                                goldTier: '',
+                                platinumTier: '',
+                                diamondTier: '',
                                 selectedFlights: ''
                             });
                             resetForm();
@@ -953,45 +978,74 @@ function FareManagement() {
                               <span>Select a flight to see validity.</span>
                           )}
                       </div>
-                  </div>
+                    </div>
 
-                  <div className="fare-inputs" style={{ display: 'flex', gap: '20px' }}>
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">First Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={updateFare.firstClassPrice}
-                              onChange={(e) => handleInputChange('firstClassPrice', e.target.value)} // Handle change here
-                              name="firstClassPrice"
-                              placeholder="0.00"
-                          />
-                      </div>
+                    {/* dodano za loyalty */}
+                    <label className="form-label">Discounts per Tier (%)</label>
+                    <div className="fare-section">
+                        <div className="fare-discounts">
+                            {tiers.map((tier) => (
+                                <div key={tier} className="discount-input-row">
+                                    <span className={`tier-badge ${tier}`}>
+                                        {tier.charAt(0).toUpperCase() + tier.slice(1)}
+                                    </span>
+                                    <input
+                                        type="number"
+                                        className="discount-input"
+                                        name={tier}
+                                        value={updateFare[`${tier}TierDiscount`]}
+                                        max={maxValues[tier]}
+                                        onChange={e => handleInputChange(`${tier}TierDiscount`, e.target.value)}
+                                        placeholder={`0 - ${maxValues[tier]}%`}
+                                    />
+                                </div>
+                            ))}
+                        </div>
 
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">Business Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={updateFare.businessPrice}
-                              onChange={(e) => handleInputChange('businessPrice', e.target.value)} // Handle change here
-                              name="businessPrice"
-                              placeholder="0.00"
-                          />
-                      </div>
+                        <div className="fare-inputs">
+                            <div className="fare-input-group">
+                                <label className="fare-label">First Class Price</label>
+                                <div className="price-input-wrapper">
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={updateFare.firstClassPrice}
+                                        onChange={(e) => handleInputChange('firstClassPrice', e.target.value)}
+                                        name="firstClassPrice"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
 
-                      <div className="fare-input-group" style={{ flex: 1 }}>
-                          <label className="form-label">Economy Class Price</label>
-                          <input
-                              type="number"
-                              className="form-input"
-                              value={updateFare.economyPrice}
-                              onChange={(e) => handleInputChange('economyPrice', e.target.value)} // Handle change here
-                              name="economyPrice"
-                              placeholder="0.00"
-                          />
-                      </div>
-                  </div>
+                            <div className="fare-input-group">
+                                <label className="fare-label">Business Class Price</label>
+                                <div className="price-input-wrapper">
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={updateFare.businessPrice}
+                                        onChange={(e) => handleInputChange('businessPrice', e.target.value)} // Handle change here
+                                        name="businessPrice"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="fare-input-group">
+                                <label className="fare-label">Economy Class Price</label>
+                                <div className="price-input-wrapper">
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={updateFare.economyPrice}
+                                        onChange={(e) => handleInputChange('economyPrice', e.target.value)} // Handle change here
+                                        name="economyPrice"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                   <div className="actions">
                       <button
@@ -999,7 +1053,7 @@ function FareManagement() {
                           onClick={() => {
                               setEditingFare(null);
                               setSelectedFare(null);
-                              resetFareForm();
+                              resetForm();
                           }}
                       >
                           Cancel
@@ -1044,31 +1098,75 @@ function FareManagement() {
                             <th>First Class</th>
                             <th>Business Class</th>
                             <th>Economy Class</th>
+                            <th>Tier Discounts</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {fares.map((fare) => (
-                            <tr key={fare.id}>
-                                <td>{fare.code}</td>
-                                <td>{new Date(fare.validFrom).toLocaleDateString()} - {new Date(fare.validTo).toLocaleDateString()}</td>
-                                <td>${fare.firstClassPrice}</td>
-                                <td>${fare.businessPrice}</td>
-                                <td>${fare.economyPrice}</td>
-                                <td>
-                                    <div className="button-group">
-                                        <button className="btn btn-icon" onClick={() => handleEditFare(fare.id)}>
-                                            <Edit style={{ width: 20, height: 20 }} />
+                            <React.Fragment key={fare.id}>
+                                <tr>
+                                    <td>{fare.code}</td>
+                                    <td>{new Date(fare.validFrom).toLocaleDateString()} - {new Date(fare.validTo).toLocaleDateString()}</td>
+                                    <td>${fare.firstClassPrice}</td>
+                                    <td>${fare.businessPrice}</td>
+                                    <td>${fare.economyPrice}</td>
+                                    <td>
+                                        <button
+                                            className="btn-icon info-btn"
+                                            onClick={() => toggleRow(fare.id)}
+                                            aria-label="Toggle tier discounts"
+                                            style={{ background: "none", border: "none", cursor: "pointer" }}
+                                        >
+                                            <Info style={{ width: 20, height: 20 }} />
                                         </button>
-                                        <button className="btn btn-danger" onClick={() => handleDeleteFare(fare.id)}>
-                                            <Trash2 style={{ width: 20, height: 20 }} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <div className="button-group">
+                                            <button className="btn btn-icon" onClick={() => handleEditFare(fare.id)}>
+                                                <Edit style={{ width: 20, height: 20 }} />
+                                            </button>
+                                            <button className="btn btn-danger" onClick={() => handleDeleteFare(fare.id)}>
+                                                <Trash2 style={{ width: 20, height: 20, color: "red" }} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                {expandedRow === fare.id && (
+                                    <tr className="tier-details-row">
+                                        <td colSpan={7}>
+                                            <div className="tier-badge-row">
+                                                <div className="tier-badge-display bronze">Bronze: {(fare.bronzeTier * 100).toFixed(0)}%</div>
+                                                <div className="tier-badge-display silver">Silver: {(fare.silverTier * 100).toFixed(0)}%</div>
+                                                <div className="tier-badge-display gold">Gold: {(fare.goldTier * 100).toFixed(0)}%</div>
+                                                <div className="tier-badge-display platinum">Platinum: {(fare.platinumTier * 100).toFixed(0)}%</div>
+                                                <div className="tier-badge-display diamond">Diamond: {(fare.diamondTier * 100).toFixed(0)}%</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
                         ))}
                     </tbody>
                 </table>
+                <div className="pagination">
+                    <button
+                        className="btn"
+                        disabled={pageNumber <= 1}
+                        onClick={() => setPageNumber(prev => Math.max(1, prev - 1))}
+                    >
+                        Previous
+                    </button>
+                    <span style={{ display: 'flex', alignItems: 'center' }}>Page {pageNumber}</span>
+                    <button
+                        className="btn"
+                        onClick={() => setPageNumber(prev => prev + 1)}
+                        disabled={fares.length < pageSize}
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     );
