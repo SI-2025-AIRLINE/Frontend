@@ -28,7 +28,7 @@ import CreateTicket from './pages/CreateTicket/CreateTicket';
 import CustomerChat from './pages/CustomerChat/CustomerChat';
 import Feedback from './pages/Feedback/Feedback';
 import ChatAdminManagement from './components/ChatAdminManagement/ChatAdminManagement';
-
+import LoyaltyStats from './pages/CustomerLoyalty/LoyaltyStats';
 function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   return (
@@ -60,6 +60,7 @@ function App() {
             <Route path="/create-ticket" element={<CreateTicket />} />
             <Route path="/customer-chat" element={<CustomerChat />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/customer-loyalty" element={<LoyaltyStats />} />
           </Routes>
           {isAdminRoute && <ChatAdminManagement />}
         </div>

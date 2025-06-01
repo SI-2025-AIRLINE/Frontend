@@ -19,6 +19,8 @@ function Profile() {
     password: '********',
     loyaltyPoints: '',
   });
+  const [discountData, setDiscountData] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,10 +62,32 @@ function Profile() {
         password: '********', // Hide password for security reasons
         loyaltyPoints: data.loyaltyPoints || '0', // Default to 0 if not available
       });
+      fetchDiscountData(data.id);
+
     } catch (error) {
       console.error('Error fetching user data:', error.message);
     }
   };
+  const fetchDiscountData = async (customerId) => {
+  try {
+    const flightId = localStorage.getItem('flightId');
+    if (!flightId) {
+      console.error('Flight ID not found in localStorage');
+      return;
+    }
+
+    const response = await fetch(`${apiURL}/Booking/customer/${customerId}/flight/${flightId}/discounts`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch discount data');
+    }
+
+    const data = await response.json();
+    console.log("Fetched discount data:", data);
+    setDiscountData(data);
+  } catch (error) {
+    console.error('Error fetching discount data:', error.message);
+  }
+};
 
   const handleUpdateProfile = () => {
     // Navigate to update profile page
@@ -104,6 +128,28 @@ function Profile() {
           <label>{t("loyaltyPoints")}</label>
           <div className="field-value">{userData.loyaltyPoints} {t("loyaltyPointsValue")}</div>
         </div>
+        {discountData && (
+  <>
+    <div className="profile-field">
+      <label>{t("loyaltyClass")}</label>
+      <div className="field-value">{discountData.loyaltyClass}</div>
+    </div>
+
+    <div className="profile-field">
+      <label>{t("discountPercentage")}</label>
+      <div className="field-value">{discountData.discountPercentage}%</div>
+    </div>
+
+    <div className="profile-field">
+      <label>{t("discountedPrices")}</label>
+      <div className="field-value">
+        Economy: {discountData.discountedPrices.economyPrice} | 
+        Business: {discountData.discountedPrices.businessPrice} | 
+        First: {discountData.discountedPrices.firstClassPrice}
+      </div>
+    </div>
+  </>
+)}
 
         <div className="profile-field">
           <label>{t("password")}</label>
