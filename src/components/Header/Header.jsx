@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Button from '../Button/Button';  
 import './Header.css';
 import profileImage from '../../assets/profile.png'; 
+import loyaltyImage from '../../assets/loyalty.png';
 
 import { useTranslation } from '../../hooks/useTranslation';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
@@ -50,6 +51,12 @@ const Header = () => {
               alt="Profile"
               className="profile-icon"
               onClick={() => navigate('/profile')}
+            />
+            <img
+              src={loyaltyImage}  
+              alt="Loyalty"
+              className="loyalty-icon"
+              onClick={() => navigate('/customer-loyalty')}
             />
             <Button text={t("logout")} onClick={handleLogout} />
             <LanguageSelector
