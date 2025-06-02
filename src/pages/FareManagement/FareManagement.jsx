@@ -855,7 +855,7 @@ function FareManagement() {
                         <div className="fare-discounts">
                             {tiers.map((tier) => (
                                 <div key={tier} className="discount-input-row">
-                                    <span className={`tier-badge ${tier}`}>
+                                    <span className={`tier-badge-fare-mgmt ${tier}`}>
                                         {tier.charAt(0).toUpperCase() + tier.slice(1)}
                                     </span>
                                     <input
@@ -986,7 +986,7 @@ function FareManagement() {
                         <div className="fare-discounts">
                             {tiers.map((tier) => (
                                 <div key={tier} className="discount-input-row">
-                                    <span className={`tier-badge ${tier}`}>
+                                    <span className={`tier-badge-fare-mgmt ${tier}`}>
                                         {tier.charAt(0).toUpperCase() + tier.slice(1)}
                                     </span>
                                     <input

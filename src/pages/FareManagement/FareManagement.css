@@ -377,7 +377,7 @@
     font-size: 1rem;
 }
 
-.tier-badge {
+.tier-badge-fare-mgmt {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -392,26 +392,26 @@
     justify-content: center;
 }
 
-    .tier-badge.bronze, .tier-badge-display.bronze {
+    .tier-badge-fare-mgmt.bronze, .tier-badge-display.bronze {
         background-color: #cd7f32;
     }
 
-    .tier-badge.silver, .tier-badge-display.silver {
+    .tier-badge-fare-mgmt.silver, .tier-badge-display.silver {
         background-color: #c0c0c0;
         color: #333;
     }
 
-    .tier-badge.gold, .tier-badge-display.gold {
+    .tier-badge-fare-mgmt.gold, .tier-badge-display.gold {
         background-color: #ffd700;
         color: #333;
     }
 
-    .tier-badge.platinum, .tier-badge-display.platinum {
+    .tier-badge-fare-mgmt.platinum, .tier-badge-display.platinum {
         background-color: #e5e4e2;
         color: #333;
     }
 
-    .tier-badge.diamond, .tier-badge-display.diamond {
+    .tier-badge-fare-mgmt.diamond, .tier-badge-display.diamond {
         background-color: #b9f2ff;
         color: #333;
     }
