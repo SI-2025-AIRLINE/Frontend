@@ -1,0 +1,113 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+nav {
+  display: flex;
+  gap: 20px;
+}
+
+.user-info {
+  display: flex; /* Poravnava elemenata u istoj liniji */
+  align-items: center; /* Vertikalno poravnanje */
+}
+
+.profile-icon {
+  width: 40px; /* Veličina ikone */
+  height: 40px; /* Veličina ikone */
+  border-radius: 50%;
+  margin-right: 10px; /* Razmak između ikone i dugmeta */
+  transition: transform 0.3s ease, filter 0.3s ease; /* Dodavanje tranzicije */
+}
+
+.profile-icon:hover {
+  transform: scale(1.1); /* Malo povećanje ikone na hover */
+  filter: brightness(1.2); /* Malo povećanje svetline na hover */
+}
+
+.header-center button, .header-right button {
+  width: 120px; /* Veličina dugmadi, možete je prilagoditi */
+  height: 40px; /* Veličina dugmadi, treba da bude ista kao ikona */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Dodavanje tranzicije */
+  
+}
+
+.header-center button:hover, .header-right button:hover {
+  color: var(--gray-500);
+  background-color: #f0f0f0;
+  border: 0px solid transparent;
+  transform: translateY(-2px); 
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  z-index: 1000;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.header-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.loyalty-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+
+}
+

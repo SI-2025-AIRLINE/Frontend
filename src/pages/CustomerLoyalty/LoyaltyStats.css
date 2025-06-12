@@ -1,0 +1,395 @@
+.loyalty-stats-container {
+  min-height: 70vh;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  padding: 2rem 1rem;
+  position: relative;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden; 
+}
+
+.loyalty-stats-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 85vh; 
+  overflow-y: auto; 
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+
+
+.loyalty-stats-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+ 
+  z-index: 1;
+}
+
+
+
+.loyalty-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.loyalty-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.loyalty-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0a192f;
+  margin: 0;
+}
+
+.current-status-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.status-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0a192f;
+  margin: 0;
+}
+
+.points-badge {
+  background-color: #0a192f;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.tier-badge {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #0a192f;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.loyalty-progress-container {
+  margin: 1.5rem 0;
+}
+
+.loyalty-progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.progress-percentage {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0a192f;
+}
+
+.loyalty-progress-bar {
+  height: 12px;
+  background-color: #e9ecef;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.loyalty-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  position: relative;
+  transition: width 0.6s ease;
+  animation: fillProgress 1.2s ease-out forwards;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5) inset;
+}
+
+.next-tier-marker {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.marker-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 4px;
+}
+
+.marker-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  position: absolute;
+  top: 20px;
+  white-space: nowrap;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tier-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+}
+
+.current-tier-label, .next-tier-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tier-requirements {
+  margin-top: 1.5rem;
+}
+
+.maintain-message, .upgrade-message {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0.75rem 0;
+  color: #333;
+}
+
+.highlight {
+  font-weight: 700;
+  color: #0a192f;
+}
+
+.tier-cards-container {
+  margin-top: 2rem;
+}
+
+.tier-cards-container h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0a192f;
+  margin-bottom: 1.5rem;
+}
+
+.tier-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.loyalty-tier-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.loyalty-tier-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.tier-card-header {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tier-icon {
+  color: #0a192f;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+.tier-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0a192f;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.tier-card-body {
+  padding: 1.25rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tier-requirement {
+  margin-bottom: 1rem;
+}
+
+.requirement-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 0.25rem 0;
+}
+
+.requirement-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0a192f;
+  margin: 0;
+}
+
+.tier-status {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.current-tier-indicator, .next-tier-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.current-tier-indicator {
+  color: #047857;
+  background-color: rgba(4, 120, 87, 0.1);
+}
+
+.next-tier-indicator {
+  color: #6366f1;
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+.current-tier {
+  border: 2px solid;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.next-tier {
+  border: 2px dashed;
+}
+
+@keyframes fillProgress {
+  from { width: 0; }
+  to { width: var(--progress-width); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.current-status-card {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.tier-cards {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@media (max-width: 768px) {
+  .loyalty-stats-content {
+    padding: 1.5rem;
+  }
+  
+  .current-status-card {
+    padding: 1.5rem;
+  }
+  
+  .tier-cards {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  
+  .loyalty-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .status-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .loyalty-progress-bar {
+    height: 10px;
+  }
+  
+  .marker-dot {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .tier-card-header {
+    padding: 1rem;
+  }
+  
+  .tier-card-body {
+    padding: 1rem;
+  }
+  
+  .tier-name {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loyalty-stats-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .loyalty-stats-content {
+    padding: 1rem;
+  }
+  
+  .current-status-card {
+    padding: 1.25rem;
+  }
+  
+  .tier-cards {
+    grid-template-columns: 1fr;
+  }
+}

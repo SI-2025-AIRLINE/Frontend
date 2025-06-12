@@ -1,0 +1,47 @@
+.language-selector-container {
+  position: relative;
+  display: inline-block;
+}
+
+.language-selector-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  margin-left: 12px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.menu-items {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 5px 0;
+  min-width: 140px;
+}
+
+.menu-items button {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.menu-items button:hover {
+  background-color: #f0f0f0;
+}
+
+.checkmark {
+  margin-right: 6px;
+  color: #00ff99;
+  font-weight: bold;
+}
